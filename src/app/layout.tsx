@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
-import { Sora, Syne } from "next/font/google";
+import localFont from "next/font/local";
 import { NavBar } from "@/components/NavBar";
 import { RevealRoot } from "@/components/RevealRoot";
 import "./globals.css";
 
-const syne = Syne({
+const syne = localFont({
+  src: "../fonts/Syne-latin.woff2",
   variable: "--font-syne",
-  subsets: ["latin"],
-  weight: ["600", "700", "800"],
+  weight: "600 800",
   display: "swap",
 });
 
-const sora = Sora({
+const sora = localFont({
+  src: "../fonts/Sora-latin.woff2",
   variable: "--font-sora",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: "400 600",
   display: "swap",
 });
 
