@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -26,13 +25,12 @@ export function NavBar() {
         aria-label="UKSEV LTD"
         onClick={() => setOpen(false)}
       >
-        <Image
+        {/* plain img: next/image width/height attrs were squashing the wide SVG into a square */}
+        <img
           src="/logo/logo-b-light.svg"
           alt=""
-          width={120}
-          height={48}
-          className="h-[40px] w-auto md:h-[48px]"
-          priority
+          className="h-10 w-auto md:h-12"
+          style={{ width: "auto" }}
         />
         <span>
           UKSEV<span className="text-amber">.</span>
