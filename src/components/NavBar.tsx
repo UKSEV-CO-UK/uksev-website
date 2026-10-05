@@ -19,19 +19,19 @@ export function NavBar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 flex h-[68px] items-center justify-between border-b border-hair bg-[rgba(10,12,14,0.72)] px-4 backdrop-blur-[14px] sm:h-[76px] sm:px-7">
+    <header className="fixed inset-x-0 top-0 z-50 flex h-[60px] items-center justify-between border-b border-hair bg-[rgba(10,12,14,0.72)] px-4 backdrop-blur-[14px] md:h-[68px] sm:px-7">
       <Link
         href="/"
-        className="font-display flex items-center gap-2.5 text-[15px] font-bold tracking-[-0.02em] sm:gap-3 sm:text-[16px]"
+        className="font-display flex items-center gap-2.5 text-[15px] font-bold tracking-[-0.02em]"
         aria-label="UKSEV LTD"
         onClick={() => setOpen(false)}
       >
         <Image
           src="/logo/logo-b-light.svg"
           alt=""
-          width={160}
-          height={64}
-          className="h-[48px] w-auto sm:h-[56px] md:h-[64px]"
+          width={120}
+          height={48}
+          className="h-[40px] w-auto md:h-[48px]"
           priority
         />
         <span>
@@ -84,7 +84,7 @@ export function NavBar() {
 
       {open && (
         <nav
-          className="absolute inset-x-0 top-[68px] flex flex-col gap-1 border-b border-hair bg-[rgba(10,12,14,0.96)] px-4 py-4 backdrop-blur-[14px] sm:top-[76px] md:hidden"
+          className="absolute inset-x-0 top-[60px] flex flex-col gap-1 border-b border-hair bg-[rgba(10,12,14,0.96)] px-4 py-4 backdrop-blur-[14px] md:top-[68px] md:hidden"
           aria-label="Mobile"
         >
           {links.map((l) => (
