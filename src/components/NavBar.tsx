@@ -21,7 +21,7 @@ export function NavBar() {
     <header className="fixed inset-x-0 top-0 z-50 flex h-[60px] items-center justify-between border-b border-hair bg-[rgba(10,12,14,0.72)] px-4 backdrop-blur-[14px] md:h-[68px] sm:px-7">
       <Link
         href="/"
-        className="font-display flex items-center gap-2.5 text-[15px] font-bold tracking-[-0.02em]"
+        className="font-display flex items-center text-[15px] font-bold tracking-[-0.02em]"
         aria-label="UKSEV LTD"
         onClick={() => setOpen(false)}
       >
@@ -32,9 +32,6 @@ export function NavBar() {
           className="h-10 w-auto md:h-12"
           style={{ width: "auto" }}
         />
-        <span>
-          UKSEV<span className="text-amber">.</span>
-        </span>
       </Link>
 
       <nav className="hidden items-center gap-[22px] md:flex" aria-label="Primary">
