@@ -13,9 +13,25 @@ Production domain: **https://uksev.co.uk**
 
 - Host: GitHub Pages from [UKSEV-CO-UK/uksev-website](https://github.com/UKSEV-CO-UK/uksev-website)
 - Deploy: GitHub Actions → Pages (source = Actions, not branch)
-- DNS: Cloudflare for `uksev.co.uk` (apex + `www` → Pages)
+- DNS: Cloudflare for `uksev.co.uk` (apex + `www` → Pages). Proxy **off** (grey cloud) until Pages finishes HTTPS.
 - Site base path: `/` (root). Do **not** use `https://uksev-co-uk.github.io/uksev-website/` for visual sign-off if assets are rooted at `/`; that path preview will look broken.
-- Until DNS is live, keep the existing Vercel deploy. After `uksev.co.uk` serves this build, turn Vercel off.
+- Until DNS is live, keep the existing Vercel deploy. After `uksev.co.uk` serves this build, turn Vercel off. Do not wipe old Vercel A/CNAME records until Pages custom domain is green.
+
+### Cloudflare DNS (grey cloud)
+
+| Type | Name | Value |
+|---|---|---|
+| A | `@` | `185.199.108.153` |
+| A | `@` | `185.199.109.153` |
+| A | `@` | `185.199.110.153` |
+| A | `@` | `185.199.111.153` |
+| AAAA | `@` | `2606:50c0:8000::153` |
+| AAAA | `@` | `2606:50c0:8001::153` |
+| AAAA | `@` | `2606:50c0:8002::153` |
+| AAAA | `@` | `2606:50c0:8003::153` |
+| CNAME | `www` | `uksev-co-uk.github.io` |
+
+After the Pages workflow is on `main`, set the Pages custom domain to `uksev.co.uk` and turn on Enforce HTTPS.
 
 Contact:
 
