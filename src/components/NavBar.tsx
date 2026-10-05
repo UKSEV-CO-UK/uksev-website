@@ -41,9 +41,9 @@ export function NavBar() {
 
       <nav className="hidden items-center gap-[22px] md:flex" aria-label="Primary">
         {links.map((l) => {
-          const on =
-            (l.href === "/shop" && pathname === "/shop") ||
-            (l.href === "/" && pathname === "/");
+          const path = pathname.replace(/\/$/, "") || "/";
+          const hrefPath = l.href.split("#")[0] || "/";
+          const on = hrefPath !== "/" && path === hrefPath.replace(/\/$/, "");
           return (
             <Link
               key={l.href}
