@@ -19,6 +19,9 @@ Production domain: **https://uksev.co.uk**
 
 ### Cloudflare DNS (grey cloud)
 
+DNS is on the company Cloudflare account. Agents do not change it — the owner adds these records by hand.
+
+
 | Type | Name | Value |
 |---|---|---|
 | A | `@` | `185.199.108.153` |
