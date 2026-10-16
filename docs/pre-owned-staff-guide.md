@@ -65,6 +65,8 @@
 |---|---|---|
 | 登录已过期，刷新页面重新验证 | Cloudflare 的验证到期了 | 点 Refresh，重新验证邮箱 |
 | Not published，下面有 Reload their version | 你编辑的时候，有同事也改了同一辆车 | 点 Reload their version 看最新内容，或者点 Keep my edits as draft 先把自己的改动存下来，再对一下 |
+| 列表里改状态时提示 Not published，按钮是 Cancel | 同事刚改过这辆车 | 点 Cancel，等列表刷新后再改一次状态 |
+| 底栏红字，比如 Brand missing | 必填项没填或格式不对 | 按提示补上那一项再点 Publish |
 | You’re offline | 手机没网 | 换个信号好的地方再点 Publish，草稿不会丢 |
 | Someone published just now | 同事刚好也在发布 | 不用管，后台会自动基于最新版本重试 |
 | 后台写入凭证失效，请联系管理员 | 后台用来提交的 GitHub 令牌过期了 | 找管理员更换，员工这边没法处理 |
