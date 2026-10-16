@@ -76,6 +76,8 @@ draft: false
 
 ### 后台 `/admin/`
 
+员工操作说明（上架、拍照、改状态、常见提示）见 [`docs/pre-owned-staff-guide.md`](docs/pre-owned-staff-guide.md)。
+
 手机优先的自定义后台。网站本身仍是纯静态，**不含任何令牌**：后台只调同域的 `/admin-api/*`，
 那是一个挂在 Cloudflare Access 后面的 Cloudflare Worker，GitHub 令牌只作为 Worker 的 secret 存在。
 每次 Publish 由 Worker 往 `main` 提交**一次**（`.md` + 新照片 + 删掉的照片），Pages 1–2 分钟后上线。
