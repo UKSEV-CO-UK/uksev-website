@@ -134,4 +134,21 @@ draft: false
 3. **关掉 `*.workers.dev`** 默认地址，Worker 只挂在 `uksev.co.uk/admin-api/*` 这条走 Access 的路由上。
 4. GitHub 令牌只存成 Worker secret，不进仓库、不进站点、不发群里。
 
-Worker 代码由后端维护，不在这个仓库的站点代码里。
+#### Worker 代码和部署
+
+代码在 `worker/`（`index.ts` 路由，`access.ts` 验 Access JWT，`github.ts` 提交），测试在 `tests/admin-worker.test.ts`。
+上面 4 条都在代码和 `worker/wrangler.toml` 里做了：`workers_dev = false`、`preview_urls = false`、只挂 `uksev.co.uk/admin-api/*`；
+`ACCESS_TEAM_DOMAIN` / `ACCESS_AUD` 没填时所有请求都拒绝。`/blobs` 单张上限 4 MB，只收 webp / jpeg / png，`X-Upload-Path` 必须在 `public/uploads/pre-owned/` 下。
+提交信息末尾带 `Published-by: <Access 登录邮箱>`。
+
+部署（Node 22+；CF API 令牌只给 `uksev.co.uk` 的 Workers Scripts 编辑 + Workers Routes 编辑）：
+
+```bash
+npm ci                                   # 仓库根目录，Worker 复用 js-yaml 和 types
+cd worker
+# 先在 wrangler.toml 填 ACCESS_TEAM_DOMAIN 和 ACCESS_AUD（Access 应用里能看到）
+npx wrangler deploy
+npx wrangler secret put GITHUB_TOKEN     # 细粒度令牌，只选本仓库，Contents 读写，90 天
+```
+
+换 GitHub 令牌：重新跑最后一行，不用重新部署。
