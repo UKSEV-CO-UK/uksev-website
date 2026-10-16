@@ -7,9 +7,9 @@ import { SITE } from "@/lib/site";
 
 const links = [
   { href: "/shop", label: "Rides" },
-  { href: "/used", label: "Used E-Bikes" },
   { href: "/#brands", label: "Brands" },
   { href: "/#stock", label: "Stock" },
+  { href: "/pre-owned", label: "Pre-owned" },
   { href: "/#about", label: "About" },
   { href: "/#contact", label: "Contact" },
 ];
