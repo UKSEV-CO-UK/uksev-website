@@ -12,14 +12,17 @@
  * ── HTTP contract (all JSON, same origin, cookies included) ──────────────────────────────
  *  GET  /admin-api/status   → 200 WorkerStatus
  *  GET  /admin-api/bikes    → 200 LoadAllResult            ({ cars: RepoBike[], headSha })
+ *  POST /admin-api/blobs    ← ONE image, raw bytes (Content-Type image/webp | image/jpeg | image/png,
+ *                             X-Upload-Path: public/uploads/pre-owned/<file>) → 200 BlobResponse ({ sha })
  *  POST /admin-api/publish  ← PublishRequest  → 200 PublishResponse ({ commitSha })
+ *                             files: { path, content: utf-8 string | null } | { path, blobSha }
  *  Any failure              → 4xx/5xx WorkerErrorBody      ({ code, message, details? })
  *    409 conflict          details: ConflictDetails (a path in `files` changed on main after baseSha)
  *    409 retry_exhausted   main kept moving; the Worker gave up after its automatic 422 retries
- *    403 forbidden         path outside content/pre-owned/ or public/uploads/pre-owned/, or bad request
+ *    403 forbidden         path (or X-Upload-Path) outside content/pre-owned/ or public/uploads/pre-owned/, or bad request
  *    403 access_expired    Cf-Access-Jwt-Assertion missing / invalid (team key + aud)
  *    502 credential_invalid the Worker's GitHub token is bad, expired or lacks Contents write
- *  Client-side only: offline (network failure), too_large (request body over ~20 MB),
+ *  Client-side only: offline (network failure);
  *  access_expired is also inferred from a redirect / opaque / HTML response or a bare 401/403.
  */
 
@@ -51,8 +54,10 @@ export type WorkerStatus = {
 /** What the pages hand the client. content null = delete that path. Blob = binary (photo), string = UTF-8 text. */
 export type PublishFile = { path: string; content: string | Blob | null };
 
-/** One file on the wire. Photos go as base64; text as utf-8. */
-export type WireFile = { path: string; content: string | null; encoding?: "utf-8" | "base64" };
+/** One file in the publish body: text inline (utf-8; null = delete), or an image uploaded first via /blobs. */
+export type WireFile = { path: string; content: string | null } | { path: string; blobSha: string };
+/** POST /admin-api/blobs 200: the git blob sha GitHub created. */
+export type BlobResponse = { sha: string };
 /** POST /admin-api/publish body */
 export type PublishRequest = { message: string; baseSha: string; files: WireFile[] };
 /** POST /admin-api/publish 200 */
@@ -60,8 +65,8 @@ export type PublishResponse = { commitSha: string };
 
 export type PublishStage = "blobs" | "commit" | "retry" | "done";
 /**
- * Client-side progress. blobs = encoding + uploading the request (done/total = files);
- * commit = request sent, waiting for the Worker; retry = reserved (the Worker retries 422s itself);
+ * Client-side progress. blobs = images uploaded via /blobs (done/total = images, 2 at a time);
+ * commit = /publish sent, waiting for the Worker; retry = reserved (the Worker retries 422s itself);
  * done = committed.
  */
 export type PublishProgress = { stage: PublishStage; done: number; total: number };
@@ -78,9 +83,8 @@ export type AdminErrorCode =
   | "forbidden"
   | "offline"
   | "access_expired"
-  | "credential_invalid"
-  | "too_large";
-const CODES: readonly string[] = ["conflict", "retry_exhausted", "forbidden", "offline", "access_expired", "credential_invalid", "too_large"];
+  | "credential_invalid";
+const CODES: readonly string[] = ["conflict", "retry_exhausted", "forbidden", "offline", "access_expired", "credential_invalid"];
 
 export type ConflictDetails = { paths: string[]; by?: string; at?: string };
 

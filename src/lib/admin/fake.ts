@@ -145,12 +145,13 @@ export async function publish(
     await wait(400);
     throw new AdminApiError("forbidden", "Path not allowed");
   }
-  const writes = files.filter((f) => f.content !== null);
-  const total = writes.length;
+  // Like worker.ts: each image is its own /blobs upload (2 at a time); markdown goes inline with /publish.
+  const images = files.filter((f) => f.content instanceof Blob);
+  const total = images.length;
   onProgress?.({ stage: "blobs", done: 0, total });
-  for (let i = 0; i < total; i++) {
-    await wait(writes[i].content instanceof Blob ? 350 : 150);
-    onProgress?.({ stage: "blobs", done: i + 1, total });
+  for (let i = 0; i < total; i += 2) {
+    await wait(350);
+    onProgress?.({ stage: "blobs", done: Math.min(total, i + 2), total });
   }
   onProgress?.({ stage: "commit", done: 0, total: 1 });
   await wait(700);

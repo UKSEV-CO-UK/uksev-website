@@ -16,7 +16,7 @@ function Steps({ s }: { s: Extract<RunState, { phase: "running" | "done" }> }) {
   const active = s.phase === "done" ? 2 : s.p.stage === "blobs" ? 0 : s.p.stage === "done" ? 2 : 1;
   const blobs = s.phase === "running" && s.p.stage === "blobs" ? s.p : null;
   const label0 = s.phase === "running" && s.photos === 0 ? "Preparing files" : "Uploading photos";
-  const count0 = blobs ? `${blobs.done}/${blobs.total}` : s.blobTotal ? `${s.blobTotal}/${s.blobTotal}` : "";
+  const count0 = blobs?.total ? `${blobs.done}/${blobs.total}` : s.blobTotal ? `${s.blobTotal}/${s.blobTotal}` : "";
   const rows: [string, string][] = [
     [label0, count0],
     ["Committing", active >= 1 ? "1 commit" : ""],
@@ -261,21 +261,6 @@ export function PublishSheet({
             <div>
               <b>The admin isn’t allowed to make this change</b>It can only write listings and their photos.
               {state.message && state.message !== "forbidden" ? ` (${state.message})` : ""}
-            </div>
-          </div>
-          <div className="sbtns">{keep}</div>
-        </>
-      );
-    } else if (c === "too_large") {
-      title = "Too large to publish";
-      sub = "Nothing was published.";
-      inner = (
-        <>
-          <div className="callout amber">
-            <AIcon name="alert" />
-            <div>
-              <b>Too many photos in one go</b>
-              {state.message}
             </div>
           </div>
           <div className="sbtns">{keep}</div>
