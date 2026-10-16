@@ -122,6 +122,9 @@ draft: false
 | 403 | `access_expired` | `Cf-Access-Jwt-Assertion` 缺失或校验失败 |
 | 413 | `too_large` | 请求体超过 Worker 上限（`/blob` 4 MB） |
 | 502 | `credential_invalid` | Worker 的 GitHub 令牌无效、过期或没有 Contents 写权限 |
+| 502 | `github_error` | GitHub 返回了其他错误（例如提交时 ref 冲突以外的 409/422） |
+| 404 | `not_found` | 路径或方法不存在 |
+| 500 | `internal` | Worker 内部异常 |
 
   前端另外推断：网络失败 = `offline`；重定向、opaque 响应、HTML 页面、或没有 JSON 的 401/403 = `access_expired`（Access 会话过期）。
 
