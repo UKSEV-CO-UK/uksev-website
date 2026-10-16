@@ -9,6 +9,7 @@ const links = [
   { href: "/shop", label: "Rides" },
   { href: "/#brands", label: "Brands" },
   { href: "/#stock", label: "Stock" },
+  { href: "/pre-owned", label: "Pre-owned" },
   { href: "/#about", label: "About" },
   { href: "/#contact", label: "Contact" },
 ];
@@ -38,7 +39,8 @@ export function NavBar() {
         {links.map((l) => {
           const path = pathname.replace(/\/$/, "") || "/";
           const hrefPath = l.href.split("#")[0] || "/";
-          const on = hrefPath !== "/" && path === hrefPath.replace(/\/$/, "");
+          const base = hrefPath.replace(/\/$/, "");
+          const on = hrefPath !== "/" && (path === base || path.startsWith(`${base}/`));
           return (
             <Link
               key={l.href}
