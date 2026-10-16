@@ -105,13 +105,12 @@ draft: false
 |---|---|---|---|
 | GET | `/admin-api/status` | – | `{ canWrite: boolean, expiresAt?: string /* ISO，GitHub 令牌到期 */, login?: string }` |
 | GET | `/admin-api/bikes` | – | `{ cars: RepoBike[], headSha: string }`（`RepoBike = { slug, path, data /* 解析后的 frontmatter */, body, updatedAt? }`） |
-| POST | `/admin-api/blobs` | **一张**图片的原始字节，`Content-Type: image/webp`（或 `image/jpeg`/`image/png`），`X-Upload-Path: public/uploads/pre-owned/<文件名>` | `{ sha }`（git blob sha） |
-| POST | `/admin-api/publish` | `{ message, baseSha, files: [{ path, content: string /* utf-8 */ \| null } \| { path, blobSha }] }` | `{ commitSha }` |
+| POST | `/admin-api/blob` | `{ content: string /* base64 */, encoding: "base64" }`，一次一张照片 | `{ sha }` |
+| POST | `/admin-api/publish` | `{ message, baseSha, files: [{ path, sha?, content?: string \| null, encoding?: "utf-8" }] }` | `{ commitSha }` |
 
-- 先传图：每张新照片单独 `POST /admin-api/blobs`（并发 2），拿到 `sha`；再 `POST /admin-api/publish`，`.md` 直接以 utf-8 放在 `content`，
-  照片用 `{ path, blobSha }` 引用，`content: null` = 删除该路径。冲突后重试时已上传的 blob sha 会复用，不重复上传。
-- `/blobs` 也要检查 `X-Upload-Path` 在允许的目录里、类型是图片（建议单张上限 5 MB）。
-- Worker 用 Git Data API 一次提交（tree → commit → 更新 ref，不 force-push）；ref 更新 422 时从新的 head 自动重试，
+- 照片先逐张 `POST /blob` 拿 `sha`，`publish` 里照片只带 `sha`，`.md` 用 `utf-8` 内联，`content: null` = 删除该路径。
+  这样每个 Worker 请求都很小，不会碰到 Worker 的 CPU 上限，上传进度也是真实的。单张照片超过 2.5 MB 前端直接拒绝（`too_large`）。
+- Worker 用 Git Data API 一次提交（blobs → tree → commit → 更新 ref，不 force-push）；ref 更新 422 时从新的 head 自动重试，
   同一辆车的文件在 `baseSha` 之后被改过就返回 `conflict`。
 - 失败统一返回 `{ code, message, details? }`：
 
@@ -119,19 +118,36 @@ draft: false
 |---|---|---|
 | 409 | `conflict` | `details: { paths, by?, at? }`，要写的文件在 `baseSha` 之后被别人改过 |
 | 409 | `retry_exhausted` | `main` 一直在动，自动重试用完 |
-| 403 | `forbidden` | 路径不在允许的目录里，或请求不合法（`/blobs` 非图片也算） |
+| 403 | `forbidden` | 路径不在允许的目录里，或请求不合法 |
 | 403 | `access_expired` | `Cf-Access-Jwt-Assertion` 缺失或校验失败 |
+| 413 | `too_large` | 请求体超过 Worker 上限（`/blob` 4 MB） |
 | 502 | `credential_invalid` | Worker 的 GitHub 令牌无效、过期或没有 Contents 写权限 |
 
   前端另外推断：网络失败 = `offline`；重定向、opaque 响应、HTML 页面、或没有 JSON 的 401/403 = `access_expired`（Access 会话过期）。
 
 #### Worker 部署前必须满足（安全）
 
-1. **只允许写** `content/pre-owned/` 和 `public/uploads/pre-owned/` 下的路径（`/publish` 的 `files[].path` 和 `/blobs` 的 `X-Upload-Path` 都要查）（规范化后检查，拒绝 `..`、绝对路径），其他一律 403 `forbidden`。
+1. **只允许写** `content/pre-owned/` 和 `public/uploads/pre-owned/` 下的路径（`/publish` 的 `files[].path`）（规范化后检查，拒绝 `..`、绝对路径），其他一律 403 `forbidden`。
    这样即使 Access 被绕过，也改不了站点代码和 CI。
 2. **自己校验** `Cf-Access-Jwt-Assertion`：用团队 Access 的公钥（`https://<team>.cloudflareaccess.com/cdn-cgi/access/certs`）验签，
    `aud` 必须等于这条 Access 应用的 AUD，`exp` 未过期；不通过返回 403 `access_expired`，不碰 GitHub。
 3. **关掉 `*.workers.dev`** 默认地址，Worker 只挂在 `uksev.co.uk/admin-api/*` 这条走 Access 的路由上。
 4. GitHub 令牌只存成 Worker secret，不进仓库、不进站点、不发群里。
 
-Worker 代码由后端维护，不在这个仓库的站点代码里。
+#### Worker 代码和部署
+
+代码在 `worker/`（`worker/src/index.ts` 路由，`access.ts` 验 Access JWT，`github.ts` 提交），测试在 `tests/admin-worker.test.ts`。
+上面 4 条都在代码和 `worker/wrangler.toml` 里做了：`workers_dev = false`、只挂 `uksev.co.uk/admin-api/*`，`ACCESS_TEAM_DOMAIN` / `ACCESS_AUD` 没填时所有请求都拒绝。
+提交信息末尾会带 `Published-by: <Access 登录邮箱>`，方便查是谁发的。
+
+部署（需要 CF API 令牌：只给 `uksev.co.uk` 的 Workers Scripts 编辑 + Workers Routes 编辑）：
+
+```bash
+npm ci                                   # 仓库根目录，Worker 复用 js-yaml 和 types
+cd worker
+# 先在 wrangler.toml 填 ACCESS_TEAM_DOMAIN 和 ACCESS_AUD（Access 应用里能看到）
+npx wrangler deploy
+npx wrangler secret put GITHUB_TOKEN     # 细粒度令牌，只选本仓库，Contents 读写，90 天
+```
+
+换令牌：重新跑最后一行即可，不用重新部署。

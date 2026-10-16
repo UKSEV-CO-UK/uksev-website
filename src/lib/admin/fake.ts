@@ -145,7 +145,7 @@ export async function publish(
     await wait(400);
     throw new AdminApiError("forbidden", "Path not allowed");
   }
-  // Like worker.ts: each image is its own /blobs upload (2 at a time); markdown goes inline with /publish.
+  // Like worker.ts: each image is its own /blob upload (3 at a time); markdown goes inline with /publish.
   const images = files.filter((f) => f.content instanceof Blob);
   const total = images.length;
   onProgress?.({ stage: "blobs", done: 0, total });

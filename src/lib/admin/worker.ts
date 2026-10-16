@@ -11,6 +11,7 @@ import {
   type PublishOptions,
   type PublishRequest,
   type PublishResponse,
+  type BlobRequest,
   type BlobResponse,
   type WireFile,
   type WorkerErrorBody,
@@ -19,6 +20,9 @@ import {
 
 export const API_BASE = "/admin-api";
 export const REPO = "UKSEV-CO-UK/uksev-website";
+/** Per photo (already WebP-compressed to ~1 MB by images.ts); the Worker caps a /blob request at 4 MB. */
+export const MAX_PHOTO_BYTES = 2.5 * 1024 * 1024;
+const UPLOAD_CONCURRENCY = 3;
 
 let headSha = "";
 const blobUrls = new Map<string, string>();
@@ -86,7 +90,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
       credentials: "include",
       redirect: "manual",
       cache: "no-store",
-      headers: { accept: "application/json", ...((init.headers as Record<string, string>) ?? {}) },
+      headers: { accept: "application/json", ...(init.headers ?? {}) },
     });
   } catch (e) {
     throw await networkError(e);
@@ -109,48 +113,28 @@ async function networkError(e: unknown): Promise<AdminApiError> {
   return new AdminApiError("offline", e instanceof Error ? e.message : "Network error");
 }
 
-/* ---------------- blobs ---------------- */
+/* ---------------- encoding ---------------- */
 
-/** Images already uploaded in this tab → their git blob sha, so a retry after conflict doesn't re-upload. */
-const blobShas = new WeakMap<Blob, string>();
-export const BLOB_CONCURRENCY = 2;
-
-const imageType = (path: string, b: Blob) =>
-  b.type || (/\.jpe?g$/i.test(path) ? "image/jpeg" : /\.png$/i.test(path) ? "image/png" : "image/webp");
-
-/** POST /admin-api/blobs with the raw image bytes → { sha }. */
-export async function uploadBlob(path: string, b: Blob): Promise<string> {
-  const known = blobShas.get(b);
-  if (known) return known;
-  const r = await request<BlobResponse>("/blobs", {
-    method: "POST",
-    body: b,
-    headers: { "content-type": imageType(path, b), "x-upload-path": path },
-  });
-  if (!r || typeof r.sha !== "string") throw new Error("Unexpected /admin-api/blobs response");
-  blobShas.set(b, r.sha);
-  return r.sha;
+export function bytesToBase64(bytes: Uint8Array): string {
+  let s = "";
+  const CHUNK = 0x8000;
+  for (let i = 0; i < bytes.length; i += CHUNK) s += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+  return btoa(s);
 }
 
-/** Run fn over items with at most `n` in flight; rejects on the first failure (nothing is committed then). */
-export async function pool<T, R>(items: T[], n: number, fn: (x: T, i: number) => Promise<R>): Promise<R[]> {
-  const out = new Array<R>(items.length);
-  let next = 0;
-  let failed = false;
-  const worker = async () => {
-    while (!failed && next < items.length) {
-      const i = next++;
-      try {
-        out[i] = await fn(items[i], i);
-      } catch (e) {
-        failed = true;
-        throw e;
-      }
-    }
-  };
-  await Promise.all(Array.from({ length: Math.min(n, items.length) }, worker));
-  return out;
+export async function toWire(f: PublishFile): Promise<WireFile> {
+  if (f.content === null) return { path: f.path, content: null };
+  if (typeof f.content === "string") return { path: f.path, content: f.content, encoding: "utf-8" };
+  return { path: f.path, content: bytesToBase64(new Uint8Array(await f.content.arrayBuffer())), encoding: "base64" };
 }
+
+const mbs = (n: number) => `${(n / 1024 / 1024).toFixed(1)} MB`;
+export function tooLarge(bytes: number) {
+  return new AdminApiError("too_large", `A photo is ${mbs(bytes)}, over the ${mbs(MAX_PHOTO_BYTES)} limit. Re-add it so it gets compressed.`);
+}
+
+const postJson = <T>(path: string, body: unknown) =>
+  request<T>(path, { method: "POST", body: JSON.stringify(body), headers: { "content-type": "application/json" } });
 
 /* ---------------- AdminApi ---------------- */
 
@@ -165,26 +149,38 @@ export async function loadAll(): Promise<LoadAllResult> {
   return r;
 }
 
+/**
+ * Photos go up one per request (POST /blob → sha), then one small POST /publish makes the single commit.
+ * Keeps every Worker request tiny (CPU limit) and gives real per-photo progress.
+ */
 export async function publish(files: PublishFile[], message: string, { baseSha, onProgress }: PublishOptions): Promise<PublishResponse> {
-  const images = files.filter((f): f is PublishFile & { content: Blob } => f.content instanceof Blob);
+  const photos = files.filter((f): f is PublishFile & { content: Blob } => f.content instanceof Blob);
+  const big = photos.find((f) => f.content.size > MAX_PHOTO_BYTES);
+  if (big) throw tooLarge(big.content.size);
+
   let done = 0;
-  onProgress?.({ stage: "blobs", done, total: images.length });
-  const shas = await pool(images, BLOB_CONCURRENCY, async (f) => {
-    const sha = await uploadBlob(f.path, f.content);
-    onProgress?.({ stage: "blobs", done: ++done, total: images.length });
-    return sha;
-  });
-  const shaOf = new Map(images.map((f, i) => [f.path, shas[i]]));
-  const wire: WireFile[] = files.map((f) =>
-    f.content instanceof Blob ? { path: f.path, blobSha: shaOf.get(f.path)! } : { path: f.path, content: f.content },
-  );
+  onProgress?.({ stage: "blobs", done, total: photos.length });
+  const shas = new Map<string, string>();
+  let next = 0;
+  const worker = async () => {
+    while (next < photos.length) {
+      const f = photos[next++];
+      const wire = await toWire(f);
+      const r = await postJson<BlobResponse>("/blob", { content: wire.content as string, encoding: "base64" } satisfies BlobRequest);
+      if (!r || typeof r.sha !== "string") throw new Error("Unexpected /admin-api/blob response");
+      shas.set(f.path, r.sha);
+      onProgress?.({ stage: "blobs", done: ++done, total: photos.length });
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(UPLOAD_CONCURRENCY, photos.length) }, worker));
 
   onProgress?.({ stage: "commit", done: 0, total: 1 });
-  const r = await request<PublishResponse>("/publish", {
-    method: "POST",
-    body: JSON.stringify({ message, baseSha, files: wire } satisfies PublishRequest),
-    headers: { "content-type": "application/json" },
-  });
+  const wire: WireFile[] = [];
+  for (const f of files) {
+    const sha = shas.get(f.path);
+    wire.push(sha ? { path: f.path, sha } : await toWire(f));
+  }
+  const r = await postJson<PublishResponse>("/publish", { message, baseSha, files: wire } satisfies PublishRequest);
   if (!r || typeof r.commitSha !== "string") throw new Error("Unexpected /admin-api/publish response");
 
   // Show just-published photos from memory until raw.githubusercontent / the site has them.

@@ -10,7 +10,7 @@ export function usePublish() {
   const run = useCallback(
     async (files: PublishFile[], message: string, baseSha: string, viewHref?: string): Promise<string | null> => {
       const photos = files.filter((f) => f.content instanceof Blob).length;
-      const total = photos; // "blobs" counts images uploaded via /admin-api/blobs
+      const total = photos; // "blobs" counts images uploaded via /admin-api/blob
       let retried = false;
       setState({ phase: "running", p: { stage: "blobs", done: 0, total }, retried, photos, blobTotal: total });
       try {

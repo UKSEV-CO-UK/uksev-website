@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { afterEach, describe, it } from "node:test";
 import { AdminApiError, errorCode } from "../src/lib/admin/types";
-import { assetUrl, loadAll, parseResponse, pool, publish, status } from "../src/lib/admin/worker";
+import { MAX_PHOTO_BYTES, assetUrl, bytesToBase64, loadAll, parseResponse, publish, status, toWire } from "../src/lib/admin/worker";
 
 const json = (status: number, body: unknown, extra: Record<string, unknown> = {}) => ({
   status,
@@ -48,18 +48,19 @@ describe("parseResponse", () => {
   });
 });
 
-describe("pool", () => {
-  it("keeps order and caps concurrency", async () => {
-    let live = 0;
-    let peak = 0;
-    const r = await pool([1, 2, 3, 4, 5], 2, async (x) => {
-      peak = Math.max(peak, ++live);
-      await new Promise((ok) => setTimeout(ok, 5));
-      live--;
-      return x * 10;
+describe("encoding", () => {
+  it("base64 matches Buffer for large inputs", () => {
+    const b = new Uint8Array(100_000).map((_, i) => (i * 31) % 256);
+    assert.equal(bytesToBase64(b), Buffer.from(b).toString("base64"));
+  });
+  it("wire files", async () => {
+    assert.deepEqual(await toWire({ path: "a.md", content: "£1" }), { path: "a.md", content: "£1", encoding: "utf-8" });
+    assert.deepEqual(await toWire({ path: "x", content: null }), { path: "x", content: null });
+    assert.deepEqual(await toWire({ path: "p.webp", content: new Blob([new Uint8Array([1, 2, 3])]) }), {
+      path: "p.webp",
+      content: "AQID",
+      encoding: "base64",
     });
-    assert.deepEqual(r, [10, 20, 30, 40, 50]);
-    assert.equal(peak, 2);
   });
 });
 
@@ -89,65 +90,39 @@ describe("client against a mocked Worker", () => {
     assert.equal(assetUrl("/uploads/pre-owned/a.webp"), "https://raw.githubusercontent.com/UKSEV-CO-UK/uksev-website/abc123/public/uploads/pre-owned/a.webp");
   });
 
-  it("publish uploads each image to /blobs, then commits with blobSha refs", async () => {
+  it("publish uploads each photo to /blob, then one /publish with shas", async () => {
     let n = 0;
-    mock((url, init) => {
-      if (url.endsWith("/blobs")) {
-        assert.equal(init?.method, "POST");
-        assert.ok(init?.body instanceof Blob);
-        return ok({ sha: `blob${++n}` });
-      }
-      return ok({ commitSha: "def456" });
-    });
-    const img1 = new Blob([new Uint8Array([255, 0])], { type: "image/webp" });
-    const img2 = new Blob([new Uint8Array([1])], { type: "image/webp" });
-    const files = [
-      { path: "content/pre-owned/a.md", content: "---\nbrand: A\n---\n" },
-      { path: "public/uploads/pre-owned/a-1.webp", content: img1 },
-      { path: "public/uploads/pre-owned/a-2.webp", content: img2 },
-      { path: "public/uploads/pre-owned/old.webp", content: null },
-    ];
+    mock((url) => (url.endsWith("/blob") ? ok({ sha: `${++n}`.padStart(40, "b") }) : ok({ commitSha: "def456" })));
     const stages: string[] = [];
-    const r = await publish(files, "pre-owned: add A", { baseSha: "abc123", onProgress: (p) => stages.push(`${p.stage}:${p.done}/${p.total}`) });
+    const r = await publish(
+      [
+        { path: "content/pre-owned/a.md", content: "---\nbrand: A\n---\n" },
+        { path: "public/uploads/pre-owned/a-1.webp", content: new Blob([new Uint8Array([255, 0])]) },
+        { path: "public/uploads/pre-owned/old.webp", content: null },
+      ],
+      "pre-owned: add A",
+      { baseSha: "abc123", onProgress: (p) => stages.push(`${p.stage}:${p.done}/${p.total}`) },
+    );
     assert.equal(r.commitSha, "def456");
-    const blobCalls = calls.filter((c) => c.url === "/admin-api/blobs");
-    assert.equal(blobCalls.length, 2);
-    assert.equal((blobCalls[0].init?.headers as Record<string, string>)["content-type"], "image/webp");
-    const pub = calls.find((c) => c.url === "/admin-api/publish")!;
-    const body = JSON.parse(String(pub.init?.body));
+    assert.deepEqual(calls.map((c) => c.url), ["/admin-api/blob", "/admin-api/publish"]);
+    assert.deepEqual(JSON.parse(String(calls[0].init?.body)), { content: "/wA=", encoding: "base64" });
+    const body = JSON.parse(String(calls[1].init?.body));
+    assert.equal(calls[1].init?.method, "POST");
     assert.equal(body.baseSha, "abc123");
+    assert.equal(body.message, "pre-owned: add A");
     assert.deepEqual(body.files, [
-      { path: "content/pre-owned/a.md", content: "---\nbrand: A\n---\n" },
-      { path: "public/uploads/pre-owned/a-1.webp", blobSha: "blob1" },
-      { path: "public/uploads/pre-owned/a-2.webp", blobSha: "blob2" },
+      { path: "content/pre-owned/a.md", content: "---\nbrand: A\n---\n", encoding: "utf-8" },
+      { path: "public/uploads/pre-owned/a-1.webp", sha: "1".padStart(40, "b") },
       { path: "public/uploads/pre-owned/old.webp", content: null },
     ]);
-    assert.deepEqual(stages, ["blobs:0/2", "blobs:1/2", "blobs:2/2", "commit:0/1", "done:1/1"]);
-
-    // Conflict, then retry: the images are not uploaded again.
-    mock((url) =>
-      url.endsWith("/blobs")
-        ? ok({ sha: "never" })
-        : new Response(JSON.stringify({ code: "conflict", message: "changed", details: { paths: ["content/pre-owned/a.md"] } }), {
-            status: 409,
-            headers: { "content-type": "application/json" },
-          }),
-    );
-    await assert.rejects(publish(files, "again", { baseSha: "abc123" }), (e) => errorCode(e) === "conflict");
-    assert.equal(calls.filter((c) => c.url === "/admin-api/blobs").length, 0);
+    assert.deepEqual(stages, ["blobs:0/1", "blobs:1/1", "commit:0/1", "done:1/1"]);
   });
 
-  it("a failed blob upload stops before /publish", async () => {
-    mock((url) =>
-      url.endsWith("/blobs")
-        ? new Response(JSON.stringify({ code: "credential_invalid", message: "Bad credentials" }), { status: 502, headers: { "content-type": "application/json" } })
-        : ok({ commitSha: "x" }),
-    );
-    await assert.rejects(
-      publish([{ path: "public/uploads/pre-owned/z.webp", content: new Blob([new Uint8Array([9])]) }], "m", { baseSha: "a" }),
-      (e) => errorCode(e) === "credential_invalid",
-    );
-    assert.equal(calls.filter((c) => c.url === "/admin-api/publish").length, 0);
+  it("publish refuses an uncompressed photo before sending", async () => {
+    mock(() => ok({ commitSha: "x" }));
+    const big = new Blob([new Uint8Array(Math.ceil(MAX_PHOTO_BYTES + 1))]);
+    await assert.rejects(publish([{ path: "public/uploads/pre-owned/big.webp", content: big }], "m", { baseSha: "a" }), (e) => errorCode(e) === "too_large");
+    assert.equal(calls.length, 0);
   });
 
   it("network failure is offline unless the probe shows an Access redirect", async () => {
