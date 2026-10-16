@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { afterEach, describe, it } from "node:test";
 import { AdminApiError, errorCode } from "../src/lib/admin/types";
-import { MAX_BODY_BYTES, assetUrl, bytesToBase64, loadAll, parseResponse, publish, status, toWire } from "../src/lib/admin/worker";
+import { MAX_PHOTO_BYTES, assetUrl, bytesToBase64, loadAll, parseResponse, publish, status, toWire } from "../src/lib/admin/worker";
 
 const json = (status: number, body: unknown, extra: Record<string, unknown> = {}) => ({
   status,
@@ -90,8 +90,9 @@ describe("client against a mocked Worker", () => {
     assert.equal(assetUrl("/uploads/pre-owned/a.webp"), "https://raw.githubusercontent.com/UKSEV-CO-UK/uksev-website/abc123/public/uploads/pre-owned/a.webp");
   });
 
-  it("publish posts the contract body and reports stages", async () => {
-    mock(() => ok({ commitSha: "def456" }));
+  it("publish uploads each photo to /blob, then one /publish with shas", async () => {
+    let n = 0;
+    mock((url) => (url.endsWith("/blob") ? ok({ sha: `${++n}`.padStart(40, "b") }) : ok({ commitSha: "def456" })));
     const stages: string[] = [];
     const r = await publish(
       [
@@ -100,22 +101,26 @@ describe("client against a mocked Worker", () => {
         { path: "public/uploads/pre-owned/old.webp", content: null },
       ],
       "pre-owned: add A",
-      { baseSha: "abc123", onProgress: (p) => stages.push(p.stage) },
+      { baseSha: "abc123", onProgress: (p) => stages.push(`${p.stage}:${p.done}/${p.total}`) },
     );
     assert.equal(r.commitSha, "def456");
-    assert.equal(calls[0].url, "/admin-api/publish");
-    assert.equal(calls[0].init?.method, "POST");
-    const body = JSON.parse(String(calls[0].init?.body));
+    assert.deepEqual(calls.map((c) => c.url), ["/admin-api/blob", "/admin-api/publish"]);
+    assert.deepEqual(JSON.parse(String(calls[0].init?.body)), { content: "/wA=", encoding: "base64" });
+    const body = JSON.parse(String(calls[1].init?.body));
+    assert.equal(calls[1].init?.method, "POST");
     assert.equal(body.baseSha, "abc123");
     assert.equal(body.message, "pre-owned: add A");
-    assert.deepEqual(body.files[1], { path: "public/uploads/pre-owned/a-1.webp", content: "/wA=", encoding: "base64" });
-    assert.deepEqual(body.files[2], { path: "public/uploads/pre-owned/old.webp", content: null });
-    assert.deepEqual([stages[0], stages.at(-2), stages.at(-1)], ["blobs", "commit", "done"]);
+    assert.deepEqual(body.files, [
+      { path: "content/pre-owned/a.md", content: "---\nbrand: A\n---\n", encoding: "utf-8" },
+      { path: "public/uploads/pre-owned/a-1.webp", sha: "1".padStart(40, "b") },
+      { path: "public/uploads/pre-owned/old.webp", content: null },
+    ]);
+    assert.deepEqual(stages, ["blobs:0/1", "blobs:1/1", "commit:0/1", "done:1/1"]);
   });
 
-  it("publish refuses bodies over the limit before sending", async () => {
+  it("publish refuses an uncompressed photo before sending", async () => {
     mock(() => ok({ commitSha: "x" }));
-    const big = new Blob([new Uint8Array(Math.ceil(MAX_BODY_BYTES * 0.8))]);
+    const big = new Blob([new Uint8Array(Math.ceil(MAX_PHOTO_BYTES + 1))]);
     await assert.rejects(publish([{ path: "public/uploads/pre-owned/big.webp", content: big }], "m", { baseSha: "a" }), (e) => errorCode(e) === "too_large");
     assert.equal(calls.length, 0);
   });

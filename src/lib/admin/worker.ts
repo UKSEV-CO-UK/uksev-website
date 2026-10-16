@@ -11,6 +11,8 @@ import {
   type PublishOptions,
   type PublishRequest,
   type PublishResponse,
+  type BlobRequest,
+  type BlobResponse,
   type WireFile,
   type WorkerErrorBody,
   type WorkerStatus,
@@ -18,8 +20,9 @@ import {
 
 export const API_BASE = "/admin-api";
 export const REPO = "UKSEV-CO-UK/uksev-website";
-/** Cloudflare's request body limit on small plans is far higher; keep phone uploads sane. */
-export const MAX_BODY_BYTES = 20 * 1024 * 1024;
+/** Per photo (already WebP-compressed to ~1 MB by images.ts); the Worker caps a /blob request at 4 MB. */
+export const MAX_PHOTO_BYTES = 2.5 * 1024 * 1024;
+const UPLOAD_CONCURRENCY = 3;
 
 let headSha = "";
 const blobUrls = new Map<string, string>();
@@ -127,55 +130,11 @@ export async function toWire(f: PublishFile): Promise<WireFile> {
 
 const mbs = (n: number) => `${(n / 1024 / 1024).toFixed(1)} MB`;
 export function tooLarge(bytes: number) {
-  return new AdminApiError(
-    "too_large",
-    `This publish is ${mbs(bytes)}, over the ${mbs(MAX_BODY_BYTES)} limit. Publish fewer photos at a time.`,
-  );
+  return new AdminApiError("too_large", `A photo is ${mbs(bytes)}, over the ${mbs(MAX_PHOTO_BYTES)} limit. Re-add it so it gets compressed.`);
 }
 
-/** Rough wire size before encoding: base64 is 4/3 of the bytes. */
-export const estimateBytes = (files: PublishFile[]) =>
-  files.reduce(
-    (n, f) => n + f.path.length + 64 + (f.content === null ? 0 : typeof f.content === "string" ? f.content.length * 1.1 : (f.content.size * 4) / 3),
-    256,
-  );
-
-/* ---------------- upload with progress ---------------- */
-
-function postWithProgress(url: string, body: string, onUp: (frac: number) => void, onSent: () => void): Promise<RawResponse> {
-  if (typeof XMLHttpRequest === "undefined") {
-    onUp(1);
-    onSent();
-    return fetch(url, {
-      method: "POST",
-      body,
-      credentials: "include",
-      redirect: "manual",
-      headers: { "content-type": "application/json", accept: "application/json" },
-    }).then(fromFetch);
-  }
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", url);
-    xhr.withCredentials = true;
-    xhr.setRequestHeader("content-type", "application/json");
-    xhr.setRequestHeader("accept", "application/json");
-    xhr.upload.onprogress = (ev) => ev.lengthComputable && onUp(ev.loaded / ev.total);
-    xhr.upload.onload = () => onSent();
-    xhr.onload = () => {
-      const end = xhr.responseURL ? new URL(xhr.responseURL, location.href) : null;
-      resolve({
-        status: xhr.status,
-        contentType: xhr.getResponseHeader("content-type"),
-        redirected: !!end && (end.origin !== location.origin || end.pathname !== url),
-        text: xhr.responseText,
-      });
-    };
-    xhr.onerror = () => reject(new TypeError("Network error"));
-    xhr.ontimeout = () => reject(new TypeError("Request timed out"));
-    xhr.send(body);
-  });
-}
+const postJson = <T>(path: string, body: unknown) =>
+  request<T>(path, { method: "POST", body: JSON.stringify(body), headers: { "content-type": "application/json" } });
 
 /* ---------------- AdminApi ---------------- */
 
@@ -190,34 +149,38 @@ export async function loadAll(): Promise<LoadAllResult> {
   return r;
 }
 
+/**
+ * Photos go up one per request (POST /blob → sha), then one small POST /publish makes the single commit.
+ * Keeps every Worker request tiny (CPU limit) and gives real per-photo progress.
+ */
 export async function publish(files: PublishFile[], message: string, { baseSha, onProgress }: PublishOptions): Promise<PublishResponse> {
-  const est = estimateBytes(files);
-  if (est > MAX_BODY_BYTES) throw tooLarge(est);
-  const writes = files.filter((f) => f.content !== null).length;
-  const total = Math.max(writes, 1);
-  onProgress?.({ stage: "blobs", done: 0, total: writes });
-  const wire: WireFile[] = [];
-  for (const f of files) wire.push(await toWire(f));
-  const body = JSON.stringify({ message, baseSha, files: wire } satisfies PublishRequest);
-  const size = new TextEncoder().encode(body).length;
-  if (size > MAX_BODY_BYTES) throw tooLarge(size);
+  const photos = files.filter((f): f is PublishFile & { content: Blob } => f.content instanceof Blob);
+  const big = photos.find((f) => f.content.size > MAX_PHOTO_BYTES);
+  if (big) throw tooLarge(big.content.size);
 
-  let sent = false;
-  let raw: RawResponse;
-  try {
-    raw = await postWithProgress(
-      `${API_BASE}/publish`,
-      body,
-      (frac) => !sent && onProgress?.({ stage: "blobs", done: Math.min(writes, Math.floor(frac * total)), total: writes }),
-      () => {
-        sent = true;
-        onProgress?.({ stage: "commit", done: 0, total: 1 });
-      },
-    );
-  } catch (e) {
-    throw await networkError(e);
+  let done = 0;
+  onProgress?.({ stage: "blobs", done, total: photos.length });
+  const shas = new Map<string, string>();
+  let next = 0;
+  const worker = async () => {
+    while (next < photos.length) {
+      const f = photos[next++];
+      const wire = await toWire(f);
+      const r = await postJson<BlobResponse>("/blob", { content: wire.content as string, encoding: "base64" } satisfies BlobRequest);
+      if (!r || typeof r.sha !== "string") throw new Error("Unexpected /admin-api/blob response");
+      shas.set(f.path, r.sha);
+      onProgress?.({ stage: "blobs", done: ++done, total: photos.length });
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(UPLOAD_CONCURRENCY, photos.length) }, worker));
+
+  onProgress?.({ stage: "commit", done: 0, total: 1 });
+  const wire: WireFile[] = [];
+  for (const f of files) {
+    const sha = shas.get(f.path);
+    wire.push(sha ? { path: f.path, sha } : await toWire(f));
   }
-  const r = parseResponse<PublishResponse>(raw);
+  const r = await postJson<PublishResponse>("/publish", { message, baseSha, files: wire } satisfies PublishRequest);
   if (!r || typeof r.commitSha !== "string") throw new Error("Unexpected /admin-api/publish response");
 
   // Show just-published photos from memory until raw.githubusercontent / the site has them.

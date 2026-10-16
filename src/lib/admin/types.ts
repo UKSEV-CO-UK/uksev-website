@@ -12,14 +12,16 @@
  * ── HTTP contract (all JSON, same origin, cookies included) ──────────────────────────────
  *  GET  /admin-api/status   → 200 WorkerStatus
  *  GET  /admin-api/bikes    → 200 LoadAllResult            ({ cars: RepoBike[], headSha })
- *  POST /admin-api/publish  ← PublishRequest  → 200 PublishResponse ({ commitSha })
+ *  POST /admin-api/blob     ← BlobRequest     → 200 BlobResponse ({ sha })   one photo per request
+ *  POST /admin-api/publish  ← PublishRequest  → 200 PublishResponse ({ commitSha })   files reference blob shas
  *  Any failure              → 4xx/5xx WorkerErrorBody      ({ code, message, details? })
  *    409 conflict          details: ConflictDetails (a path in `files` changed on main after baseSha)
  *    409 retry_exhausted   main kept moving; the Worker gave up after its automatic 422 retries
  *    403 forbidden         path outside content/pre-owned/ or public/uploads/pre-owned/, or bad request
  *    403 access_expired    Cf-Access-Jwt-Assertion missing / invalid (team key + aud)
  *    502 credential_invalid the Worker's GitHub token is bad, expired or lacks Contents write
- *  Client-side only: offline (network failure), too_large (request body over ~20 MB),
+ *    413 too_large         request body over the Worker limit
+ *  Client-side only: offline (network failure), too_large (a photo over MAX_PHOTO_BYTES),
  *  access_expired is also inferred from a redirect / opaque / HTML response or a bare 401/403.
  */
 
@@ -51,8 +53,14 @@ export type WorkerStatus = {
 /** What the pages hand the client. content null = delete that path. Blob = binary (photo), string = UTF-8 text. */
 export type PublishFile = { path: string; content: string | Blob | null };
 
-/** One file on the wire. Photos go as base64; text as utf-8. */
-export type WireFile = { path: string; content: string | null; encoding?: "utf-8" | "base64" };
+/** One photo on the wire: POST /admin-api/blob body and response. */
+export type BlobRequest = { content: string; encoding: "base64" };
+export type BlobResponse = { sha: string };
+/**
+ * One file in a publish. Photos reference a sha from /blob; .md goes inline as utf-8; content null = delete.
+ * (Inline base64 content is still accepted by the Worker but not used by the client.)
+ */
+export type WireFile = { path: string; sha?: string; content?: string | null; encoding?: "utf-8" | "base64" };
 /** POST /admin-api/publish body */
 export type PublishRequest = { message: string; baseSha: string; files: WireFile[] };
 /** POST /admin-api/publish 200 */
@@ -60,7 +68,7 @@ export type PublishResponse = { commitSha: string };
 
 export type PublishStage = "blobs" | "commit" | "retry" | "done";
 /**
- * Client-side progress. blobs = encoding + uploading the request (done/total = files);
+ * Client-side progress. blobs = photos uploaded via /blob (done/total = photos);
  * commit = request sent, waiting for the Worker; retry = reserved (the Worker retries 422s itself);
  * done = committed.
  */
