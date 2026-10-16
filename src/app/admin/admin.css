@@ -1,5 +1,5 @@
 /* Pre-owned admin. Generated from the design mockups in uksev-direction/preowned/src (admin_common.py + build_admin_*.py), scoped under .adm so nothing leaks into the site. */
-.adm{--surface:#12161a;--teal-ink:#7fbcc3;--hair-2:rgba(237,231,220,.2);--muted:#737a7f;--err:#e8735f;min-height:100vh;background:#0c0f12;color:var(--ink);font-size:15px;line-height:1.5}
+.adm{--surface:#12161a;--teal-ink:#7fbcc3;--hair-2:rgba(237,231,220,.2);--muted:#858c91;--err:#ff7f6e;--err-ink:#ff9a8c;min-height:100vh;background:#0c0f12;color:var(--ink);font-size:15px;line-height:1.5}
 .adm button{cursor:pointer;background:none;border:0;padding:0;font:inherit;color:inherit}.adm input,.adm select,.adm textarea{font:inherit;color:inherit}.adm a{color:inherit}
 .adm .d{font-family:var(--font-syne),sans-serif;letter-spacing:-.02em}
 .adm .eyebrow{font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
@@ -25,7 +25,7 @@
 .adm .iconbtn svg{width:18px;height:18px}
 .adm .av{width:32px;height:32px;border-radius:50%;background:#1b2126;border:1px solid var(--hair);display:grid;place-items:center;font-size:11px;font-weight:600;color:var(--ink-2)}
 .adm .seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;padding:3px;border:1px solid var(--hair);border-radius:12px;background:#0c0f12}
-.adm .seg button{min-height:42px;border-radius:9px;font-size:12px;font-weight:500;color:var(--muted);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.adm .seg button{min-height:44px;border-radius:9px;font-size:12px;font-weight:500;color:var(--muted);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
 .adm .seg button i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.8}
 .adm .seg button[aria-pressed=true]{color:var(--ink);background:#1d2328}
 .adm .seg button[data-v=available][aria-pressed=true]{background:rgba(46,107,114,.32);color:#a9dce1}
@@ -257,7 +257,7 @@
 .adm.pg-edit .danger{margin-top:18px;min-height:44px;font-size:12.5px;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
 .adm.pg-edit .save{position:sticky;bottom:0;z-index:60;margin-top:8px;padding:10px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(12,15,18,.95);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--hair)}
 .adm.pg-edit .save .msg{display:flex;justify-content:space-between;align-items:center;gap:16px;font-size:12px;color:var(--muted);margin-bottom:10px}
-.adm.pg-edit .save .msg a{color:#f2a194;display:inline-flex;align-items:center;gap:6px;font-weight:500}
+.adm.pg-edit .save .msg a{color:var(--err-ink);display:inline-flex;align-items:center;gap:6px;font-weight:500}
 .adm.pg-edit .save .msg a svg{width:14px;height:14px}
 .adm.pg-edit .save .btns{display:grid;grid-template-columns:1fr 1.35fr;gap:8px}
 .adm.pg-edit .save .btn{min-height:52px;font-size:11px}
@@ -300,16 +300,16 @@
 .adm.pg-edit .f.warn .help{color:#e7b17c;display:flex;gap:6px;align-items:flex-start}
 .adm.pg-edit .f.warn .help svg{width:14px;height:14px;flex:none;margin-top:1px}
 .adm.pg-edit .mseg{display:grid;grid-template-columns:1fr 1fr;padding:3px;border:1px solid var(--hair);border-radius:12px;background:#0c0f12;margin-bottom:10px}
-.adm.pg-edit .mseg button{min-height:42px;border-radius:9px;font-size:12.5px;font-weight:500;color:var(--muted)}
+.adm.pg-edit .mseg button{min-height:44px;border-radius:9px;font-size:12.5px;font-weight:500;color:var(--muted)}
 .adm.pg-edit .mseg button[aria-pressed=true]{background:#1d2328;color:var(--ink)}
 .adm.pg-edit .note .seg button[data-v=replaced][aria-pressed=true]{background:#232a30;color:var(--ink)}
 .adm.pg-edit .note .txt.need .in{border-color:rgba(232,145,60,.55)}
 .adm.pg-edit .note .txt small{display:block;font-size:11px;color:#e7b17c;margin-top:5px}
 .adm.pg-edit .chips .addc{border-style:dashed;color:var(--ink-2)}
-.adm.pg-edit .save .note2{font-size:11px;color:var(--muted);margin-top:8px;text-align:center}
+.adm.pg-edit .save .note2{font-size:11px;color:var(--muted);margin-top:8px;text-align:center;text-wrap:balance}
 .adm.pg-edit .save .msg .w{color:#e7b17c;display:inline-flex;align-items:center;gap:6px}
 .adm.pg-edit .save .msg .w svg{width:14px;height:14px}
-.adm.pg-edit .save .msg .e{color:#f2a194}
+.adm.pg-edit .save .msg .e{color:var(--err-ink)}
 .adm .scrim{position:fixed;inset:0;z-index:90;background:rgba(5,7,8,.66);display:none;align-items:flex-end;justify-content:center;padding:0}
 .adm .scrim.open{display:flex}
 .adm .scrim .sheet{width:100%;max-width:480px;border-radius:22px 22px 0 0;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
@@ -358,3 +358,17 @@
 .adm .expiry.bad b{color:#f6b8ad}
 .adm .callout.access .refresh{display:flex;width:100%;min-height:44px;margin-top:12px;justify-content:center}
 .adm .callout.access div{flex:1;min-width:0}
+/* ---- UI review fixes (PR #12) ---- */
+/* The sheet's scrim must never sit under the floating "Add listing" button (list page). */
+.adm .scrim.open~.fab,.adm:has(.scrim.open) .fab{display:none}
+/* Edit form is locked while the bike loads; the fieldset itself must not affect layout. */
+.adm fieldset.contents{display:contents;border:0;margin:0;padding:0;min-width:0}
+.adm fieldset.contents:disabled .tile,.adm fieldset.contents:disabled .add,.adm fieldset.contents:disabled .f{opacity:.55}
+/* Photo remove (✕) and drag handle stay 36px visually; hit area grows by 4px each side. */
+.adm.pg-edit .tile .rm,.adm.pg-edit .tile .gr{position:absolute}
+.adm.pg-edit .tile .rm::before,.adm.pg-edit .tile .gr::before{content:'';position:absolute;inset:-4px}
+/* Bottom bar: errors red, warnings amber with an info icon. */
+.adm.pg-edit .save .msg a.e svg{color:var(--err)}
+/* Slug in the edit title reads as a path, not an eyebrow label. */
+.adm.pg-edit .ttl .eyebrow .slug{text-transform:none;letter-spacing:0;font-family:ui-monospace,Menlo,monospace}
+.adm.pg-edit .save .note2 .nw{white-space:nowrap}

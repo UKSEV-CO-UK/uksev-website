@@ -47,6 +47,12 @@ const paths = {
       <circle cx="8" cy="8" r="2" />
     </g>
   ),
+  info: (
+    <g {...S} strokeWidth={1.3}>
+      <circle cx="8" cy="8" r="6" />
+      <path d="M8 7.3v3.6M8 5.1v.1" />
+    </g>
+  ),
   lock: (
     <g {...S} strokeWidth={1.3}>
       <rect x="3" y="7" width="10" height="7" rx="1.5" />

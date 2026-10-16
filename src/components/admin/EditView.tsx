@@ -21,6 +21,7 @@ import { GRADES, GRADE_WORD, STATUS_LABEL, STATUSES, TYPES, TYPE_LABEL, money, t
 import { AIcon } from "./AIcon";
 import { ACCESS_EXPIRED as ACCESS, AccessExpired, DeployBanner, StatusNotice, TopBar, useToast } from "./Chrome";
 import { blobUrl } from "./draftSummary";
+import { humanError } from "./fieldLabels";
 import { PublishSheet } from "./PublishSheet";
 import { usePublish } from "./usePublish";
 
@@ -339,7 +340,7 @@ export function EditView() {
     err(f) ? (
       <div className="help">
         <AIcon name="alert" />
-        {err(f)!.message.replace(/^missing required "(.+?)"$/, "Required to publish")}
+        {/^missing required /.test(err(f)!.message) ? "Required to publish" : humanError(err(f)!)}
       </div>
     ) : hint ? (
       <div className="help">{hint}</div>
@@ -353,7 +354,7 @@ export function EditView() {
         ? "Add at least 1 photo"
         : first.field === "type"
           ? "Choose e-bike or e-scooter"
-          : first.message.replace(/^missing required "(.+?)"$/, "$1 missing")
+          : humanError(first)
     : null;
 
   if (loadErr)
@@ -392,13 +393,29 @@ export function EditView() {
       <DeployBanner />
       <StatusNotice />
       <main className="layout">
-        <div className="form">
+        <div className="form" aria-busy={loading || undefined}>
+          {/* Inputs stay locked until the bike has loaded, so loading never wipes what someone typed. */}
+          <fieldset disabled={loading} className="contents">
           <div className="ttl">
-            <div className="eyebrow">{isNew ? "New listing · not published" : `Editing · /pre-owned/${slug}/`}</div>
+            <div className="eyebrow">
+              {loading && qSlug ? (
+                <>
+                  Editing · <span className="slug">/pre-owned/{qSlug}/</span>
+                </>
+              ) : isNew ? (
+                "New listing · not published"
+              ) : (
+                <>
+                  Editing · <span className="slug">/pre-owned/{slug}/</span>
+                </>
+              )}
+            </div>
             <h1>{loading ? "Loading…" : title}</h1>
             <p>
               <i />
-              {savedAt
+              {loading
+                ? "Fetching the latest version…"
+                : savedAt
                 ? `Saved on this device ${new Date(savedAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} · ${isNew ? "not on the site yet" : "changes not published"}`
                 : isNew
                   ? "Not on the site yet"
@@ -802,6 +819,7 @@ export function EditView() {
               {original ? "Delete listing from the website" : "Discard this draft"}
             </button>
           </section>
+          </fieldset>
         </div>
 
         <aside className="prev">
@@ -842,8 +860,9 @@ export function EditView() {
           <div className="in2">
             <div>
               <div className="msg">
-                {firstLabel ? (
+                {!loading && firstLabel ? (
                   <a
+                    className="e"
                     href="#"
                     onClick={(e) => {
                       e.preventDefault();
@@ -857,14 +876,16 @@ export function EditView() {
                 ) : (
                   <span />
                 )}
-                {battWarn && (
+                {!loading && battWarn && (
                   <span className="w">
-                    <AIcon name="alert" />
+                    <AIcon name="info" />
                     Battery recommended
                   </span>
                 )}
               </div>
-              <div className="note2">Publish updates the website · live in ~1–2 min. Drafts stay on this device.</div>
+              <div className="note2">
+                Publish updates the website · <span className="nw">live in ~1–2 min.</span> Drafts stay on this device.
+              </div>
             </div>
             <div className="btns">
               <button type="button" className="btn" onClick={onSaveDraft} disabled={loading}>

@@ -15,8 +15,15 @@ export type RunState =
 function Steps({ s }: { s: Extract<RunState, { phase: "running" | "done" }> }) {
   const active = s.phase === "done" ? 2 : s.p.stage === "blobs" ? 0 : s.p.stage === "done" ? 2 : 1;
   const blobs = s.phase === "running" && s.p.stage === "blobs" ? s.p : null;
-  const label0 = s.phase === "running" && s.photos === 0 ? "Preparing files" : "Uploading photos";
-  const count0 = blobs?.total ? `${blobs.done}/${blobs.total}` : s.blobTotal ? `${s.blobTotal}/${s.blobTotal}` : "";
+  // Only photos go through /admin-api/blob; the .md travels inline with /publish, so it is never counted here.
+  const photos = s.phase === "running" ? s.photos : s.blobTotal;
+  const label0 = photos === 0 ? "Preparing changes" : "Uploading photos";
+  const count0 =
+    photos === 0
+      ? active >= 1
+        ? "No new photos"
+        : ""
+      : `${active >= 1 ? photos : Math.min(blobs?.done ?? 0, photos)}/${photos}`;
   const rows: [string, string][] = [
     [label0, count0],
     ["Committing", active >= 1 ? "1 commit" : ""],
@@ -32,9 +39,9 @@ function Steps({ s }: { s: Extract<RunState, { phase: "running" | "done" }> }) {
             <span className="mk">{done ? <AIcon name="check" /> : i === active ? <span className="spin" /> : null}</span>
             <span>{n}</span>
             <span className="r">{r}</span>
-            {i === 0 && blobs && (
+            {i === 0 && blobs && photos > 0 && (
               <span className="pb">
-                <i style={{ width: `${blobs.total ? Math.round((blobs.done / blobs.total) * 100) : 0}%` }} />
+                <i style={{ width: `${photos ? Math.round((Math.min(blobs.done, photos) / photos) * 100) : 0}%` }} />
               </span>
             )}
           </li>
@@ -145,16 +152,18 @@ export function PublishSheet({
                 This bike was changed{state.details?.by ? ` by @${state.details.by}` : " by someone else"}
                 {when(state.details?.at)}
               </b>
-              Their version is in the repo. Load it, or keep your edits as a separate draft on this device.
+              {onSaveMine
+                ? "Their version is in the repo. Reload it, or keep your edits as a separate draft on this device."
+                : "Their version is in the repo. Reload it, then change the status again if you still need to."}
             </div>
           </div>
           <div className="sbtns">
             <button className="btn pub one" onClick={onLoadTheirs}>
-              Load their version
+              Reload their version
             </button>
             {onSaveMine ? (
               <button className="btn one" onClick={onSaveMine}>
-                Save mine as draft
+                Keep my edits as draft
               </button>
             ) : (
               <button className="btn one" onClick={onClose}>
