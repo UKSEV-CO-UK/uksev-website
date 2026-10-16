@@ -8,7 +8,7 @@
 2. 第一次会跳到 Cloudflare 的验证页，按页面提示验证（一般是填公司邮箱，再填邮件里的验证码）。只有管理员加进白名单的邮箱才能进。
 3. 验证通过后直接进车辆列表，不用再输密码或令牌。
 
-看到「登录已过期，刷新页面重新验证」：点 Refresh，再验证一次邮箱就行。没发布的草稿还留在这台手机上，不会丢。
+看到 **Session expired · Refresh to sign in again**：点 Refresh，再验证一次邮箱就行。没发布的草稿还留在这台手机上，不会丢。
 
 ## 2. 上架一辆车
 
@@ -63,14 +63,15 @@
 
 | 提示 | 意思 | 怎么办 |
 |---|---|---|
-| 登录已过期，刷新页面重新验证 | Cloudflare 的验证到期了 | 点 Refresh，重新验证邮箱 |
+| Session expired · Refresh to sign in again | Cloudflare 的验证到期了 | 点 Refresh，重新验证邮箱 |
 | Not published，下面有 Reload their version | 你编辑的时候，有同事也改了同一辆车 | 点 Reload their version 看最新内容，或者点 Keep my edits as draft 先把自己的改动存下来，再对一下 |
 | 列表里改状态时提示 Not published，按钮是 Cancel | 同事刚改过这辆车 | 点 Cancel，等列表刷新后再改一次状态 |
+| 在列表里改状态时弹出提示，按钮是 Close | 登录过期、没网或凭证失效，状态没改成（The status wasn’t changed.） | 点 Close，按上面对应那一行处理后再改一次 |
 | 底栏红字，比如 Brand missing | 必填项没填或格式不对 | 按提示补上那一项再点 Publish |
 | You’re offline | 手机没网 | 换个信号好的地方再点 Publish，草稿不会丢 |
 | Someone published just now | 同事刚好也在发布 | 不用管，后台会自动基于最新版本重试 |
-| 后台写入凭证失效，请联系管理员 | 后台用来提交的 GitHub 令牌过期了 | 找管理员更换，员工这边没法处理 |
-| 顶部琥珀色的到期提醒 | 后台令牌 7 天内到期 | 转告管理员 |
+| Publishing credential invalid · Contact your admin. | 后台用来提交的 GitHub 令牌过期了 | 找管理员更换，员工这边没法处理 |
+| 顶部琥珀色横幅 Publishing credential expires in 5 days (22 Oct) | 后台令牌 7 天内到期，天数和日期按实际显示 | 转告管理员 |
 
 ## 管理员备忘
 
