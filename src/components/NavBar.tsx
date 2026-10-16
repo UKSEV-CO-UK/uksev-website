@@ -7,6 +7,7 @@ import { SITE } from "@/lib/site";
 
 const links = [
   { href: "/shop", label: "Rides" },
+  { href: "/used", label: "Used E-Bikes" },
   { href: "/#brands", label: "Brands" },
   { href: "/#stock", label: "Stock" },
   { href: "/#about", label: "About" },
@@ -38,7 +39,8 @@ export function NavBar() {
         {links.map((l) => {
           const path = pathname.replace(/\/$/, "") || "/";
           const hrefPath = l.href.split("#")[0] || "/";
-          const on = hrefPath !== "/" && path === hrefPath.replace(/\/$/, "");
+          const base = hrefPath.replace(/\/$/, "");
+          const on = hrefPath !== "/" && (path === base || path.startsWith(`${base}/`));
           return (
             <Link
               key={l.href}

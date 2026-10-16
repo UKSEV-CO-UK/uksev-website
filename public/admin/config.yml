@@ -1,0 +1,82 @@
+# Sveltia CMS config — https://github.com/sveltia/sveltia-cms
+# Edits commit straight to main; the Pages workflow then rebuilds the site (~2 min).
+backend:
+  name: github
+  repo: UKSEV-CO-UK/uksev-website
+  branch: main
+  # TODO(Panda): replace with the URL of your deployed sveltia-cms-auth Cloudflare Worker
+  # (see README → 二手车后台). Until then, GitHub login on /admin/ will not work.
+  base_url: https://uksev-cms-auth.REPLACE-ME.workers.dev
+  commit_messages:
+    create: "used: add {{slug}}"
+    update: "used: update {{slug}}"
+    delete: "used: remove {{slug}}"
+    uploadMedia: "used: upload {{path}}"
+    deleteMedia: "used: delete {{path}}"
+
+site_url: https://uksev.co.uk
+display_url: https://uksev.co.uk/used/
+logo_url: /logo/logo-b.svg
+
+media_folder: public/uploads/used
+public_folder: /uploads/used
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: "-"
+
+collections:
+  - name: used
+    label: 二手电动车 Used E-Bikes
+    label_singular: 二手车 Used bike
+    folder: content/used
+    extension: md
+    format: frontmatter
+    create: true
+    delete: true
+    # File name = URL: /used/<slug>/
+    slug: "{{brand}}-{{model}}-{{fields.year}}"
+    identifier_field: title
+    summary: "{{title}} · £{{price}} · {{status}}"
+    sortable_fields: [date, price, title, status]
+    preview_path: "used/{{slug}}/"
+    fields:
+      - { name: title, label: 标题 Title, widget: string, hint: "例如 ADO Air 20 Pro — one owner" }
+      - { name: brand, label: 品牌 Brand, widget: string }
+      - { name: model, label: 型号 Model, widget: string }
+      - { name: year, label: 年份 Year, widget: number, value_type: int, min: 2000, max: 2100 }
+      - { name: mileage, label: 里程 Mileage (miles), widget: number, value_type: int, min: 0 }
+      - { name: batteryHealth, label: 电池健康 Battery health (%), widget: number, value_type: int, min: 0, max: 100, required: false }
+      - { name: motor, label: 电机 Motor, widget: string, required: false, hint: "例如 250W rear hub" }
+      - { name: battery, label: 电池 Battery, widget: string, required: false, hint: "例如 36V 9.6Ah" }
+      - { name: price, label: 价格 Price (£), widget: number, value_type: int, min: 0 }
+      - name: condition
+        label: 成色 Condition
+        widget: select
+        options: [Excellent, Good, Fair]
+        default: Good
+      - name: status
+        label: 状态 Status
+        widget: select
+        options:
+          - { label: 在售 Available, value: available }
+          - { label: 已预订 Reserved, value: reserved }
+          - { label: 已售 Sold, value: sold }
+        default: available
+      - { name: location, label: 地点 Location, widget: string, default: Abingdon OX13 }
+      - name: photos
+        label: 照片 Photos
+        label_singular: 照片 Photo
+        widget: list
+        required: false
+        hint: 第一张是封面 / first photo is the cover
+        field: { name: photo, label: 照片 Photo, widget: image }
+      - { name: featured, label: 置顶 Featured, widget: boolean, default: false, required: false }
+      - { name: date, label: 上架日期 Date listed, widget: datetime, format: "YYYY-MM-DD", time_format: false, default: "{{now}}" }
+      - name: draft
+        label: 草稿 Draft (不在正式网站显示 / hidden on live site)
+        widget: boolean
+        default: false
+        required: false
+      - { name: body, label: 描述 Description, widget: markdown, required: false }

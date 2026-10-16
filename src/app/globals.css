@@ -82,3 +82,41 @@ img {
     transform: none;
   }
 }
+
+/* Used e-bike description (markdown from content/used/*.md) */
+.used-body > * + * {
+  margin-top: 0.9em;
+}
+.used-body h2,
+.used-body h3 {
+  font-family: var(--font-syne), sans-serif;
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.used-body h2 {
+  font-size: 1.25rem;
+}
+.used-body h3 {
+  font-size: 1.05rem;
+}
+.used-body strong {
+  color: var(--ink);
+}
+.used-body ul,
+.used-body ol {
+  padding-left: 1.2em;
+}
+.used-body ul {
+  list-style: disc;
+}
+.used-body ol {
+  list-style: decimal;
+}
+.used-body a {
+  color: var(--amber);
+  text-decoration: underline;
+}
+.used-body {
+  overflow-wrap: anywhere;
+}
