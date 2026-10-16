@@ -10,6 +10,7 @@ import { enquireHref, similarHref, whatsappBike, whatsappHref } from "@/lib/preo
 import {
   GRADE_NOTE,
   GRADE_WORD,
+  TYPE_LABEL,
   bikeName,
   money,
   shortDate,
@@ -97,7 +98,7 @@ export default async function PreownedBikePage({ params }: Props) {
             </p>
           )}
           <div className="eyebrow">
-            {b.brand} · {b.year}
+            {TYPE_LABEL[b.type]} · {b.brand} · {b.year}
           </div>
           <h1>{b.model}</h1>
           <div className={`st ${b.status}`}>

@@ -3,6 +3,7 @@ import { enquireHref, similarHref, whatsappBike, whatsappHref } from "@/lib/preo
 import {
   GRADE_WORD,
   STATUS_LABEL,
+  TYPE_LABEL,
   bikeName,
   money,
   monthYear,
@@ -43,7 +44,7 @@ export function PreownedCard({ bike: b }: { bike: PreownedSummary }) {
       </Link>
       <div className="body">
         <div className="eyebrow meta">
-          {b.brand} · {b.year}
+          {TYPE_LABEL[b.type]} · {b.brand} · {b.year}
         </div>
         <h3>
           <Link href={href}>{b.model}</Link>

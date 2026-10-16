@@ -3,10 +3,13 @@
 export const GRADES = ["A", "B", "C"] as const;
 export const STATUSES = ["available", "reserved", "sold"] as const;
 export const INSPECTION_RESULTS = ["pass", "replaced", "note"] as const;
+/** Vehicle type. Missing in a file = "e-bike". */
+export const TYPES = ["e-bike", "e-scooter"] as const;
 
 export type Grade = (typeof GRADES)[number];
 export type Status = (typeof STATUSES)[number];
 export type InspectionResult = (typeof INSPECTION_RESULTS)[number];
+export type VehicleType = (typeof TYPES)[number];
 
 export type Photo = { src: string; caption?: string };
 export type InspectionItem = { item: string; result: InspectionResult; text?: string };
@@ -15,6 +18,8 @@ export type IncludedItem = { item: string; text?: string; included: boolean };
 
 export type PreownedBike = {
   slug: string;
+  /** e-bike (default) or e-scooter */
+  type: VehicleType;
   brand: string;
   model: string;
   year: number;
@@ -62,6 +67,7 @@ export const GRADE_NOTE: Record<Grade, string> = {
   B: "visible wear, fully working, small cosmetic marks.",
   C: "well used, fully working, priced for its wear.",
 };
+export const TYPE_LABEL: Record<VehicleType, string> = { "e-bike": "E-bike", "e-scooter": "E-scooter" };
 export const STATUS_LABEL: Record<Status, string> = {
   available: "Available",
   reserved: "Reserved",

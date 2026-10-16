@@ -4,17 +4,20 @@ import { useMemo, useState, useSyncExternalStore } from "react";
 import {
   GRADES,
   GRADE_WORD,
+  TYPES,
+  TYPE_LABEL,
   newestFirst,
   priceBand,
   type Grade,
   type PreownedSummary,
   type PriceBand,
+  type VehicleType,
 } from "@/lib/preowned-types";
 import { whatsappHref } from "@/lib/preowned-links";
 import { Icon } from "./icons";
 import { PreownedCard } from "./PreownedCard";
 
-type Panel = "brand" | "band" | "grade";
+type Panel = "type" | "brand" | "band" | "grade";
 type Sort = "newest" | "price-asc" | "price-desc";
 
 const BAND_OPTS: [PriceBand | "all", string, string][] = [
@@ -38,6 +41,7 @@ export function PreownedList({ bikes }: { bikes: PreownedSummary[] }) {
   const [brandPick, setBrandPick] = useState<string | null>(null);
   const [band, setBand] = useState<PriceBand | "all">("all");
   const [grade, setGrade] = useState<Grade | "all">("all");
+  const [vtype, setVtype] = useState<VehicleType | "all">("all");
   const [availOnly, setAvailOnly] = useState(false);
   const [panel, setPanel] = useState<Panel | null>(null);
   const [sort, setSort] = useState<Sort>("newest");
@@ -53,6 +57,7 @@ export function PreownedList({ bikes }: { bikes: PreownedSummary[] }) {
   const list = useMemo(() => {
     const f = bikes.filter(
       (b) =>
+        (vtype === "all" || b.type === vtype) &&
         (brand === "all" || b.brand === brand) &&
         (band === "all" || priceBand(b.price) === band) &&
         (grade === "all" || b.grade === grade) &&
@@ -64,7 +69,7 @@ export function PreownedList({ bikes }: { bikes: PreownedSummary[] }) {
       if (s) return s;
       return sort === "price-asc" ? a.price - b.price : b.price - a.price;
     });
-  }, [bikes, brand, band, grade, availOnly, sort]);
+  }, [bikes, vtype, brand, band, grade, availOnly, sort]);
   const soldCount = list.filter((b) => b.status === "sold").length;
 
   const toggle = (p: Panel) => setPanel((cur) => (cur === p ? null : p));
@@ -84,6 +89,10 @@ export function PreownedList({ bikes }: { bikes: PreownedSummary[] }) {
             Available only
           </button>
           <span className="sep" />
+          <button type="button" className="chip dd" aria-expanded={panel === "type"} onClick={() => toggle("type")}>
+            Type <b>{vtype === "all" ? "All" : TYPE_LABEL[vtype]}</b>
+            <Icon name="chev" />
+          </button>
           <button type="button" className="chip dd" aria-expanded={panel === "brand"} onClick={() => toggle("brand")}>
             Brand <b>{brand === "all" ? "All" : brand}</b>
             <Icon name="chev" />
@@ -97,6 +106,16 @@ export function PreownedList({ bikes }: { bikes: PreownedSummary[] }) {
             <Icon name="chev" />
           </button>
         </div>
+        {panel === "type" && (
+          <div className="frow panel">
+            <span className="lab">Type</span>
+            {(["all", ...TYPES] as const).map((v) => (
+              <button key={v} type="button" className="chip opt" aria-pressed={vtype === v} onClick={() => setVtype(v)}>
+                {v === "all" ? "All" : `${TYPE_LABEL[v]}s`}
+              </button>
+            ))}
+          </div>
+        )}
         {panel === "brand" && (
           <div className="frow panel">
             <span className="lab">Brand</span>
