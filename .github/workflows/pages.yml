@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Daily rebuild so sold bikes drop off the list after 30 days (static site). 03:00 UTC.
+  schedule:
+    - cron: "0 3 * * *"
 
 permissions:
   contents: read
