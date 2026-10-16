@@ -337,7 +337,7 @@
 .adm .btn:disabled{opacity:.55;pointer-events:none}
 .adm.pg-list .miss.ok{background:rgba(46,107,114,.14);color:#a9dce1}
 .adm.pg-edit .sublab{font-size:12.5px;font-weight:600;display:block;margin-bottom:8px}
-.adm.pg-edit .gr{width:36px!important;height:36px!important;right:2px!important;bottom:2px!important;touch-action:none;cursor:grab}
+.adm.pg-edit .gr{width:36px!important;height:36px!important;right:4px!important;bottom:4px!important;touch-action:none;cursor:grab}
 .adm.pg-edit .tile.dragging{opacity:.4;box-shadow:0 0 0 2px var(--amber)}
 .adm.pg-edit .tile{touch-action:auto;cursor:default}
 .adm.pg-edit .photos.err .add{border-color:var(--err)}

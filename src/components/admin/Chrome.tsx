@@ -99,8 +99,8 @@ export function DeployBanner() {
   );
 }
 
-export const ACCESS_EXPIRED = "登录已过期，刷新页面重新验证";
-export const CREDENTIAL_INVALID = "后台写入凭证失效，请联系管理员";
+export const ACCESS_EXPIRED = "Session expired · Refresh to sign in again";
+export const CREDENTIAL_INVALID = "Publishing credential invalid · Contact your admin.";
 
 /** Cloudflare Access session gone: the only fix is a reload, which goes through Access again. */
 export function AccessExpired({ style }: { style?: React.CSSProperties }) {
@@ -109,7 +109,7 @@ export function AccessExpired({ style }: { style?: React.CSSProperties }) {
       <AIcon name="lock" />
       <div>
         <b>{ACCESS_EXPIRED}</b>
-        Cloudflare Access session expired. Drafts on this device are kept.
+        Drafts on this device are kept.
         <button className="btn pub refresh" onClick={() => location.reload()}>
           Refresh
         </button>
@@ -135,18 +135,21 @@ export function StatusNotice() {
     <div className="expiry" role="status">
       <AIcon name="alert" />
       <span>
-        <b>后台写入凭证{d === 0 ? "今天" : ` ${d} 天后`}到期</b>（{st.s.expiresAt!.slice(0, 10)}）。请联系管理员在 Worker 里换新的 GitHub 令牌，否则到期后无法发布。
+        <b>Publishing credential expires {d === 0 ? "today" : `in ${d} day${d === 1 ? "" : "s"}`} ({shortDate(st.s.expiresAt!)})</b>. Ask your admin to replace it before then.
       </span>
     </div>
   );
 }
+
+const shortDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "Europe/London" });
 
 function CredStrip() {
   return (
     <div className="expiry bad" role="alert">
       <AIcon name="alert" />
       <span>
-        <b>{CREDENTIAL_INVALID}</b> 现在无法发布，可以先存草稿。
+        <b>{CREDENTIAL_INVALID}</b> You can still save a draft.
       </span>
     </div>
   );

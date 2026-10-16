@@ -19,7 +19,7 @@ import { ImageError, MAX_PHOTOS, mb, processImage } from "@/lib/admin/images";
 import { validateBike, type FieldError } from "@/lib/preowned-schema";
 import { GRADES, GRADE_WORD, STATUS_LABEL, STATUSES, TYPES, TYPE_LABEL, money, type Status } from "@/lib/preowned-types";
 import { AIcon } from "./AIcon";
-import { ACCESS_EXPIRED as ACCESS, AccessExpired, DeployBanner, StatusNotice, TopBar, useToast } from "./Chrome";
+import { ACCESS_EXPIRED as ACCESS, CREDENTIAL_INVALID, AccessExpired, DeployBanner, StatusNotice, TopBar, useToast } from "./Chrome";
 import { blobUrl } from "./draftSummary";
 import { humanError } from "./fieldLabels";
 import { PublishSheet } from "./PublishSheet";
@@ -134,7 +134,7 @@ export function EditView() {
             : c === "offline"
               ? "You’re offline. Connect and reload."
               : c === "credential_invalid"
-                ? "后台写入凭证失效，请联系管理员"
+                ? CREDENTIAL_INVALID
                 : (e as Error).message || "Couldn’t load the listing.",
         );
       } finally {

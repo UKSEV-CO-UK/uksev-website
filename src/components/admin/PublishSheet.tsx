@@ -134,9 +134,12 @@ export function PublishSheet({
       </>
     );
   } else {
+    // On the list page (no onSaveDraft) there is nothing to keep editing: only a status change failed.
+    const onList = !onSaveDraft;
+    const unchanged = "The status wasn’t changed.";
     const keep = (
       <button className="btn" onClick={onClose}>
-        Keep editing
+        {onList ? "Close" : "Keep editing"}
       </button>
     );
     const c = state.code;
@@ -175,7 +178,7 @@ export function PublishSheet({
       );
     } else if (c === "retry_exhausted") {
       title = "Not published";
-      sub = "Your changes are kept on this page.";
+      sub = onList ? unchanged : "Your changes are kept on this page.";
       inner = (
         <>
           <div className="callout red">
@@ -200,8 +203,10 @@ export function PublishSheet({
           <div className="callout grey">
             <AIcon name="alert" />
             <div>
-              <b>No internet connection</b>Your changes and photos are kept on this page. Publish again when you’re back
-              online, or save a draft on this device.
+              <b>No internet connection</b>
+              {onList
+                ? `${unchanged} Try again when you’re back online.`
+                : "Your changes and photos are kept on this page. Publish again when you’re back online, or save a draft on this device."}
             </div>
           </div>
           <div className="sbtns">
@@ -220,8 +225,8 @@ export function PublishSheet({
           <div className="callout red">
             <AIcon name="lock" />
             <div>
-              <b>{ACCESS_EXPIRED}</b>Cloudflare Access session expired.
-              {onSaveDraft ? " Save a draft first if you want to keep your changes, then refresh." : ""}
+              <b>{ACCESS_EXPIRED}</b>
+              {onSaveDraft ? "Save a draft first if you want to keep your changes, then refresh." : unchanged}
             </div>
           </div>
           <div className="sbtns">
@@ -247,7 +252,7 @@ export function PublishSheet({
             <AIcon name="alert" />
             <div>
               <b>{CREDENTIAL_INVALID}</b>The Worker’s GitHub token is invalid or has expired.
-              {onSaveDraft ? " Your changes are kept on this page; save a draft and publish once it’s replaced." : " Try again once it’s replaced."}
+              {onSaveDraft ? " You can still save a draft and publish once it’s replaced." : ` ${unchanged}`}
             </div>
           </div>
           <div className="sbtns">

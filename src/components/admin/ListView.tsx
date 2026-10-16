@@ -8,7 +8,7 @@ import { toMarkdown } from "@/lib/admin/serialize";
 import { normaliseBike, validateBike } from "@/lib/preowned-schema";
 import { STATUS_LABEL, STATUSES, money, shortDate, type Status } from "@/lib/preowned-types";
 import { AIcon } from "./AIcon";
-import { AccessExpired, DeployBanner, StatusNotice, TopBar, shortSha, useToast } from "./Chrome";
+import { AccessExpired, CREDENTIAL_INVALID, DeployBanner, StatusNotice, TopBar, shortSha, useToast } from "./Chrome";
 import { PublishSheet } from "./PublishSheet";
 import { usePublish } from "./usePublish";
 import { draftSummary } from "./draftSummary";
@@ -57,7 +57,7 @@ export function ListView() {
           c === "offline"
             ? "You’re offline. Connect and reload."
             : c === "credential_invalid"
-              ? "后台写入凭证失效，请联系管理员"
+              ? CREDENTIAL_INVALID
               : (e as Error)?.message || "Couldn’t load listings.",
         );
     }
