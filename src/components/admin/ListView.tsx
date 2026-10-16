@@ -7,9 +7,8 @@ import { mdPath, withStatus } from "@/lib/admin/form";
 import { toMarkdown } from "@/lib/admin/serialize";
 import { normaliseBike, validateBike } from "@/lib/preowned-schema";
 import { STATUS_LABEL, STATUSES, money, shortDate, type Status } from "@/lib/preowned-types";
-import type { StoredToken } from "@/lib/admin/token";
 import { AIcon } from "./AIcon";
-import { AccountButton, DeployBanner, ExpiryNotice, TopBar, shortSha, useToast } from "./Chrome";
+import { AccessExpired, DeployBanner, StatusNotice, TopBar, shortSha, useToast } from "./Chrome";
 import { PublishSheet } from "./PublishSheet";
 import { usePublish } from "./usePublish";
 import { draftSummary } from "./draftSummary";
@@ -31,11 +30,12 @@ const updated = (iso?: string) => {
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 };
 
-export function ListView({ auth }: { auth: StoredToken }) {
+export function ListView() {
   const [cars, setCars] = useState<RepoBike[] | null>(null);
   const [headSha, setHeadSha] = useState("");
   const [drafts, setDrafts] = useState<LocalDraft[]>([]);
   const [loadErr, setLoadErr] = useState<string | null>(null);
+  const [accessGone, setAccessGone] = useState(false);
   const [tab, setTab] = useState<Tab>("all");
   const [q, setQ] = useState("");
   const [rows, setRows] = useState<Record<string, RowState>>({});
@@ -51,15 +51,15 @@ export function ListView({ auth }: { auth: StoredToken }) {
       setHeadSha(r.headSha);
     } catch (e) {
       const c = errorCode(e);
-      setLoadErr(
-        c === "offline"
-          ? "You’re offline. Connect and reload."
-          : c === "unauthorized"
-            ? "Your GitHub token has expired or been revoked."
-            : c === "forbidden"
-              ? "This token can’t read the website repo."
-              : "Couldn’t load listings from GitHub.",
-      );
+      if (c === "access_expired") setAccessGone(true);
+      else
+        setLoadErr(
+          c === "offline"
+            ? "You’re offline. Connect and reload."
+            : c === "credential_invalid"
+              ? "后台写入凭证失效，请联系管理员"
+              : (e as Error)?.message || "Couldn’t load listings.",
+        );
     }
     listDrafts()
       .then((d) => setDrafts(d.sort((a, b) => b.savedAt.localeCompare(a.savedAt))))
@@ -124,12 +124,11 @@ export function ListView({ auth }: { auth: StoredToken }) {
             <a className="iconbtn" href="/pre-owned/" target="_blank" rel="noopener noreferrer" aria-label="View site">
               <AIcon name="ext" />
             </a>
-            <AccountButton />
           </>
         }
       />
       <DeployBanner />
-      <ExpiryNotice auth={auth} />
+      <StatusNotice />
       <main className="wrap">
         <div className="hd">
           <div>
@@ -167,6 +166,7 @@ export function ListView({ auth }: { auth: StoredToken }) {
           <span>Updated</span>
           <span />
         </div>
+        {accessGone && <AccessExpired style={{ marginTop: 14 }} />}
         {loadErr && (
           <div className="callout red" style={{ marginTop: 14 }}>
             <AIcon name="alert" />
@@ -174,18 +174,14 @@ export function ListView({ auth }: { auth: StoredToken }) {
               <b>{loadErr}</b>
               <button className="linkbtn" onClick={reload}>
                 Try again
-              </button>{" "}
-              ·{" "}
-              <Link className="linkbtn" href="/admin/?view=account">
-                Update token
-              </Link>
+              </button>
             </div>
           </div>
         )}
-        {!cars && !loadErr && (
+        {!cars && !loadErr && !accessGone && (
           <p className="note">
             <span className="spin" style={{ verticalAlign: -3, marginRight: 8 }} />
-            Loading listings from GitHub…
+            Loading listings…
           </p>
         )}
         <div className="list">

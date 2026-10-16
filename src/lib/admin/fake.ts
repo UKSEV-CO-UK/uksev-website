@@ -1,19 +1,21 @@
 /**
- * In-memory stand-in for publish.ts so the admin can be built and tested
- * before the real GitHub module lands. Nothing leaves the browser.
+ * In-memory stand-in for the Worker client (worker.ts) so the admin can be built, tested
+ * and reviewed without the Worker. Nothing leaves the browser.
  *
- * Simulate failures with ?fake=<flags> on any admin URL (comma-separated, kept
- * for the tab; each error fires once on the next publish):
- *   retry      main moved → automatic retry, then success
- *   conflict   the same listing was changed by @example-colleague
- *   exhausted  retries ran out
- *   offline    network error
- *   expired    401 on publish (and on verifyToken)
- *   readonly   verifyToken → canWrite false; publish → 403
- *   expiry     verifyToken returns expiresAt 5 days from now
- *   slow       5× slower
- *   empty      start with no listings
- *   reset      clear the fake repo state
+ * Turn it on with ?fake (or ?fake=<flags>) on any admin URL; it stays on for the tab.
+ * Flags are comma-separated. One-shot flags fire once on the next publish:
+ *   retry          main moved → automatic retry, then success
+ *   conflict       the same listing was changed by @example-colleague
+ *   exhausted      retries ran out (retry_exhausted)
+ *   offline        network error
+ *   forbidden      Worker refuses the write (path not allowed)
+ * Sticky flags:
+ *   accessexpired  Cloudflare Access session expired: status, bikes and publish all fail (access_expired)
+ *   credinvalid    Worker's GitHub token is bad: status.canWrite false, publish → credential_invalid
+ *   expiringsoon   status.expiresAt is 5 days from now (amber banner)
+ *   slow           5× slower
+ *   empty          start with no listings
+ *   reset          clear the fake repo state (one-shot)
  */
 import { fromMarkdown } from "./serialize";
 import {
@@ -22,20 +24,29 @@ import {
   type PublishFile,
   type PublishOptions,
   type RepoBike,
-  type VerifyResult,
+  type WorkerStatus,
 } from "./types";
 
 const FLAG_KEY = "uksev-fake-flags";
 const STATE_KEY = "uksev-fake-repo";
 type State = { headSha: string; cars: RepoBike[]; touched: Record<string, string> };
 
-let token: string | null = null;
 const blobUrls = new Map<string, string>();
 
+/** True when this tab asked for the fake (?fake or ?fake=<flags>, remembered for the tab). */
+export function fakeEnabled(): boolean {
+  if (typeof window === "undefined") return false;
+  const q = new URLSearchParams(location.search).get("fake");
+  if (q === "off") {
+    sessionStorage.removeItem(FLAG_KEY);
+    return false;
+  }
+  if (q != null) sessionStorage.setItem(FLAG_KEY, q);
+  return sessionStorage.getItem(FLAG_KEY) != null;
+}
 function flags(): Set<string> {
   if (typeof window === "undefined") return new Set();
-  const q = new URLSearchParams(location.search).get("fake");
-  if (q != null) sessionStorage.setItem(FLAG_KEY, q);
+  fakeEnabled();
   return new Set((sessionStorage.getItem(FLAG_KEY) || "").split(",").filter(Boolean));
 }
 function consume(flag: string): boolean {
@@ -93,25 +104,20 @@ function load(): State {
 const save = (s: State) => sessionStorage.setItem(STATE_KEY, JSON.stringify(s));
 
 function guard() {
-  if (!token) throw new AdminApiError("unauthorized", "Not signed in");
+  if (flags().has("accessexpired")) throw new AdminApiError("access_expired", "Cloudflare Access session expired");
 }
 
-export function setToken(t: string | null) {
-  token = t;
-}
-
-export async function verifyToken(t: string): Promise<VerifyResult> {
-  await wait(900);
+export async function status(): Promise<WorkerStatus> {
+  await wait(300);
+  guard();
   const f = flags();
-  if (f.has("offline")) throw new AdminApiError("offline");
-  if (f.has("expired") || !/^(github_pat_|ghp_)\w{10,}/.test(t.trim())) throw new AdminApiError("unauthorized", "Bad credentials");
-  const expiresAt = f.has("expiry") ? new Date(Date.now() + 5 * 86_400_000).toISOString() : undefined;
-  return { login: "example-admin", canWrite: !f.has("readonly"), expiresAt };
+  const expiresAt = f.has("expiringsoon") ? new Date(Date.now() + 5.5 * 86_400_000).toISOString() : new Date(Date.now() + 80 * 86_400_000).toISOString();
+  return { login: "uksev-admin-bot", canWrite: !f.has("credinvalid"), expiresAt };
 }
 
 export async function loadAll(): Promise<LoadAllResult> {
-  guard();
   await wait(500);
+  guard();
   const s = load();
   return { headSha: s.headSha, cars: structuredClone(s.cars) };
 }
@@ -121,20 +127,23 @@ export async function publish(
   message: string,
   { baseSha, onProgress }: PublishOptions,
 ): Promise<{ commitSha: string }> {
-  guard();
   void message;
   const s = load();
   if (consume("offline")) {
     await wait(400);
     throw new AdminApiError("offline", "Failed to fetch");
   }
-  if (consume("expired")) {
+  if (flags().has("accessexpired")) {
     await wait(400);
-    throw new AdminApiError("unauthorized", "Bad credentials");
+    guard();
   }
-  if (flags().has("readonly")) {
+  if (flags().has("credinvalid")) {
     await wait(400);
-    throw new AdminApiError("forbidden", "Resource not accessible by personal access token");
+    throw new AdminApiError("credential_invalid", "Bad credentials");
+  }
+  if (consume("forbidden")) {
+    await wait(400);
+    throw new AdminApiError("forbidden", "Path not allowed");
   }
   const writes = files.filter((f) => f.content !== null);
   const total = writes.length;

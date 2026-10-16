@@ -95,73 +95,6 @@
 .adm .rowstate:empty{display:none}
 @media(min-width:820px){.adm .pubbar{padding-left:max(28px,calc((100% - 1064px)/2));padding-right:max(28px,calc((100% - 1064px)/2))}}
 .adm .rowstate code{font:500 11px ui-monospace,Menlo,monospace;color:var(--ink-2)}
-/* ---- pg-sign ---- */
-.adm.pg-sign .wrap{max-width:480px;margin:0 auto;padding:28px 16px 48px}
-.adm.pg-sign .eyebrow.k{color:var(--amber)}
-.adm.pg-sign h1{font:700 30px/1.08 var(--font-syne),sans-serif;letter-spacing:-.03em;margin-top:10px}
-.adm.pg-sign .lead{font-size:14px;color:var(--ink-2);line-height:1.6;margin-top:12px}
-.adm.pg-sign .req{margin-top:20px;border:1px solid var(--hair);border-radius:16px;background:var(--surface);padding:4px 16px}
-.adm.pg-sign .req div{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--hair);font-size:13px}
-.adm.pg-sign .req div:last-child{border-bottom:0}
-.adm.pg-sign .req dt{color:var(--muted)}
-.adm.pg-sign .req dd{text-align:right;color:var(--ink)}
-.adm.pg-sign .req code{font:500 12px ui-monospace,Menlo,monospace}
-.adm.pg-sign .how{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:13px;font-weight:600;color:var(--ink);border-bottom:0;margin-top:6px}
-.adm.pg-sign .how svg{width:14px;height:14px;color:var(--amber)}
-.adm.pg-sign .f{margin-top:18px}
-.adm.pg-sign .f label{display:block;font-size:12.5px;font-weight:600;margin-bottom:8px}
-.adm.pg-sign .in{display:flex;align-items:center;height:54px;border:1px solid var(--hair-2);border-radius:12px;background:var(--surface);transition:border-color .15s,box-shadow .15s}
-.adm.pg-sign .in:focus-within{border-color:var(--amber);box-shadow:0 0 0 3px rgba(232,145,60,.16)}
-.adm.pg-sign .in input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;padding:0 14px;font:500 15px ui-monospace,Menlo,monospace;letter-spacing:.06em}
-.adm.pg-sign .in input::placeholder{letter-spacing:0;font-family:var(--font-sora),sans-serif;color:var(--muted)}
-.adm.pg-sign .in .eye{width:48px;height:48px;display:grid;place-items:center;color:var(--muted)}
-.adm.pg-sign .in .eye svg{width:18px;height:18px}
-.adm.pg-sign .help{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.5}
-.adm.pg-sign .f.bad .in{border-color:var(--err);box-shadow:0 0 0 3px rgba(232,115,95,.14)}
-.adm.pg-sign .f.good .in{border-color:rgba(127,188,195,.55)}
-.adm.pg-sign .go{width:100%;min-height:54px;margin-top:16px;font-size:11px}
-.adm.pg-sign .go[disabled]{opacity:.55;pointer-events:none}
-.adm.pg-sign .res{margin-top:16px}
-.adm.pg-sign .res:empty{display:none}
-.adm.pg-sign .res .callout{margin-top:0}
-.adm.pg-sign .okcard{border:1px solid rgba(127,188,195,.3);border-radius:16px;background:rgba(46,107,114,.1);padding:14px 16px 6px}
-.adm.pg-sign .okcard .h{display:flex;gap:10px;align-items:center;font-weight:600;font-size:14px;color:#cdeef1}
-.adm.pg-sign .okcard .h svg{width:18px;height:18px;color:var(--teal-ink)}
-.adm.pg-sign .okcard dl div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid rgba(127,188,195,.16);font-size:12.5px;margin-top:0}
-.adm.pg-sign .okcard dl div:first-child{margin-top:10px}
-.adm.pg-sign .okcard dt{color:var(--ink-2)}
-.adm.pg-sign .okcard dd{color:var(--ink);text-align:right;display:flex;gap:6px;align-items:center}
-.adm.pg-sign .okcard dd svg{width:13px;height:13px;color:var(--teal-ink)}
-.adm.pg-sign .okcard code{font:500 12px ui-monospace,Menlo,monospace}
-.adm.pg-sign .store{display:flex;gap:10px;align-items:flex-start;margin-top:22px;padding-top:18px;border-top:1px solid var(--hair);font-size:12px;color:var(--muted);line-height:1.55}
-.adm.pg-sign .store svg{width:15px;height:15px;flex:none;margin-top:1px;color:var(--ink-2)}
-.adm.pg-sign .signed{margin-top:22px;border:1px solid var(--hair);border-radius:16px;background:var(--surface);padding:16px}
-.adm.pg-sign .signed .t{display:flex;align-items:center;gap:12px}
-.adm.pg-sign .signed .av{width:40px;height:40px;font-size:13px}
-.adm.pg-sign .signed b{display:block;font-size:14px;font-weight:600}
-.adm.pg-sign .signed small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
-.adm.pg-sign .signed dl{margin-top:14px}
-.adm.pg-sign .signed dl div{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid var(--hair);font-size:12.5px}
-.adm.pg-sign .signed dt{color:var(--muted)}
-.adm.pg-sign .signed dd{text-align:right}
-.adm.pg-sign .signed code{font:500 12.5px ui-monospace,Menlo,monospace;letter-spacing:.04em}
-.adm.pg-sign .acts{display:grid;gap:8px;margin-top:16px}
-.adm.pg-sign .acts .btn{min-height:52px}
-.adm.pg-sign .signout{color:#f2a194;border-color:rgba(232,115,95,.4)}
-.adm.pg-sign .signout:hover{color:var(--err);border-color:var(--err)}
-.adm.pg-sign .rem{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:16px;min-height:56px;padding:6px 6px 6px 16px;border:1px solid var(--hair);border-radius:14px;background:var(--surface)}
-.adm.pg-sign .rem b{display:block;font-size:13.5px;font-weight:600}
-.adm.pg-sign .rem small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
-.adm.pg-sign .sw{flex:none;width:60px;height:44px;display:grid;place-items:center}
-.adm.pg-sign .sw i{position:relative;display:block;width:46px;height:28px;border-radius:99px;background:rgba(237,231,220,.16);transition:background .2s}
-.adm.pg-sign .sw i::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--ink-2);transition:all .2s}
-.adm.pg-sign .sw[aria-checked=true] i{background:var(--teal)}
-.adm.pg-sign .sw[aria-checked=true] i::after{left:21px;background:var(--ink)}
-.adm.pg-sign .st{display:none}
-.adm.pg-sign body[data-s=saved] .first{display:none}
-.adm.pg-sign body[data-s=saved] .st.saved{display:block}
-@media(min-width:820px){.adm.pg-sign .wrap{padding-top:64px}
-.adm.pg-sign h1{font-size:36px}}
 /* ---- pg-list ---- */
 .adm.pg-list .wrap{max-width:1120px;margin:0 auto;padding:0 16px 120px}
 .adm.pg-list .hd{padding:22px 0 14px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
@@ -377,11 +310,11 @@
 .adm.pg-edit .save .msg .w{color:#e7b17c;display:inline-flex;align-items:center;gap:6px}
 .adm.pg-edit .save .msg .w svg{width:14px;height:14px}
 .adm.pg-edit .save .msg .e{color:#f2a194}
-.adm.pg-edit .scrim{position:fixed;inset:0;z-index:90;background:rgba(5,7,8,.66);display:none;align-items:flex-end;justify-content:center;padding:0}
-.adm.pg-edit .scrim.open{display:flex}
-.adm.pg-edit .scrim .sheet{width:100%;max-width:480px;border-radius:22px 22px 0 0;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
-@media(min-width:960px){.adm.pg-edit .scrim{align-items:center}
-.adm.pg-edit .scrim .sheet{border-radius:22px}
+.adm .scrim{position:fixed;inset:0;z-index:90;background:rgba(5,7,8,.66);display:none;align-items:flex-end;justify-content:center;padding:0}
+.adm .scrim.open{display:flex}
+.adm .scrim .sheet{width:100%;max-width:480px;border-radius:22px 22px 0 0;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
+@media(min-width:960px){.adm .scrim{align-items:center}
+.adm .scrim .sheet{border-radius:22px}
 .adm.pg-edit .save .note2{text-align:left;margin:4px 0 0}}
 @keyframes adm-shake{20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
 .adm.pg-edit .shake{animation:adm-shake .35s}
@@ -403,8 +336,6 @@
 .adm .seg button:disabled{cursor:default}
 .adm .btn:disabled{opacity:.55;pointer-events:none}
 .adm.pg-list .miss.ok{background:rgba(46,107,114,.14);color:#a9dce1}
-.adm.pg-sign .f.exp .in input{font-family:inherit;letter-spacing:0;color-scheme:dark}
-.adm.pg-sign .callout{margin-top:0}
 .adm.pg-edit .sublab{font-size:12.5px;font-weight:600;display:block;margin-bottom:8px}
 .adm.pg-edit .gr{width:36px!important;height:36px!important;right:2px!important;bottom:2px!important;touch-action:none;cursor:grab}
 .adm.pg-edit .tile.dragging{opacity:.4;box-shadow:0 0 0 2px var(--amber)}
@@ -423,3 +354,7 @@
 @keyframes adm-indet{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
 .adm.pg-edit .danger{display:inline-flex;align-items:center}
 @media(min-width:820px){.adm .expiry{padding-left:max(28px,calc((100% - 1064px)/2));padding-right:max(28px,calc((100% - 1064px)/2))}}
+.adm .expiry.bad{background:rgba(232,115,95,.1);color:#f2a194}
+.adm .expiry.bad b{color:#f6b8ad}
+.adm .callout.access .refresh{display:flex;width:100%;min-height:44px;margin-top:12px;justify-content:center}
+.adm .callout.access div{flex:1;min-width:0}

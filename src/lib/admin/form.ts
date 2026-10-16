@@ -4,7 +4,11 @@ import type { Grade, InspectionResult, Status, VehicleType } from "../preowned-t
 import type { DraftPhoto } from "./drafts";
 import { toMarkdown } from "./serialize";
 import type { PublishFile, RepoBike } from "./types";
-import { todayIso } from "./token";
+
+export function todayIso(d = new Date()) {
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
 
 export const CONTENT_DIR = "content/pre-owned";
 export const UPLOAD_DIR = "/uploads/pre-owned";

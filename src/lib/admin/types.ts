@@ -1,7 +1,26 @@
 /**
- * Contract between the admin pages and the GitHub publish module.
- * The real module (src/lib/admin/publish.ts, backend) and the fake (fake.ts)
- * both implement `AdminApi`. Pure types + one error class: no imports from either.
+ * Contract between the admin pages and the publish layer.
+ *
+ * The site never holds a GitHub token. The admin talks to a Cloudflare Worker routed at
+ * same-origin `/admin-api/*` behind Cloudflare Access; the Worker holds the GitHub token as a
+ * secret and does the commits. The Worker itself is owned by backend; this file is the HTTP
+ * contract it must match (also in README → 后台 `/admin/`).
+ *
+ * Both the real client (worker.ts) and the stand-in (fake.ts) implement `AdminApi`.
+ * Pure types + one error class: no imports from either.
+ *
+ * ── HTTP contract (all JSON, same origin, cookies included) ──────────────────────────────
+ *  GET  /admin-api/status   → 200 WorkerStatus
+ *  GET  /admin-api/bikes    → 200 LoadAllResult            ({ cars: RepoBike[], headSha })
+ *  POST /admin-api/publish  ← PublishRequest  → 200 PublishResponse ({ commitSha })
+ *  Any failure              → 4xx/5xx WorkerErrorBody      ({ code, message, details? })
+ *    409 conflict          details: ConflictDetails (a path in `files` changed on main after baseSha)
+ *    409 retry_exhausted   main kept moving; the Worker gave up after its automatic 422 retries
+ *    403 forbidden         path outside content/pre-owned/ or public/uploads/pre-owned/, or bad request
+ *    403 access_expired    Cf-Access-Jwt-Assertion missing / invalid (team key + aud)
+ *    502 credential_invalid the Worker's GitHub token is bad, expired or lacks Contents write
+ *  Client-side only: offline (network failure), too_large (request body over ~20 MB),
+ *  access_expired is also inferred from a redirect / opaque / HTML response or a bare 401/403.
  */
 
 /** One bike file as it is on main: frontmatter parsed to an object, markdown body as text. */
@@ -19,11 +38,32 @@ export type RepoBike = {
 
 export type LoadAllResult = { cars: RepoBike[]; headSha: string };
 
-/** content null = delete that path. Blob = binary (photo), string = UTF-8 text. */
+/** GET /admin-api/status */
+export type WorkerStatus = {
+  /** false = the Worker's GitHub token can't write (bad/expired/read-only). */
+  canWrite: boolean;
+  /** ISO date-time the Worker's GitHub token expires (github-authentication-token-expiration), if known. */
+  expiresAt?: string | null;
+  /** GitHub login the token belongs to, for display only. */
+  login?: string;
+};
+
+/** What the pages hand the client. content null = delete that path. Blob = binary (photo), string = UTF-8 text. */
 export type PublishFile = { path: string; content: string | Blob | null };
 
+/** One file on the wire. Photos go as base64; text as utf-8. */
+export type WireFile = { path: string; content: string | null; encoding?: "utf-8" | "base64" };
+/** POST /admin-api/publish body */
+export type PublishRequest = { message: string; baseSha: string; files: WireFile[] };
+/** POST /admin-api/publish 200 */
+export type PublishResponse = { commitSha: string };
+
 export type PublishStage = "blobs" | "commit" | "retry" | "done";
-/** blobs: done/total = blobs created so far / non-null files. commit/retry/done: done=total=1 is fine. */
+/**
+ * Client-side progress. blobs = encoding + uploading the request (done/total = files);
+ * commit = request sent, waiting for the Worker; retry = reserved (the Worker retries 422s itself);
+ * done = committed.
+ */
 export type PublishProgress = { stage: PublishStage; done: number; total: number };
 
 export type PublishOptions = {
@@ -32,25 +72,20 @@ export type PublishOptions = {
   onProgress?: (p: PublishProgress) => void;
 };
 
-export type VerifyResult = {
-  login: string;
-  canWrite: boolean;
-  /** ISO date-time if GitHub exposes it (github-authentication-token-expiration header); else undefined/null. */
-  expiresAt?: string | null;
-};
-
-/**
- * Errors the pages react to. Any thrown value with one of these `code`s works
- * (instanceof is not required), so publish.ts may use its own Error subclass.
- *  - conflict:        a path in `files` was changed on main after baseSha (details.paths, details.by?, details.at?)
- *  - retry_exhausted: main kept moving, gave up after N automatic retries
- *  - unauthorized:    401 (token expired / revoked)
- *  - forbidden:       403/404 on the repo (no Contents write or no repo access)
- *  - offline:         network failure (fetch TypeError / navigator.onLine false)
- */
-export type AdminErrorCode = "conflict" | "retry_exhausted" | "unauthorized" | "forbidden" | "offline";
+export type AdminErrorCode =
+  | "conflict"
+  | "retry_exhausted"
+  | "forbidden"
+  | "offline"
+  | "access_expired"
+  | "credential_invalid"
+  | "too_large";
+const CODES: readonly string[] = ["conflict", "retry_exhausted", "forbidden", "offline", "access_expired", "credential_invalid", "too_large"];
 
 export type ConflictDetails = { paths: string[]; by?: string; at?: string };
+
+/** Error body the Worker returns with any non-2xx status. */
+export type WorkerErrorBody = { code: AdminErrorCode | string; message?: string; details?: ConflictDetails };
 
 export class AdminApiError extends Error {
   constructor(
@@ -63,19 +98,19 @@ export class AdminApiError extends Error {
   }
 }
 
+export const isAdminErrorCode = (c: unknown): c is AdminErrorCode => typeof c === "string" && CODES.includes(c);
+
 export function errorCode(e: unknown): AdminErrorCode | "unknown" {
   const c = (e as { code?: unknown } | null)?.code;
-  if (c === "conflict" || c === "retry_exhausted" || c === "unauthorized" || c === "forbidden" || c === "offline") return c;
+  if (isAdminErrorCode(c)) return c;
   if (e instanceof TypeError || (typeof navigator !== "undefined" && navigator.onLine === false)) return "offline";
   return "unknown";
 }
 
 export type AdminApi = {
-  /** Token the other calls use (null = signed out). Pages call this on load / sign-in / sign-out. */
-  setToken(token: string | null): void;
-  verifyToken(token: string): Promise<VerifyResult>;
+  status(): Promise<WorkerStatus>;
   loadAll(): Promise<LoadAllResult>;
-  publish(files: PublishFile[], message: string, opts: PublishOptions): Promise<{ commitSha: string }>;
+  publish(files: PublishFile[], message: string, opts: PublishOptions): Promise<PublishResponse>;
   /** URL the admin can show for a repo photo path like /uploads/pre-owned/x.webp (works before the site redeploys). */
   assetUrl(src: string): string;
 };

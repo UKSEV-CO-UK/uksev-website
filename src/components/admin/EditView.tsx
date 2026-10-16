@@ -16,11 +16,10 @@ import {
   type IncludedRow,
 } from "@/lib/admin/form";
 import { ImageError, MAX_PHOTOS, mb, processImage } from "@/lib/admin/images";
-import type { StoredToken } from "@/lib/admin/token";
 import { validateBike, type FieldError } from "@/lib/preowned-schema";
 import { GRADES, GRADE_WORD, STATUS_LABEL, STATUSES, TYPES, TYPE_LABEL, money, type Status } from "@/lib/preowned-types";
 import { AIcon } from "./AIcon";
-import { AccountButton, DeployBanner, ExpiryNotice, TopBar, useToast } from "./Chrome";
+import { ACCESS_EXPIRED as ACCESS, AccessExpired, DeployBanner, StatusNotice, TopBar, useToast } from "./Chrome";
 import { blobUrl } from "./draftSummary";
 import { PublishSheet } from "./PublishSheet";
 import { usePublish } from "./usePublish";
@@ -62,7 +61,7 @@ function Sel({ id, value, onChange, options, placeholder }: { id?: string; value
   );
 }
 
-export function EditView({ auth }: { auth: StoredToken }) {
+export function EditView() {
   const sp = useSearchParams();
   const router = useRouter();
   const qSlug = sp.get("slug");
@@ -129,11 +128,13 @@ export function EditView({ auth }: { auth: StoredToken }) {
       } catch (e) {
         const c = errorCode(e);
         setLoadErr(
-          c === "offline"
-            ? "You’re offline. Connect and reload."
-            : c === "unauthorized"
-              ? "Your GitHub token has expired or been revoked."
-              : (e as Error).message || "Couldn’t load from GitHub.",
+          c === "access_expired"
+            ? ACCESS
+            : c === "offline"
+              ? "You’re offline. Connect and reload."
+              : c === "credential_invalid"
+                ? "后台写入凭证失效，请联系管理员"
+                : (e as Error).message || "Couldn’t load the listing.",
         );
       } finally {
         setLoading(false);
@@ -358,9 +359,12 @@ export function EditView({ auth }: { auth: StoredToken }) {
   if (loadErr)
     return (
       <div className="adm pg-edit">
-        <TopBar back right={<AccountButton />} />
+        <TopBar back />
         <main className="layout">
           <div className="form">
+            {loadErr === ACCESS ? (
+              <AccessExpired style={{ marginTop: 24 }} />
+            ) : (
             <div className="callout red" style={{ marginTop: 24 }}>
               <AIcon name="alert" />
               <div>
@@ -374,6 +378,7 @@ export function EditView({ auth }: { auth: StoredToken }) {
                 </Link>
               </div>
             </div>
+            )}
           </div>
         </main>
       </div>
@@ -383,9 +388,9 @@ export function EditView({ auth }: { auth: StoredToken }) {
   const n = photos.length + busy.length;
   return (
     <div className="adm pg-edit">
-      <TopBar back right={<AccountButton />} />
+      <TopBar back />
       <DeployBanner />
-      <ExpiryNotice auth={auth} />
+      <StatusNotice />
       <main className="layout">
         <div className="form">
           <div className="ttl">
@@ -883,6 +888,10 @@ export function EditView({ auth }: { auth: StoredToken }) {
         }}
         onLoadTheirs={onLoadTheirs}
         onSaveMine={onSaveMine}
+        onSaveDraft={() => {
+          pub.setState(null);
+          onSaveDraft();
+        }}
       />
     </div>
   );

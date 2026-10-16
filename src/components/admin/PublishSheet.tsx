@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import type { AdminErrorCode, ConflictDetails, PublishProgress } from "@/lib/admin/api";
 import { AIcon } from "./AIcon";
-import { shortSha } from "./Chrome";
+import { ACCESS_EXPIRED, CREDENTIAL_INVALID, shortSha } from "./Chrome";
 
 export const REPO = "UKSEV-CO-UK/uksev-website";
 
@@ -56,6 +56,7 @@ export function PublishSheet({
   onRetry,
   onLoadTheirs,
   onSaveMine,
+  onSaveDraft,
   backHref = "/admin/",
 }: {
   state: RunState | null;
@@ -63,6 +64,8 @@ export function PublishSheet({
   onRetry?: () => void;
   onLoadTheirs?: () => void;
   onSaveMine?: () => void;
+  /** Keep the current edits as a draft on this device (edit page only). */
+  onSaveDraft?: () => void;
   backHref?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -200,22 +203,50 @@ export function PublishSheet({
           </div>
         </>
       );
-    } else if (c === "unauthorized") {
-      title = "Sign in again";
+    } else if (c === "access_expired") {
+      title = "Not published";
+      sub = "Nothing was published.";
+      inner = (
+        <>
+          <div className="callout red">
+            <AIcon name="lock" />
+            <div>
+              <b>{ACCESS_EXPIRED}</b>Cloudflare Access session expired.
+              {onSaveDraft ? " Save a draft first if you want to keep your changes, then refresh." : ""}
+            </div>
+          </div>
+          <div className="sbtns">
+            <button className="btn pub" onClick={() => location.reload()}>
+              Refresh
+            </button>
+            {onSaveDraft ? (
+              <button className="btn" onClick={onSaveDraft}>
+                Save draft
+              </button>
+            ) : (
+              keep
+            )}
+          </div>
+        </>
+      );
+    } else if (c === "credential_invalid") {
+      title = "Can’t publish";
       sub = "Nothing was published.";
       inner = (
         <>
           <div className="callout red">
             <AIcon name="alert" />
             <div>
-              <b>Your GitHub token has expired or been revoked</b>Save a draft first if you want to keep your changes, then
-              paste a new token.
+              <b>{CREDENTIAL_INVALID}</b>The Worker’s GitHub token is invalid or has expired.
+              {onSaveDraft ? " Your changes are kept on this page; save a draft and publish once it’s replaced." : " Try again once it’s replaced."}
             </div>
           </div>
           <div className="sbtns">
-            <Link className="btn pub" href="/admin/?view=account">
-              Update token
-            </Link>
+            {onSaveDraft && (
+              <button className="btn pub" onClick={onSaveDraft}>
+                Save draft
+              </button>
+            )}
             {keep}
           </div>
         </>
@@ -228,16 +259,26 @@ export function PublishSheet({
           <div className="callout red">
             <AIcon name="alert" />
             <div>
-              <b>Read-only token: missing Contents write</b>The token needs Contents “Read and write” on{" "}
-              <code style={{ whiteSpace: "nowrap" }}>{REPO}</code>.
+              <b>The admin isn’t allowed to make this change</b>It can only write listings and their photos.
+              {state.message && state.message !== "forbidden" ? ` (${state.message})` : ""}
             </div>
           </div>
-          <div className="sbtns">
-            <Link className="btn pub" href="/admin/?view=account">
-              Update token
-            </Link>
-            {keep}
+          <div className="sbtns">{keep}</div>
+        </>
+      );
+    } else if (c === "too_large") {
+      title = "Too large to publish";
+      sub = "Nothing was published.";
+      inner = (
+        <>
+          <div className="callout amber">
+            <AIcon name="alert" />
+            <div>
+              <b>Too many photos in one go</b>
+              {state.message}
+            </div>
           </div>
+          <div className="sbtns">{keep}</div>
         </>
       );
     } else {

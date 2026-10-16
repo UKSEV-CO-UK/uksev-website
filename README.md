@@ -76,17 +76,59 @@ draft: false
 
 ### 后台 `/admin/`
 
-手机优先的自定义后台，纯前端，没有服务器：每次 Publish 通过 GitHub 接口往 `main` 提交**一次**
-（`.md` + 新照片 + 删掉的照片），Pages 1–2 分钟后上线。`/admin/` 不在导航里，页面带 `noindex`。
+手机优先的自定义后台。网站本身仍是纯静态，**不含任何令牌**：后台只调同域的 `/admin-api/*`，
+那是一个挂在 Cloudflare Access 后面的 Cloudflare Worker，GitHub 令牌只作为 Worker 的 secret 存在。
+每次 Publish 由 Worker 往 `main` 提交**一次**（`.md` + 新照片 + 删掉的照片），Pages 1–2 分钟后上线。
+`/admin/` 不在导航里，页面带 `noindex`。
 
-- **登录：** GitHub 细粒度令牌，只选 `UKSEV-CO-UK/uksev-website`，Contents 读写，建议 90 天。
-  「在这台手机上记住」默认开（localStorage），关掉只存到关标签页（sessionStorage）。到期前 7 天顶部提醒。
-- **页面：** `/admin/`（登录、列表、`?view=account` 账户）、`/admin/edit/`（新建）、`/admin/edit/?slug=<slug>`、`/admin/edit/?draft=<id>`。
+- **谁能打开：** Cloudflare Access 挡 `/admin*` 和 `/admin-api/*`（Panda 在公司 CF 上手动配，需要橙色云，SSL 用 Full）。
+  网站里没有登录页，打开 `/admin/` 直接是车辆列表。
+- **Access 会话过期：** 显示「登录已过期，刷新页面重新验证」+ Refresh 按钮，刷新会重新走 Access。草稿保留在本机。
+- **Worker 的 GitHub 令牌：** 失效时显示「后台写入凭证失效，请联系管理员」；`/admin-api/status` 的 `expiresAt` 在 7 天内时列表顶部出琥珀色提醒。
+  换令牌：在 GitHub 新建细粒度令牌（只选 `UKSEV-CO-UK/uksev-website`，Contents 读写，90 天），更新 Worker 的 secret。
+- **页面：** `/admin/`（列表）、`/admin/edit/`（新建）、`/admin/edit/?slug=<slug>`、`/admin/edit/?draft=<id>`。
 - **照片：** 浏览器里把 JPEG/PNG/HEIC 转成 WebP（长边 2000px，≤1MB），重新编码时去掉 EXIF/定位。最多 20 张，第一张是封面。
 - **校验：** 发布前跑 `validateBike`，和构建同一套规则；不通过就不提交，并滚到第一个出错的字段。
 - **删除：** 删车会在同一次提交里删掉它的照片（别的车还在用的不删）。已售 30 天下架只是不在列表显示，照片保留。
 - **上线状态：** 构建时生成 `/build.json`（`{ "sha": "<GITHUB_SHA>" }`，本地是 `local`），后台每 15 秒查一次，
   等于刚提交的 sha 就显示 Live，5 分钟还没等到就提示「可能部署失败」。
-- **提交层：** 页面只从 `src/lib/admin/api.ts` 引入，现在接的是假的 `fake.ts`（可用 `?fake=retry,conflict,offline,expired,readonly,exhausted,expiry,slow,reset` 模拟各种状态）；
-  真模块 `src/lib/admin/publish.ts` 写好后改 `api.ts` 一行即可。接口见 `src/lib/admin/types.ts`。
-- **测试：** `npm test`（校验规则 + 写出的 Markdown 能被构建正确读回）。
+- **提交层：** 页面只从 `src/lib/admin/api.ts` 引入。真实现是 `worker.ts`（调 `/admin-api/*`）；
+  带 `?fake` 打开（或 `npm run dev`）用内存里的 `fake.ts`，可以用
+  `?fake=retry,conflict,exhausted,offline,forbidden,accessexpired,credinvalid,expiringsoon,slow,empty,reset` 模拟各种状态，`?fake=off` 关掉。
+- **测试：** `npm test`（校验规则、写出的 Markdown 能被构建正确读回、Worker 客户端的请求格式和错误分类）。
+
+#### Worker 接口（后端照这个实现，类型在 `src/lib/admin/types.ts`）
+
+同域、JSON、带 Access cookie（`credentials: "include"`）。前端不跟随重定向（`redirect: "manual"`）。
+
+| 方法 | 路径 | 请求 | 成功 |
+|---|---|---|---|
+| GET | `/admin-api/status` | – | `{ canWrite: boolean, expiresAt?: string /* ISO，GitHub 令牌到期 */, login?: string }` |
+| GET | `/admin-api/bikes` | – | `{ cars: RepoBike[], headSha: string }`（`RepoBike = { slug, path, data /* 解析后的 frontmatter */, body, updatedAt? }`） |
+| POST | `/admin-api/publish` | `{ message, baseSha, files: [{ path, content: string \| null, encoding?: "utf-8" \| "base64" }] }` | `{ commitSha }` |
+
+- `content: null` = 删除该路径；照片用 `base64`，`.md` 用 `utf-8`。请求体超过约 20 MB 前端直接拒绝（`too_large`）。
+- Worker 用 Git Data API 一次提交（blobs → tree → commit → 更新 ref，不 force-push）；ref 更新 422 时从新的 head 自动重试，
+  同一辆车的文件在 `baseSha` 之后被改过就返回 `conflict`。
+- 失败统一返回 `{ code, message, details? }`：
+
+| HTTP | `code` | 含义 |
+|---|---|---|
+| 409 | `conflict` | `details: { paths, by?, at? }`，要写的文件在 `baseSha` 之后被别人改过 |
+| 409 | `retry_exhausted` | `main` 一直在动，自动重试用完 |
+| 403 | `forbidden` | 路径不在允许的目录里，或请求不合法 |
+| 403 | `access_expired` | `Cf-Access-Jwt-Assertion` 缺失或校验失败 |
+| 502 | `credential_invalid` | Worker 的 GitHub 令牌无效、过期或没有 Contents 写权限 |
+
+  前端另外推断：网络失败 = `offline`；重定向、opaque 响应、HTML 页面、或没有 JSON 的 401/403 = `access_expired`（Access 会话过期）。
+
+#### Worker 部署前必须满足（安全）
+
+1. **只允许写** `content/pre-owned/` 和 `public/uploads/pre-owned/` 下的路径（规范化后检查，拒绝 `..`、绝对路径），其他一律 403 `forbidden`。
+   这样即使 Access 被绕过，也改不了站点代码和 CI。
+2. **自己校验** `Cf-Access-Jwt-Assertion`：用团队 Access 的公钥（`https://<team>.cloudflareaccess.com/cdn-cgi/access/certs`）验签，
+   `aud` 必须等于这条 Access 应用的 AUD，`exp` 未过期；不通过返回 403 `access_expired`，不碰 GitHub。
+3. **关掉 `*.workers.dev`** 默认地址，Worker 只挂在 `uksev.co.uk/admin-api/*` 这条走 Access 的路由上。
+4. GitHub 令牌只存成 Worker secret，不进仓库、不进站点、不发群里。
+
+Worker 代码由后端维护，不在这个仓库的站点代码里。

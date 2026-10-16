@@ -1,8 +1,20 @@
 /**
  * The ONLY place the admin pages import the publish layer from.
- * Switching to the real GitHub module is this one line: "./fake" → "./publish".
- * publish.ts must export these five functions with the signatures in types.ts (AdminApi).
+ * Real: worker.ts → same-origin /admin-api/* (Cloudflare Worker behind Access, holds the GitHub token).
+ * Fake: fake.ts, in-memory, when the tab opened an admin URL with ?fake[=flags]
+ *       (or always under `next dev`, unless ?fake=off).
  */
-export { setToken, verifyToken, loadAll, publish, assetUrl } from "./fake";
+import * as fake from "./fake";
+import type { PublishFile, PublishOptions } from "./types";
+import * as worker from "./worker";
+
+const impl = () => (fake.fakeEnabled() || (process.env.NODE_ENV === "development" && !isOff()) ? fake : worker);
+const isOff = () => typeof window !== "undefined" && new URLSearchParams(location.search).get("fake") === "off";
+
+export const status = () => impl().status();
+export const loadAll = () => impl().loadAll();
+export const publish = (files: PublishFile[], message: string, opts: PublishOptions) => impl().publish(files, message, opts);
+export const assetUrl = (src: string) => impl().assetUrl(src);
+export const usingFake = () => impl() === fake;
 
 export * from "./types";

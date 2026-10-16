@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ago, fetchSiteSha, markLive, POLL_MS, readLastPublish, stateFor, type DeployState } from "@/lib/admin/deploy";
-import { daysLeft, type StoredToken } from "@/lib/admin/token";
+import { daysLeft, useWorkerStatus } from "./useWorkerStatus";
 import { AIcon } from "./AIcon";
 
 export function TopBar({ right, back }: { right?: React.ReactNode; back?: boolean }) {
@@ -21,14 +21,6 @@ export function TopBar({ right, back }: { right?: React.ReactNode; back?: boolea
       </div>
       <div className="r">{right}</div>
     </header>
-  );
-}
-
-export function AccountButton() {
-  return (
-    <Link className="iconbtn" href="/admin/?view=account" aria-label="Account and token">
-      <AIcon name="key" />
-    </Link>
   );
 }
 
@@ -107,24 +99,55 @@ export function DeployBanner() {
   );
 }
 
-/** Amber strip when the token expires within 7 days (or already has). */
-export function ExpiryNotice({ auth }: { auth: StoredToken | null | undefined }) {
-  const d = daysLeft(auth?.expiresAt);
-  if (d == null || d > 7) return null;
+export const ACCESS_EXPIRED = "登录已过期，刷新页面重新验证";
+export const CREDENTIAL_INVALID = "后台写入凭证失效，请联系管理员";
+
+/** Cloudflare Access session gone: the only fix is a reload, which goes through Access again. */
+export function AccessExpired({ style }: { style?: React.CSSProperties }) {
   return (
-    <div className="expiry">
+    <div className="callout red access" role="alert" style={style}>
+      <AIcon name="lock" />
+      <div>
+        <b>{ACCESS_EXPIRED}</b>
+        Cloudflare Access session expired. Drafts on this device are kept.
+        <button className="btn pub refresh" onClick={() => location.reload()}>
+          Refresh
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Strip under the top bar from GET /admin-api/status:
+ *  - red when the Worker's GitHub token can't write
+ *  - amber when it expires within 7 days
+ */
+export function StatusNotice() {
+  const st = useWorkerStatus();
+  if (st.k === "error" && st.code === "credential_invalid") return <CredStrip />;
+  if (st.k !== "ok") return null;
+  if (!st.s.canWrite) return <CredStrip />;
+  const d = daysLeft(st.s.expiresAt);
+  if (d == null || d > 7) return null;
+  if (d < 0) return <CredStrip />;
+  return (
+    <div className="expiry" role="status">
       <AIcon name="alert" />
       <span>
-        {d < 0 ? (
-          <b>Your GitHub token has expired.</b>
-        ) : (
-          <>
-            <b>Your GitHub token expires {d === 0 ? "today" : `in ${d} day${d === 1 ? "" : "s"}`}</b> ({auth!.expiresAt!.slice(0, 10)}).
-          </>
-        )}{" "}
-        Create a new one and replace it.
+        <b>后台写入凭证{d === 0 ? "今天" : ` ${d} 天后`}到期</b>（{st.s.expiresAt!.slice(0, 10)}）。请联系管理员在 Worker 里换新的 GitHub 令牌，否则到期后无法发布。
       </span>
-      <Link href="/admin/?view=account">Replace</Link>
+    </div>
+  );
+}
+
+function CredStrip() {
+  return (
+    <div className="expiry bad" role="alert">
+      <AIcon name="alert" />
+      <span>
+        <b>{CREDENTIAL_INVALID}</b> 现在无法发布，可以先存草稿。
+      </span>
     </div>
   );
 }
