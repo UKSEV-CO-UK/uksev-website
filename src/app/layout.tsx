@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: "%s — UKSEV",
   },
   description:
-    "UKSEV LTD — electric bikes from Steventon Storage Facility, Abingdon. Local stock, guide prices, enquire to confirm.",
+    "UKSEV LTD — electric bikes from our UK warehouse. Local stock, guide prices, enquire to confirm.",
 };
 
 export default function RootLayout({

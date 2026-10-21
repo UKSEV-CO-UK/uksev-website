@@ -5,8 +5,6 @@ export const SITE = {
   whatsapp: "https://wa.me/44752163699",
   email: "Tonysun@uksev.co.uk",
   emailHref: "mailto:Tonysun@uksev.co.uk",
-  address: "Steventon Storage Facility, Hanney Rd, Steventon, Abingdon OX13 6DJ",
-  addressShort: "Steventon Storage Facility, Hanney Rd, Abingdon OX13 6DJ",
 } as const;
 
 /** Build a mailto enquire link, optionally naming the product in the subject. */

@@ -34,14 +34,14 @@ export function AboutUs() {
             Built to answer.
           </h2>
           <p className="mb-[22px] max-w-[40ch] text-[15px] leading-[1.65] text-ink-2">
-            UKSEV LTD holds electric bikes at Steventon Storage Facility in Abingdon.
+            UKSEV LTD holds electric bikes in its UK warehouse.
             This site is how you find what&apos;s ready — then call or WhatsApp for a
             firm quote. Photos below are placeholders until we swap in our own.
           </p>
           <ul className="grid list-none gap-3.5">
             <li className="flex items-center gap-3.5 text-[13px]">
               <span className="h-px w-[18px] shrink-0 bg-amber" />
-              <span>UKSEV LTD · Abingdon OX13 6DJ</span>
+              <span>UKSEV LTD · UK warehouse</span>
             </li>
             <li className="flex items-center gap-3.5 text-[13px]">
               <span className="h-px w-[18px] shrink-0 bg-amber" />
