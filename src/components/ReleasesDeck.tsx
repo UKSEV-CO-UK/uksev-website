@@ -15,7 +15,7 @@ export function ReleasesDeck() {
             Rides in the warehouse
           </h2>
           <p className="mb-7 max-w-[36ch] text-[15px] leading-relaxed text-ink-2">
-            A physical deck of what we hold in Abingdon. Flick through, then enquire
+            A physical deck of what we hold in UK stock. Flick through, then enquire
             — no online bag for now.
           </p>
           <div className="flex flex-wrap gap-3">

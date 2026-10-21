@@ -137,7 +137,7 @@ export function PortalHero() {
           </div>
         </div>
         <div className="absolute top-[78px] left-7 z-[5] text-[10.5px] font-medium tracking-[0.14em] text-ink-2 uppercase">
-          UKSEV LTD <span className="text-amber">/</span> Abingdon
+          UKSEV LTD <span className="text-amber">/</span> UK
         </div>
         <div className="absolute top-[78px] right-7 z-[5] hidden text-right text-[10.5px] font-medium tracking-[0.14em] text-ink-2 uppercase sm:block">
           Electric bikes <span className="text-amber">·</span> UK warehouse
