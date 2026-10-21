@@ -12,7 +12,6 @@ price: 829
 newPrice: 1299
 grade: A
 colour: Green
-location: Steventon, Abingdon OX13
 photos:
   - src: /uploads/pre-owned/example-side.svg
     caption: Drive side

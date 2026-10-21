@@ -16,7 +16,6 @@ newPrice: 1099
 grade: A
 colour: Grey
 serviceHistory: Serviced Oct 2026 (UKSEV)
-location: Steventon, Abingdon OX13
 photos:
   - src: /uploads/pre-owned/example-side.svg
     caption: Drive side

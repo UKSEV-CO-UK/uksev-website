@@ -5,7 +5,7 @@ import yaml from "js-yaml";
 const ORDER = [
   "type", "brand", "model", "year", "mileage", "price", "photos", "newPrice",
   "batteryWh", "batteryHealth", "chargeCycles", "batterySource", "motorW", "frameSize", "wheelSize",
-  "range", "grade", "colour", "serviceHistory", "location", "inspection", "included",
+  "range", "grade", "colour", "serviceHistory", "inspection", "included",
   "status", "soldDate", "date", "draft",
 ];
 

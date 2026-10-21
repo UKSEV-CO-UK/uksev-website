@@ -12,7 +12,6 @@ price: 365
 newPrice: 799
 grade: C
 colour: White
-location: Steventon, Abingdon OX13
 photos:
   - src: /uploads/pre-owned/example-side.svg
     caption: Drive side

@@ -15,7 +15,6 @@ price: 1095
 newPrice: 1599
 grade: A
 colour: Silver
-location: Steventon, Abingdon OX13
 photos:
   - src: /uploads/pre-owned/example-side.svg
     caption: Drive side

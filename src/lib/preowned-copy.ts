@@ -5,24 +5,23 @@
  */
 export const PREOWNED_COPY = {
   intro:
-    "Every bike is checked, battery-tested and photographed at our Steventon unit before it is listed. Guide prices, honest grades, no surprises at viewing.",
+    "Every bike is checked, battery-tested and photographed before it is listed. Guide prices, honest grades, no surprises at viewing.",
   proof: [
     { label: "Battery", text: "Health-tested on every bike" },
     { label: "Photos", text: "Real and unedited" },
-    { label: "Viewing", text: "Steventon, by appointment" },
+    { label: "Viewing", text: "By appointment" },
   ],
   viewing: {
-    title: "Viewing at Steventon by appointment",
+    title: "Viewing by appointment",
     // TODO(Panda): confirm test rides and UK delivery are offered.
-    text: "Hanney Rd, Abingdon OX13 6DJ. Test ride on site. UK delivery on request.",
+    text: "Test ride when you view. UK delivery on request.",
   },
   // TODO(Panda): confirm the inspection really is a 32-point check (or change the label).
   inspectionLabel: "32-point check",
   howBuying: [
-    // TODO(Panda): confirm the 48-hour hold.
-    { title: "Enquire or WhatsApp", text: "We confirm it's still here and hold it for 48 hours." },
+    { title: "Enquire or WhatsApp", text: "We confirm it's still here and hold it for 24 hours." },
     // TODO(Panda): confirm viewing hours.
-    { title: "View and test ride", text: "At Steventon, by appointment. Weekdays and Saturday mornings." },
+    { title: "View and test ride", text: "By appointment. Weekdays and Saturday mornings." },
     // TODO(Panda): confirm accepted payment methods and delivery terms.
     { title: "Pay and ride away", text: "Card or bank transfer. UK delivery quoted separately." },
   ],

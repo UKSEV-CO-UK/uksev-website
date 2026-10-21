@@ -43,7 +43,6 @@ export type PreownedBike = {
   grade?: Grade;
   colour?: string;
   serviceHistory?: string;
-  location: string;
   /** First = cover. Always ≥ 1 for published entries. */
   photos: Photo[];
   inspection: InspectionItem[];

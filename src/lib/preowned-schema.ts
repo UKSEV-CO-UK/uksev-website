@@ -23,7 +23,6 @@ import {
 export type FieldError = { field: string; message: string };
 type Data = Record<string, unknown>;
 
-export const DEFAULT_LOCATION = "Steventon, Abingdon OX13";
 export const SLUG_RE = /^[A-Za-z0-9][A-Za-z0-9_-]*$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 /** Required to publish (photos = at least one). */
@@ -248,7 +247,6 @@ export function normaliseBike(data: Data, opts: NormaliseOptions = {}): Normalis
     grade: c.pick<Grade>("grade", GRADES),
     colour: c.text("colour"),
     serviceHistory: c.text("serviceHistory"),
-    location: c.text("location") ?? DEFAULT_LOCATION,
     photos: c.photos(opts.photoExists),
     inspection: c.inspection(),
     included: c.included(),

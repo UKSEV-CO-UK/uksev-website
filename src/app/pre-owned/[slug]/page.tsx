@@ -68,7 +68,6 @@ export default async function PreownedBikePage({ params }: Props) {
     ["Frame size", b.frameSize],
     ["Colour", b.colour],
     ["Service history", b.serviceHistory],
-    ["Location", b.location],
   ];
   const tally = (["pass", "replaced", "note"] as const)
     .map((r) => [r, b.inspection.filter((x) => x.result === r).length] as const)

@@ -9,7 +9,7 @@ import type { PreownedSummary } from "@/lib/preowned-types";
 export const metadata: Metadata = {
   title: "Pre-owned e-bikes",
   description:
-    "Pre-owned electric bikes inspected and battery-tested at UKSEV, Steventon, Abingdon. Guide prices, honest grades.",
+    "Pre-owned electric bikes inspected and battery-tested by UKSEV. Guide prices, honest grades.",
 };
 
 export default async function PreownedPage() {

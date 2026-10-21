@@ -16,7 +16,6 @@ price: 589
 newPrice: 1099
 grade: B
 colour: Black
-location: Steventon, Abingdon OX13
 photos:
   - src: /uploads/pre-owned/example-side.svg
     caption: Drive side

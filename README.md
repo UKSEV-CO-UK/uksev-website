@@ -46,7 +46,6 @@ range: 50                # 英里
 grade: A                 # A 像新 / B 良好 / C 一般
 colour: Grey
 serviceHistory: Serviced Oct 2026
-location: Steventon, Abingdon OX13
 inspection:              # 结果只能是 pass / replaced / note，其他值会被丢掉（构建不报错）
   - item: Battery
     result: pass

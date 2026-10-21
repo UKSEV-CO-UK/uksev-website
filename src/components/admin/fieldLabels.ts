@@ -20,7 +20,6 @@ export const FIELD_LABEL: Record<string, string> = {
   grade: "Grade",
   colour: "Colour",
   serviceHistory: "Service history",
-  location: "Location",
   photos: "Photos",
   inspection: "Inspection",
   included: "What’s included",
