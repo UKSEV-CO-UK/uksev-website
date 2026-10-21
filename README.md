@@ -1,6 +1,6 @@
 # UKSEV LTD website
 
-Static lead-gen marketing site for UKSEV LTD (Abingdon warehouse).
+Static lead-gen marketing site for UKSEV LTD.
 
 - `/` — portal (hero, roster, stock, about, contact)
 - `/shop` — catalogue with search / filter / sort
@@ -41,7 +41,6 @@ Contact:
 - Call `tel:+44752163699`
 - WhatsApp `https://wa.me/44752163699`
 - Email `Tonysun@uksev.co.uk`
-- Address: Steventon Storage Facility, Hanney Rd, Steventon, Abingdon OX13 6DJ
 
 ## Local
 
