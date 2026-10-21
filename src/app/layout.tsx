@@ -1,3 +1,4 @@
+import { SITE } from "@/lib/site";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { NavBar } from "@/components/NavBar";
@@ -33,8 +34,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${syne.variable} ${sora.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${syne.variable} ${sora.variable} h-full antialiased`}
+    >
       <body className="min-h-full bg-ground font-ui text-ink">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: SITE.name,
+              url: "https://uksev.co.uk",
+              telephone: SITE.phoneDisplay,
+              email: SITE.email,
+              ...(SITE.companyNumber
+                ? {
+                    identifier: {
+                      "@type": "PropertyValue",
+                      propertyID: "Companies House",
+                      value: SITE.companyNumber,
+                    },
+                  }
+                : {}),
+            }),
+          }}
+        />
         <RevealRoot />
         <NavBar />
         {children}
