@@ -31,7 +31,7 @@ export default async function PreownedPage() {
             Pre-owned · {forSale} bike{forSale === 1 ? "" : "s"} in stock
           </div>
           <h1 className="d">
-            Pre-owned, inspected in <em>Oxfordshire.</em>
+            Pre-owned, inspected <em>before listing.</em>
           </h1>
           <p>{PREOWNED_COPY.intro}</p>
         </div>
