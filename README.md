@@ -71,7 +71,7 @@ draft: false
   `draft: true` 只在本地 `npm run dev` 显示；`NEXT_PUBLIC_SHOW_DRAFTS=1 npm run build` 可本地预览（不要在 CI 里设）。
   仓库里 6 条 `example-*` 都是草稿示例，上真车后删掉即可。
 - 不要写车架号、序列号或任何私人信息，仓库可能是公开的。
-- 设计稿里的占位文案（24 小时保留、32 项检测、付款方式、送货等）集中在 `src/lib/preowned-copy.ts`，都标了 `TODO(Panda)`，上线前要确认。
+- 二手车页面的固定文案（检测、试骑和配送、32 项检测、保留 24 小时、看车时间、付款方式、估价回复）集中在 `src/lib/preowned-copy.ts`，Panda 已于 2026-10-21 确认。任何地方都不写仓库或检测地点。
 
 ### 后台 `/admin/`
 
