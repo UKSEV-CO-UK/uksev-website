@@ -1,6 +1,6 @@
 # UKSEV LTD website
 
-Static lead-gen marketing site for UKSEV LTD (Abingdon warehouse).
+Static lead-gen marketing site for UKSEV LTD.
 
 - `/` — portal (hero, roster, stock, about, contact)
 - `/shop` — catalogue with search / filter / sort
@@ -46,7 +46,6 @@ range: 50                # 英里
 grade: A                 # A 像新 / B 良好 / C 一般
 colour: Grey
 serviceHistory: Serviced Oct 2026
-location: Steventon, Abingdon OX13
 inspection:              # 结果只能是 pass / replaced / note，其他值会被丢掉（构建不报错）
   - item: Battery
     result: pass
@@ -72,7 +71,7 @@ draft: false
   `draft: true` 只在本地 `npm run dev` 显示；`NEXT_PUBLIC_SHOW_DRAFTS=1 npm run build` 可本地预览（不要在 CI 里设）。
   仓库里 6 条 `example-*` 都是草稿示例，上真车后删掉即可。
 - 不要写车架号、序列号或任何私人信息，仓库可能是公开的。
-- 设计稿里的占位文案（48 小时保留、32 项检测、付款方式、送货等）集中在 `src/lib/preowned-copy.ts`，都标了 `TODO(Panda)`，上线前要确认。
+- 设计稿里的占位文案（24 小时保留、32 项检测、付款方式、送货等）集中在 `src/lib/preowned-copy.ts`，都标了 `TODO(Panda)`，上线前要确认。
 
 ### 后台 `/admin/`
 
@@ -85,7 +84,7 @@ draft: false
 
 - **谁能打开：** Cloudflare Access 挡 `/admin*` 和 `/admin-api/*`（Panda 在公司 CF 上手动配，需要橙色云，SSL 用 Full）。
   网站里没有登录页，打开 `/admin/` 直接是车辆列表。
-- **Access 会话过期：** 显示「登录已过期，刷新页面重新验证」+ Refresh 按钮，刷新会重新走 Access。草稿保留在本机。
+- **Access 会话过期：** 显示「Session expired · Refresh to sign in again」+ Refresh 按钮，刷新会重新走 Access。草稿保留在本机。
 - **Worker 的 GitHub 令牌：** 失效时显示「后台写入凭证失效，请联系管理员」；`/admin-api/status` 的 `expiresAt` 在 7 天内时列表顶部出琥珀色提醒。
   换令牌：在 GitHub 新建细粒度令牌（只选 `UKSEV-CO-UK/uksev-website`，Contents 读写，90 天），更新 Worker 的 secret。
 - **页面：** `/admin/`（列表）、`/admin/edit/`（新建）、`/admin/edit/?slug=<slug>`、`/admin/edit/?draft=<id>`。
