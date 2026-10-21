@@ -11,9 +11,9 @@ type SiteInfo = {
 
 export const SITE: SiteInfo = {
   name: "UKSEV LTD",
-  phoneDisplay: "+44 7521 63699",
-  phoneHref: "tel:+44752163699",
-  whatsapp: "https://wa.me/44752163699",
+  phoneDisplay: "+44 7521 639699",
+  phoneHref: "tel:+447521639699",
+  whatsapp: "https://wa.me/447521639699",
   email: "Tonysun@uksev.co.uk",
   emailHref: "mailto:Tonysun@uksev.co.uk",
   companyNumber: "16440394",

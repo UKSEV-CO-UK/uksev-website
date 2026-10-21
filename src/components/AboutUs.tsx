@@ -49,7 +49,7 @@ export function AboutUs() {
             </li>
             <li className="flex items-center gap-3.5 text-[13px]">
               <span className="h-px w-[18px] shrink-0 bg-amber" />
-              <span>+44 7521 63699 · enquire to confirm</span>
+              <span>+44 7521 639699 · enquire to confirm</span>
             </li>
           </ul>
           <div className="mt-7 flex flex-wrap gap-3">

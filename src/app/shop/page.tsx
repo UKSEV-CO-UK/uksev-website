@@ -24,7 +24,7 @@ export default function ShopPage() {
       </div>
       <ShopToolbar />
       <p className="mt-10 max-w-[62ch] border-t border-hair pt-5 text-xs leading-[1.55] text-muted">
-        Prices are guides. WhatsApp or call +44 7521 63699 for
+        Prices are guides. WhatsApp or call +44 7521 639699 for
         availability. Lead-gen catalogue — no web checkout.
       </p>
     </main>

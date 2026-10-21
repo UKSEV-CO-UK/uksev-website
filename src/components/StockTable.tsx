@@ -7,7 +7,7 @@ const rows = [
   },
   {
     place: "Phone",
-    detail: "+44 7521 63699",
+    detail: "+44 7521 639699",
     action: "Call / WhatsApp",
     note: "Same-day reply aim",
   },
