@@ -1,9 +1,9 @@
 const rows = [
   {
-    place: "Abingdon",
-    detail: "OX13 6DJ warehouse",
+    place: "Stock",
+    detail: "Held in the UK",
     action: "Stock check",
-    note: "Steventon Storage",
+    note: "UK stock",
   },
   {
     place: "Phone",

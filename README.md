@@ -1,6 +1,6 @@
 # UKSEV LTD website
 
-Static lead-gen marketing site for UKSEV LTD (Abingdon warehouse).
+Static lead-gen marketing site for UKSEV LTD.
 
 - `/` — portal (hero, roster, stock, about, contact)
 - `/shop` — catalogue with search / filter / sort
