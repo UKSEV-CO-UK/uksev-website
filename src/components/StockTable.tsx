@@ -1,3 +1,4 @@
+import { SITE } from "@/lib/site";
 const rows = [
   {
     place: "Viewing",
@@ -7,7 +8,7 @@ const rows = [
   },
   {
     place: "Phone",
-    detail: "+44 7521 639699",
+    detail: SITE.phoneDisplay,
     action: "Call / WhatsApp",
     note: "Same-day reply aim",
   },
