@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${bikeName(bike)} (pre-owned${sold ? ", sold" : ""})`,
     description: `Pre-owned ${bikeName(bike)}, ${bike.year}, ${bike.mileage.toLocaleString("en-GB")} miles${
       bike.batteryHealth != null ? `, ${bike.batteryHealth}% battery health` : ""
-    }${sold ? " — sold." : ` — guide ${money(bike.price)} at UKSEV, Abingdon.`}`,
+    }${sold ? " — sold." : ` — guide ${money(bike.price)} at UKSEV.`}`,
     ...(bike.draft ? { robots: { index: false } } : {}),
   };
 }

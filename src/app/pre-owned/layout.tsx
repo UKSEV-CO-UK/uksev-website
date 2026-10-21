@@ -8,7 +8,7 @@ export default function PreownedLayout({ children }: { children: React.ReactNode
       <footer className="foot">
         <div className="in">
           <div>
-            <b>{SITE.name}</b> · {SITE.address}
+            <b>{SITE.name}</b>
           </div>
           <div>
             <a href={SITE.phoneHref}>{SITE.phoneDisplay}</a> · <a href={SITE.emailHref}>{SITE.email}</a>
