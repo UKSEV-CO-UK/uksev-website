@@ -33,7 +33,7 @@ export function AboutUs() {
             <br />
             Built to answer.
           </h2>
-          <p className="mb-[22px] max-w-[40ch] text-[15px] leading-[1.65] text-ink-2">
+          <p className="mb-[22px] max-w-[40ch] text-balance text-[15px] leading-[1.65] text-ink-2">
             UKSEV LTD holds electric bikes in UK stock.
             This site is how you find what&apos;s ready — then call or WhatsApp for a
             firm quote. Photos below are placeholders until we swap in our own.
@@ -68,7 +68,7 @@ export function AboutUs() {
               }`}
               style={{ backgroundImage: `url(${s.img})` }}
             >
-              <figcaption className="absolute bottom-2.5 left-3 rounded bg-[rgba(10,12,14,0.55)] px-2 py-1 text-[10px] tracking-[0.12em] text-ink uppercase">
+              <figcaption className="absolute bottom-2.5 left-3 rounded bg-[rgba(10,12,14,0.55)] px-2 py-1 text-[10px] tracking-[0.12em] whitespace-nowrap text-ink uppercase">
                 {s.caption}
               </figcaption>
             </figure>
