@@ -38,8 +38,8 @@ After the Pages workflow is on `main`, set the Pages custom domain to `uksev.co.
 
 Contact:
 
-- Call `tel:+44752163699`
-- WhatsApp `https://wa.me/44752163699`
+- Call `tel:+447521639699`
+- WhatsApp `https://wa.me/447521639699`
 - Email `Tonysun@uksev.co.uk`
 
 ## Local
