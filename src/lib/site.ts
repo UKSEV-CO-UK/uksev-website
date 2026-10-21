@@ -16,7 +16,7 @@ export const SITE: SiteInfo = {
   whatsapp: "https://wa.me/44752163699",
   email: "Tonysun@uksev.co.uk",
   emailHref: "mailto:Tonysun@uksev.co.uk",
-  companyNumber: undefined,
+  companyNumber: "16440394",
 };
 
 /** Build a mailto enquire link, optionally naming the product in the subject. */
