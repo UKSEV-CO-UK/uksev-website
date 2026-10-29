@@ -17,7 +17,6 @@ const links = [
 export function NavBar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  if (pathname.startsWith("/admin")) return null; // admin has its own top bar
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex h-[60px] items-center justify-between border-b border-hair bg-[rgba(10,12,14,0.72)] px-4 backdrop-blur-[14px] md:h-[68px] sm:px-7">

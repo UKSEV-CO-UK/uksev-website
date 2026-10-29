@@ -87,9 +87,8 @@ test("bad inspection rows are dropped, included defaults to true", () => {
   ]);
 });
 
-test("admin markdown round-trips through gray-matter (the build parser)", async () => {
+test("frontmatter round-trips through gray-matter (the build parser)", async () => {
   const matter = (await import("gray-matter")).default;
-  const { toMarkdown } = await import("../src/lib/admin/serialize");
   const data = {
     ...good,
     type: "e-scooter",
@@ -99,9 +98,9 @@ test("admin markdown round-trips through gray-matter (the build parser)", async 
     status: "sold",
     included: [{ item: "Charger", text: "42V", included: true }],
     inspection: [{ item: "Brakes", result: "pass" }],
-    colour: "",
   };
-  const md = toMarkdown(data, "Line one\n\n**bold**");
+  // Empty optional fields are omitted by writers; colour absent here matches that.
+  const md = matter.stringify("Line one\n\n**bold**\n", data);
   const parsed = matter(md);
   const r = validateBike(parsed.data, { now });
   assert.equal(r.ok, true, JSON.stringify(r.errors));
@@ -109,6 +108,5 @@ test("admin markdown round-trips through gray-matter (the build parser)", async 
   assert.equal(n.model, data.model);
   assert.equal(n.soldDate, "2026-10-08");
   assert.equal(n.type, "e-scooter");
-  assert.equal("colour" in parsed.data, false);
   assert.equal(parsed.content.trim(), "Line one\n\n**bold**");
 });

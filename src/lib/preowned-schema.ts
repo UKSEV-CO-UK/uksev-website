@@ -1,6 +1,6 @@
 /**
  * Pre-owned listing rules: ONE copy, used by the build (src/lib/preowned.ts)
- * and by the admin in the browser before it publishes. Pure: no fs, no DOM.
+ * and by the admin (uksev-admin) in the browser before it publishes. Pure: no fs, no DOM.
  *
  * - normaliseBike(data, opts) turns frontmatter into typed fields and lists problems.
  * - validateBike(data, opts) answers "would the build accept this as a published listing?"
