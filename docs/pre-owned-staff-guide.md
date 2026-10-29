@@ -1,10 +1,10 @@
 # 二手车上架说明（员工用）
 
-后台地址：`https://uksev.co.uk/admin/`。手机、电脑都能用，手机上用最顺手。
+后台地址：`https://admin.uksev.co.uk/`。手机、电脑都能用，手机上用最顺手。
 
 ## 1. 打开后台
 
-1. 浏览器打开 `https://uksev.co.uk/admin/`。
+1. 浏览器打开 `https://admin.uksev.co.uk/`。
 2. 第一次会跳到 Cloudflare 的验证页，按页面提示验证（一般是填公司邮箱，再填邮件里的验证码）。只有管理员加进白名单的邮箱才能进。
 3. 验证通过后直接进车辆列表，不用再输密码或令牌。
 
@@ -76,5 +76,5 @@
 ## 管理员备忘
 
 - 加员工或去掉员工：在 Cloudflare Access 应用的策略里改邮箱白名单。
-- GitHub 令牌 90 天到期。到期前在 GitHub 新建一个细粒度令牌，只选 `UKSEV-CO-UK/uksev-website`，权限只给 Contents 读写，然后在 `worker/` 目录跑 `npx wrangler secret put GITHUB_TOKEN`，不用重新部署。
+- 后台的写入凭证由管理员在公司服务器上维护。员工这边看到「Publishing credential invalid」时找管理员即可。
 - 每次发布的提交信息末尾带 `Published-by: <邮箱>`，能查到是谁发的。
