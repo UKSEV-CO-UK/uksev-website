@@ -257,7 +257,10 @@ export function runGuard(
       if (p.startsWith("content/pre-owned/") && p.endsWith(".md")) {
         annotations.push(...checkListingFile(p, { cwd }));
       } else if (p.startsWith("public/uploads/pre-owned/")) {
-        annotations.push(...checkImageFile(p, cwd));
+        // Skip if a listing already flagged this file (e.g. Photo N oversize).
+        if (!annotations.some((a) => a.file === p)) {
+          annotations.push(...checkImageFile(p, cwd));
+        }
       }
     }
 
