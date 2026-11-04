@@ -69,7 +69,7 @@ draft: false
 - `reserved` 不会自动变化。
 - 后台的草稿只存在这台设备上（浏览器 IndexedDB），从不进仓库。仓库里的 `draft` 字段只给示例数据用：
   `draft: true` 只在本地 `npm run dev` 显示；`NEXT_PUBLIC_SHOW_DRAFTS=1 npm run build` 可本地预览（不要在 CI 里设）。
-  仓库里 6 条 `example-*` 都是草稿示例，上真车后删掉即可。
+  示例车已删除，真车用后台「Add listing」添加。
 - 不要写车架号、序列号或任何私人信息，仓库可能是公开的。
 - 二手车页面的固定文案（检测、试骑和配送、32 项检测、保留 24 小时、看车时间、付款方式、估价回复）集中在 `src/lib/preowned-copy.ts`，Panda 已于 2026-10-21 确认。任何地方都不写仓库或检测地点。
 
