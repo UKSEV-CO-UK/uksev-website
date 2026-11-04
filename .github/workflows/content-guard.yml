@@ -1,0 +1,45 @@
+name: content-guard
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  content-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decide whether to enforce
+        id: gate
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.head_ref }}" = "admin/content" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Enforcing content-guard (head=${{ github.head_ref || 'dispatch' }})"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping enforcement — head branch is '${{ github.head_ref }}' (only admin/content is checked)."
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.run == 'true'
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.run == 'true'
+        with:
+          node-version: "20"
+          cache: npm
+
+      - if: steps.gate.outputs.run == 'true'
+        run: npm ci
+
+      - name: Guard paths, schema, and photo sizes
+        if: steps.gate.outputs.run == 'true'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: npx tsx scripts/content-guard.ts
