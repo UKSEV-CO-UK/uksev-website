@@ -11,11 +11,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Admin listing PRs (head admin/content) that only touch bike data are already
+      # checked by content-guard; skip lint/test/build so they merge in seconds.
+      # Pages still does a full build after merge. Any other file → full CI.
+      - name: Content-only admin PR?
+        id: gate
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          full=true
+          if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.head_ref }}" = "admin/content" ]; then
+            other=$(git diff --name-only "$BASE_SHA...$HEAD_SHA" | grep -Ev '^(content/pre-owned/|public/uploads/pre-owned/)' || true)
+            if [ -z "$other" ]; then full=false; else echo "Non-content files changed:"; echo "$other"; fi
+          fi
+          echo "full=$full" >> "$GITHUB_OUTPUT"
+          echo "Full CI: $full"
+
       - uses: actions/setup-node@v4
+        if: steps.gate.outputs.full == 'true'
         with:
           node-version: "20"
           cache: npm
-      - run: npm ci
-      - run: npm run lint
-      - run: npm test
-      - run: npm run build
+      - if: steps.gate.outputs.full == 'true'
+        run: npm ci
+      - if: steps.gate.outputs.full == 'true'
+        run: npm run lint
+      - if: steps.gate.outputs.full == 'true'
+        run: npm test
+      - if: steps.gate.outputs.full == 'true'
+        run: npm run build
