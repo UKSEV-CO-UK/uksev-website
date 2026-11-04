@@ -29,6 +29,6 @@ included:
   - item: Charger
   - item: 2 × keys
   - item: Rack
-status: available
+status: reserved
 date: "2026-11-04"
 ---
