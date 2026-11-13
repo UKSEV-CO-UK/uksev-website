@@ -1,19 +1,19 @@
 ---
 type: e-bike
 brand: FIIDO
-model: Nomad Pro
+model: Nomads Pro Touring E-Bike Mid-Drive Motor
 year: 2026
 mileage: 7
 price: 1649
 photos:
   - src: /uploads/pre-owned/engwe-2026-ewln9w.webp
   - src: /uploads/pre-owned/engwe-2026-dwz4hj.webp
-batteryWh: 5000
-batteryHealth: 65
-batterySource: Display
-motorW: 448
+batteryWh: 417.6
+batteryHealth: 100
+batterySource: BMS app
+motorW: 250
 frameSize: L
-wheelSize: 20″
+wheelSize: 29″
 grade: A
 inspection:
   - item: Brakes
@@ -30,6 +30,7 @@ included:
   - item: Rack
   - item: Original box
     included: false
+  - item: Break light
 status: available
 date: "2026-11-04"
 ---
