@@ -1,18 +1,13 @@
 ---
 type: e-bike
-brand: ENGWE
-model: 叼
+brand: FIIDO
+model: Nomad Pro
 year: 2026
-mileage: 123
-price: 1234
+mileage: 7
+price: 1649
 photos:
-  - src: /uploads/pre-owned/engwe-2026-b6rsrj.webp
-  - src: /uploads/pre-owned/engwe-2026-006oru.webp
-  - src: /uploads/pre-owned/engwe-2026-kyoepn.webp
-  - src: /uploads/pre-owned/engwe-2026-3rdo42.webp
-  - src: /uploads/pre-owned/engwe-2026-vzol8i.webp
-  - src: /uploads/pre-owned/engwe-2026-wo0ayq.webp
-  - src: /uploads/pre-owned/engwe-2026-0ey0gm.webp
+  - src: /uploads/pre-owned/engwe-2026-ewln9w.webp
+  - src: /uploads/pre-owned/engwe-2026-dwz4hj.webp
 batteryWh: 5000
 batteryHealth: 65
 batterySource: Display
@@ -32,12 +27,29 @@ included:
   - item: Lock
   - item: Lights
   - item: Mudguards
-    included: false
   - item: Rack
-    included: false
   - item: Original box
     included: false
 status: available
 date: "2026-11-04"
 ---
-牛掰测试车
+Mid-Drive Motor
+100Nm Torque
+Patented Battery Rack
+1+2 Expandable Batteries
+
+417.6Wh
+Removable Battery
+
+Air Suspension Fork
+120mm Travel
+
+Torque Sensor
+Premium Pedal Assist
+
+4-Piston Hydraulic Brakes
+Reliable, Precise Stop
+
+Minimal miles still like new.
+
+All our pre-loved bikes come with 2 years warranty from Fiido Officially Authorized UK Service Center-us.
