@@ -4,7 +4,7 @@ brand: FIIDO
 model: C21
 price: 999
 wasPrice: 1635
-availability: check
+availability: in-stock
 colours:
   - name: Grey
     swatch: "#5c5f63"
