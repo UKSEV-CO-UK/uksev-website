@@ -157,7 +157,7 @@ function assertCoded(errors: { field: string; message: string; code?: string }[]
 
 test("NEW_BIKE_ERROR_CODES has unique entries and matches the exported union length", () => {
   assert.equal(new Set(NEW_BIKE_ERROR_CODES).size, NEW_BIKE_ERROR_CODES.length);
-  assert.equal(NEW_BIKE_ERROR_CODES.length, 34);
+  assert.equal(NEW_BIKE_ERROR_CODES.length, 36);
 });
 
 test("every emitted error has a stable code; field and message stay the same", () => {
@@ -218,7 +218,10 @@ test("edition wasPrice errors are distinct from a missing edition price", () => 
     ...good,
     editions: [{ name: "Standard", price: 0 }],
   });
-  assert.equal(zeroPrice.ok, true);
+  assert.equal(zeroPrice.ok, false);
+  assert.equal(zeroPrice.errors[0].field, "editions[0]");
+  assert.equal(zeroPrice.errors[0].message, "editions[0] price must be more than 0");
+  assert.equal(zeroPrice.errors[0].code, "edition_price_zero");
 
   const notHigher = validateNewBike({
     ...good,
@@ -239,6 +242,34 @@ test("edition wasPrice errors are distinct from a missing edition price", () => 
   assert.equal(badWas.errors[0].field, "editions[0]");
   assert.equal(badWas.errors[0].message, "editions[0].wasPrice must be a number 0–100000");
   assert.equal(badWas.errors[0].code, "edition_was_price_invalid");
+});
+
+test("price of 0 cannot be published, including 0 written as text", () => {
+  for (const price of [0, "0", "£0"]) {
+    const r = validateNewBike({ ...good, price });
+    assert.equal(r.ok, false, String(price));
+    assert.equal(r.errors[0].field, "price", String(price));
+    assert.equal(r.errors[0].message, "Price must be more than 0", String(price));
+    assert.equal(r.errors[0].code, "price_zero", String(price));
+  }
+  for (const price of [0, "0", "£0"]) {
+    const r = validateNewBike({
+      ...good,
+      editions: [
+        { name: "Standard", price: 999 },
+        { name: "Extender", price },
+      ],
+    });
+    assert.equal(r.ok, false, String(price));
+    assert.equal(r.errors[0].field, "editions[1]", String(price));
+    assert.equal(r.errors[0].message, "editions[1] price must be more than 0", String(price));
+    assert.equal(r.errors[0].code, "edition_price_zero", String(price));
+  }
+  assert.equal(validateNewBike({ ...good, price: 1 }).ok, true);
+  assert.equal(
+    validateNewBike({ ...good, editions: [{ name: "Standard", price: 1 }] }).ok,
+    true,
+  );
 });
 
 test("colour photo missing is distinct from colour name missing", () => {
@@ -266,6 +297,7 @@ test("each new-bike error code is emitted with the expected field", () => {
     { code: "model_missing", field: "model", data: { ...good, model: undefined } },
     { code: "price_missing", field: "price", data: { ...good, price: undefined } },
     { code: "price_invalid", field: "price", data: { ...good, price: -1 } },
+    { code: "price_zero", field: "price", data: { ...good, price: 0 } },
     { code: "was_price_invalid", field: "wasPrice", data: { ...good, wasPrice: "nope" } },
     { code: "was_price_not_higher", field: "wasPrice", data: { ...good, wasPrice: 999 } },
     { code: "colours_missing", field: "colours", data: { ...good, colours: [] } },
@@ -294,6 +326,7 @@ test("each new-bike error code is emitted with the expected field", () => {
     { code: "size_invalid", field: "sizes[0]", data: { ...good, sizes: [{ name: "" }] } },
     { code: "edition_invalid", field: "editions[0]", data: { ...good, editions: [{ name: "Standard", price: "abc" }] } },
     { code: "edition_price_missing", field: "editions[1]", data: { ...good, editions: [{ name: "Standard", price: 999 }, { name: "Extender" }] } },
+    { code: "edition_price_zero", field: "editions[1]", data: { ...good, editions: [{ name: "Standard", price: 999 }, { name: "Extender", price: 0 }] } },
     { code: "edition_was_price_invalid", field: "editions[0]", data: { ...good, editions: [{ name: "Standard", price: 999, wasPrice: -1 }] } },
     { code: "edition_was_price_not_higher", field: "editions[1]", data: { ...good, editions: [{ name: "S", price: 999 }, { name: "E", price: 1290, wasPrice: 1000 }] } },
     { code: "edition_range_invalid", field: "editions[0]", data: { ...good, editions: [{ name: "Standard", price: 999, rangeKm: 0 }] } },
