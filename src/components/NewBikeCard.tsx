@@ -37,7 +37,10 @@ function highlight(bike: NewBikeSummary) {
       label: "Top speed",
       value: bike.topSpeedKmh != null ? `${bike.topSpeedKmh} km/h` : "—",
     },
-    { label: "Battery", value: bike.battery ?? "—" },
+    {
+      label: "Battery",
+      value: bike.batteryWh != null ? `${bike.batteryWh} Wh` : "—",
+    },
   ];
 }
 
@@ -56,7 +59,7 @@ export function NewBikeCard({ bike }: { bike: NewBikeSummary }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={cover.src} alt="" className="h-full w-full object-contain" />
         )}
-        {bike.colours.length > 0 && (
+        {bike.colours.length > 1 && (
           <div
             className="absolute bottom-3 left-3 flex gap-1.5"
             onClick={(e) => e.preventDefault()}
