@@ -18,8 +18,107 @@ import {
   type VehicleType,
 } from "./newbikes-types";
 
-export type FieldError = { field: string; message: string };
+/**
+ * Stable snake_case codes for every new-bike validation failure.
+ * `field` and `message` stay as they are; the admin UI maps `code` to copy.
+ */
+export const NEW_BIKE_ERROR_CODES = [
+  "arrival_format",
+  "arrival_required",
+  "availability_invalid",
+  "battery_invalid",
+  "battery_wh_invalid",
+  "brand_missing",
+  "colour_invalid",
+  "colour_name_missing",
+  "colour_photo_missing",
+  "colour_swatch_invalid",
+  "colours_missing",
+  "date_invalid",
+  "edition_invalid",
+  "edition_price_missing",
+  "edition_range_invalid",
+  "edition_was_price_invalid",
+  "edition_was_price_not_higher",
+  "list_invalid",
+  "model_missing",
+  "motor_w_invalid",
+  "photo_not_found",
+  "photo_src_invalid",
+  "price_invalid",
+  "price_missing",
+  "range_km_invalid",
+  "range_miles_invalid",
+  "size_invalid",
+  "spec_row_invalid",
+  "text_invalid",
+  "top_speed_invalid",
+  "type_invalid",
+  "was_price_invalid",
+  "was_price_not_higher",
+  "weight_kg_invalid",
+] as const;
+
+export type NewBikeErrorCode = (typeof NEW_BIKE_ERROR_CODES)[number];
+
+/** `code` is optional on the type for backward compatibility; every emitted error sets it. */
+export type FieldError = { field: string; message: string; code?: NewBikeErrorCode };
 type Data = Record<string, unknown>;
+
+const fe = (field: string, message: string, code: NewBikeErrorCode): FieldError => ({
+  field,
+  message,
+  code,
+});
+
+function requiredMissingCode(k: string): NewBikeErrorCode {
+  switch (k) {
+    case "brand":
+      return "brand_missing";
+    case "model":
+      return "model_missing";
+    case "price":
+      return "price_missing";
+    case "colours":
+      return "colours_missing";
+    default:
+      throw new Error(`unmapped required field: ${k}`);
+  }
+}
+
+function numInvalidCode(k: string): NewBikeErrorCode {
+  switch (k) {
+    case "price":
+      return "price_invalid";
+    case "wasPrice":
+      return "was_price_invalid";
+    case "rangeKm":
+      return "range_km_invalid";
+    case "rangeMiles":
+      return "range_miles_invalid";
+    case "weightKg":
+      return "weight_kg_invalid";
+    case "topSpeedKmh":
+      return "top_speed_invalid";
+    case "batteryWh":
+      return "battery_wh_invalid";
+    case "motorW":
+      return "motor_w_invalid";
+    default:
+      throw new Error(`unmapped numeric field: ${k}`);
+  }
+}
+
+function pickInvalidCode(k: string): NewBikeErrorCode {
+  switch (k) {
+    case "type":
+      return "type_invalid";
+    case "availability":
+      return "availability_invalid";
+    default:
+      throw new Error(`unmapped pick field: ${k}`);
+  }
+}
 
 export const SLUG_RE = /^[A-Za-z0-9][A-Za-z0-9_-]*$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -64,7 +163,7 @@ class Checker {
     return v == null || v === "";
   }
   private need(k: string) {
-    this.missing.push({ field: k, message: `missing required "${k}"` });
+    this.missing.push(fe(k, `missing required "${k}"`, requiredMissingCode(k)));
   }
   text(k: string, required = false): string | undefined {
     if (this.empty(k)) {
@@ -73,7 +172,9 @@ class Checker {
     }
     const v = this.data[k];
     if (typeof v !== "string" && typeof v !== "number") {
-      this.errors.push({ field: k, message: `"${k}" must be text` });
+      this.errors.push(
+        fe(k, `"${k}" must be text`, k === "battery" ? "battery_invalid" : "text_invalid"),
+      );
       return undefined;
     }
     const s = String(v).trim();
@@ -88,10 +189,9 @@ class Checker {
     const raw = this.data[k];
     const n = typeof raw === "number" ? raw : Number(String(raw).replace(/[£,\s]/g, ""));
     if (!Number.isFinite(n) || n < min || n > max) {
-      this.errors.push({
-        field: k,
-        message: `"${k}" must be a number ${min}–${max}, got ${JSON.stringify(raw)}`,
-      });
+      this.errors.push(
+        fe(k, `"${k}" must be a number ${min}–${max}, got ${JSON.stringify(raw)}`, numInvalidCode(k)),
+      );
       return undefined;
     }
     return n;
@@ -108,10 +208,13 @@ class Checker {
     }
     const v = this.data[k];
     if (typeof v !== "string" || !(allowed as readonly string[]).includes(v)) {
-      this.errors.push({
-        field: k,
-        message: `"${k}" must be one of ${allowed.join(" / ")}, got ${JSON.stringify(v)}`,
-      });
+      this.errors.push(
+        fe(
+          k,
+          `"${k}" must be one of ${allowed.join(" / ")}, got ${JSON.stringify(v)}`,
+          pickInvalidCode(k),
+        ),
+      );
       return fallback;
     }
     return v as T;
@@ -126,7 +229,7 @@ class Checker {
       s = raw.trim();
     }
     if (!s) {
-      this.errors.push({ field: k, message: `"${k}" must be a date like 2026-10-09` });
+      this.errors.push(fe(k, `"${k}" must be a date like 2026-10-09`, "date_invalid"));
       return undefined;
     }
     return s;
@@ -146,27 +249,27 @@ function parsePhoto(
         ? String((raw as { src: string }).src).trim()
         : "";
   if (!src) {
-    errors.push({ field, message: `${field} is not an image path` });
+    errors.push(fe(field, `${field} is not an image path`, "photo_src_invalid"));
     return null;
   }
   if (!src.startsWith("/")) {
-    errors.push({ field, message: `${field} must start with "/"` });
+    errors.push(fe(field, `${field} must start with "/"`, "photo_src_invalid"));
     return null;
   }
   if (src.split("/").includes("..")) {
-    errors.push({ field, message: `${field} must not contain ".."` });
+    errors.push(fe(field, `${field} must not contain ".."`, "photo_src_invalid"));
     return null;
   }
   if (!src.startsWith(PHOTO_PREFIX)) {
-    errors.push({ field, message: `${field} must start with "${PHOTO_PREFIX}"` });
+    errors.push(fe(field, `${field} must start with "${PHOTO_PREFIX}"`, "photo_src_invalid"));
     return null;
   }
   if (!/\.(jpe?g|png|webp|gif|avif)$/i.test(src)) {
-    errors.push({ field, message: `${field} is not an image path` });
+    errors.push(fe(field, `${field} is not an image path`, "photo_src_invalid"));
     return null;
   }
   if (photoExists && !photoExists(src)) {
-    errors.push({ field, message: `${field} not found: ${src}` });
+    errors.push(fe(field, `${field} not found: ${src}`, "photo_not_found"));
     return null;
   }
   const caption =
@@ -183,11 +286,11 @@ function parseColours(
   photoExists?: (src: string) => boolean,
 ): Colour[] {
   if (raw == null || raw === "") {
-    missing.push({ field: "colours", message: 'missing required "colours"' });
+    missing.push(fe("colours", 'missing required "colours"', "colours_missing"));
     return [];
   }
   if (!Array.isArray(raw) || raw.length === 0) {
-    missing.push({ field: "colours", message: 'missing required "colours"' });
+    missing.push(fe("colours", 'missing required "colours"', "colours_missing"));
     return [];
   }
   const out: Colour[] = [];
@@ -195,18 +298,18 @@ function parseColours(
     const field = `colours[${i}]`;
     const o = row && typeof row === "object" ? (row as Record<string, unknown>) : null;
     if (!o) {
-      errors.push({ field, message: `${field} must be a colour with a name and photos` });
+      errors.push(fe(field, `${field} must be a colour with a name and photos`, "colour_invalid"));
       return;
     }
     const name = typeof o.name === "string" ? o.name.trim() : "";
     if (!name) {
-      errors.push({ field, message: `${field}.name is missing` });
+      errors.push(fe(field, `${field}.name is missing`, "colour_name_missing"));
       return;
     }
     let swatch: string | undefined;
     if (o.swatch != null && o.swatch !== "") {
       if (typeof o.swatch !== "string" || !HEX_RE.test(o.swatch.trim())) {
-        errors.push({ field, message: `${field}.swatch must be a hex colour like #5c5f63` });
+        errors.push(fe(field, `${field}.swatch must be a hex colour like #5c5f63`, "colour_swatch_invalid"));
       } else {
         swatch = o.swatch.trim();
       }
@@ -214,7 +317,7 @@ function parseColours(
     const photosRaw = o.photos ?? o.src;
     const list = Array.isArray(photosRaw) ? photosRaw : photosRaw != null ? [photosRaw] : [];
     if (list.length === 0) {
-      errors.push({ field, message: `${field} needs at least one photo` });
+      errors.push(fe(field, `${field} needs at least one photo`, "colour_photo_missing"));
       return;
     }
     const photos = list
@@ -229,7 +332,7 @@ function parseColours(
 function parseSizes(raw: unknown, errors: FieldError[]): FrameSize[] {
   if (raw == null || raw === "") return [];
   if (!Array.isArray(raw)) {
-    errors.push({ field: "sizes", message: '"sizes" must be a list' });
+    errors.push(fe("sizes", '"sizes" must be a list', "list_invalid"));
     return [];
   }
   const out: FrameSize[] = [];
@@ -242,7 +345,7 @@ function parseSizes(raw: unknown, errors: FieldError[]): FrameSize[] {
     const o = row && typeof row === "object" ? (row as Record<string, unknown>) : null;
     const name = o && typeof o.name === "string" ? o.name.trim() : "";
     if (!name) {
-      errors.push({ field, message: `${field}.name is missing` });
+      errors.push(fe(field, `${field}.name is missing`, "size_invalid"));
       return;
     }
     const riderHeight =
@@ -252,13 +355,10 @@ function parseSizes(raw: unknown, errors: FieldError[]): FrameSize[] {
   return out;
 }
 
-function parseEditions(
-  raw: unknown,
-  errors: FieldError[],
-): Edition[] {
+function parseEditions(raw: unknown, errors: FieldError[]): Edition[] {
   if (raw == null || raw === "") return [];
   if (!Array.isArray(raw)) {
-    errors.push({ field: "editions", message: '"editions" must be a list' });
+    errors.push(fe("editions", '"editions" must be a list', "list_invalid"));
     return [];
   }
   const out: Edition[] = [];
@@ -266,15 +366,23 @@ function parseEditions(
     const field = `editions[${i}]`;
     const o = row && typeof row === "object" ? (row as Record<string, unknown>) : null;
     if (!o) {
-      errors.push({ field, message: `${field} must be an edition with a name and price` });
+      errors.push(fe(field, `${field} must be an edition with a name and price`, "edition_invalid"));
       return;
     }
     const name = typeof o.name === "string" ? o.name.trim() : "";
     const priceRaw = o.price;
+    const priceEmpty =
+      priceRaw == null ||
+      priceRaw === "" ||
+      (typeof priceRaw === "string" && priceRaw.trim() === "");
+    if (priceEmpty) {
+      errors.push(fe(field, `${field} needs a name and a price in range`, "edition_price_missing"));
+      return;
+    }
     const price =
-      typeof priceRaw === "number" ? priceRaw : Number(String(priceRaw ?? "").replace(/[£,\s]/g, ""));
+      typeof priceRaw === "number" ? priceRaw : Number(String(priceRaw).replace(/[£,\s]/g, ""));
     if (!name || !Number.isFinite(price) || price < 0 || price > 100_000) {
-      errors.push({ field, message: `${field} needs a name and a price in range` });
+      errors.push(fe(field, `${field} needs a name and a price in range`, "edition_invalid"));
       return;
     }
     let wasPrice: number | undefined;
@@ -284,9 +392,9 @@ function parseEditions(
           ? o.wasPrice
           : Number(String(o.wasPrice).replace(/[£,\s]/g, ""));
       if (!Number.isFinite(w) || w < 0 || w > 100_000) {
-        errors.push({ field, message: `${field}.wasPrice must be a number 0–100000` });
+        errors.push(fe(field, `${field}.wasPrice must be a number 0–100000`, "edition_was_price_invalid"));
       } else if (w <= price) {
-        errors.push({ field, message: `${field}.wasPrice must be higher than price` });
+        errors.push(fe(field, `${field}.wasPrice must be higher than price`, "edition_was_price_not_higher"));
       } else {
         wasPrice = w;
       }
@@ -295,13 +403,19 @@ function parseEditions(
     if (o.rangeKm != null && o.rangeKm !== "") {
       const r = typeof o.rangeKm === "number" ? o.rangeKm : Number(o.rangeKm);
       if (!Number.isFinite(r) || r < 1 || r > 1000) {
-        errors.push({ field, message: `${field}.rangeKm must be a number 1–1000` });
+        errors.push(fe(field, `${field}.rangeKm must be a number 1–1000`, "edition_range_invalid"));
       } else {
         rangeKm = r;
       }
     }
     const note = typeof o.note === "string" ? o.note.trim() || undefined : undefined;
-    out.push({ name, price, ...(wasPrice != null ? { wasPrice } : {}), ...(rangeKm != null ? { rangeKm } : {}), ...(note ? { note } : {}) });
+    out.push({
+      name,
+      price,
+      ...(wasPrice != null ? { wasPrice } : {}),
+      ...(rangeKm != null ? { rangeKm } : {}),
+      ...(note ? { note } : {}),
+    });
   });
   return out;
 }
@@ -309,7 +423,7 @@ function parseEditions(
 function parseSpecs(raw: unknown, errors: FieldError[]): SpecRow[] {
   if (raw == null || raw === "") return [];
   if (!Array.isArray(raw)) {
-    errors.push({ field: "specs", message: '"specs" must be a list' });
+    errors.push(fe("specs", '"specs" must be a list', "list_invalid"));
     return [];
   }
   const out: SpecRow[] = [];
@@ -319,7 +433,7 @@ function parseSpecs(raw: unknown, errors: FieldError[]): SpecRow[] {
     const label = o && typeof o.label === "string" ? o.label.trim() : "";
     const value = o && (typeof o.value === "string" || typeof o.value === "number") ? String(o.value).trim() : "";
     if (!label || !value) {
-      errors.push({ field, message: `${field} needs a label and a value` });
+      errors.push(fe(field, `${field} needs a label and a value`, "spec_row_invalid"));
       return;
     }
     out.push({ label, value });
@@ -335,20 +449,22 @@ export function normaliseNewBike(data: Data, opts: NormaliseOptions = {}): Norma
   const price = c.num("price", ...LIMITS.price, true) ?? 0;
   const wasPrice = c.num("wasPrice", ...LIMITS.wasPrice);
   if (wasPrice != null && wasPrice <= price) {
-    c.errors.push({ field: "wasPrice", message: "Was price must be higher than Price" });
+    c.errors.push(fe("wasPrice", "Was price must be higher than Price", "was_price_not_higher"));
   }
   const availability = c.pick("availability", AVAILABILITIES, "check") ?? "check";
   const arrivalRaw = c.text("arrival");
   let arrival: string | undefined;
   if (arrivalRaw) {
     if (!ARRIVAL_RE.test(arrivalRaw)) {
-      c.errors.push({ field: "arrival", message: '"arrival" must be a month like 2026-12' });
+      c.errors.push(fe("arrival", '"arrival" must be a month like 2026-12', "arrival_format"));
     } else {
       arrival = arrivalRaw;
     }
   }
   if (availability === "arriving" && !arrivalRaw) {
-    c.errors.push({ field: "arrival", message: '"arrival" is required when availability is "arriving"' });
+    c.errors.push(
+      fe("arrival", '"arrival" is required when availability is "arriving"', "arrival_required"),
+    );
   }
   const colours = parseColours(data.colours, c.errors, c.missing, opts.photoExists);
   const sizes = parseSizes(data.sizes, c.errors);
