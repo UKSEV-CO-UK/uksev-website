@@ -157,7 +157,7 @@ function assertCoded(errors: { field: string; message: string; code?: string }[]
 
 test("NEW_BIKE_ERROR_CODES has unique entries and matches the exported union length", () => {
   assert.equal(new Set(NEW_BIKE_ERROR_CODES).size, NEW_BIKE_ERROR_CODES.length);
-  assert.equal(NEW_BIKE_ERROR_CODES.length, 33);
+  assert.equal(NEW_BIKE_ERROR_CODES.length, 34);
 });
 
 test("every emitted error has a stable code; field and message stay the same", () => {
@@ -184,19 +184,41 @@ test("every emitted error has a stable code; field and message stay the same", (
 });
 
 test("edition wasPrice errors are distinct from a missing edition price", () => {
-  // An omitted edition price currently normalises to 0 and is accepted.
-  // An unreadable or out-of-range price uses edition_invalid, not the wasPrice codes.
   const missingPrice = validateNewBike({
+    ...good,
+    editions: [
+      { name: "Standard", price: 999 },
+      { name: "Extender" },
+    ],
+  });
+  assert.equal(missingPrice.ok, false);
+  assert.equal(missingPrice.errors[0].field, "editions[1]");
+  assert.equal(missingPrice.errors[0].message, "editions[1] needs a name and a price in range");
+  assert.equal(missingPrice.errors[0].code, "edition_price_missing");
+
+  const emptyPrice = validateNewBike({
+    ...good,
+    editions: [{ name: "Standard", price: "" }],
+  });
+  assert.equal(emptyPrice.errors[0].field, "editions[0]");
+  assert.equal(emptyPrice.errors[0].code, "edition_price_missing");
+
+  const unreadable = validateNewBike({
     ...good,
     editions: [
       { name: "Standard", price: 999 },
       { name: "Extender", price: "abc" },
     ],
   });
-  assert.equal(missingPrice.ok, false);
-  assert.equal(missingPrice.errors[0].field, "editions[1]");
-  assert.equal(missingPrice.errors[0].message, "editions[1] needs a name and a price in range");
-  assert.equal(missingPrice.errors[0].code, "edition_invalid");
+  assert.equal(unreadable.errors[0].field, "editions[1]");
+  assert.equal(unreadable.errors[0].message, "editions[1] needs a name and a price in range");
+  assert.equal(unreadable.errors[0].code, "edition_invalid");
+
+  const zeroPrice = validateNewBike({
+    ...good,
+    editions: [{ name: "Standard", price: 0 }],
+  });
+  assert.equal(zeroPrice.ok, true);
 
   const notHigher = validateNewBike({
     ...good,
@@ -271,6 +293,7 @@ test("each new-bike error code is emitted with the expected field", () => {
     { code: "spec_row_invalid", field: "specs[0]", data: { ...good, specs: [{ label: "Motor" }] } },
     { code: "size_invalid", field: "sizes[0]", data: { ...good, sizes: [{ name: "" }] } },
     { code: "edition_invalid", field: "editions[0]", data: { ...good, editions: [{ name: "Standard", price: "abc" }] } },
+    { code: "edition_price_missing", field: "editions[1]", data: { ...good, editions: [{ name: "Standard", price: 999 }, { name: "Extender" }] } },
     { code: "edition_was_price_invalid", field: "editions[0]", data: { ...good, editions: [{ name: "Standard", price: 999, wasPrice: -1 }] } },
     { code: "edition_was_price_not_higher", field: "editions[1]", data: { ...good, editions: [{ name: "S", price: 999 }, { name: "E", price: 1290, wasPrice: 1000 }] } },
     { code: "edition_range_invalid", field: "editions[0]", data: { ...good, editions: [{ name: "Standard", price: 999, rangeKm: 0 }] } },
@@ -311,4 +334,14 @@ test("list_invalid also applies to editions and specs; photo path variants share
       JSON.stringify(photos),
     );
   }
+});
+
+test("content/new/fiido-c21.md still passes validateNewBike", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const { default: matter } = await import("gray-matter");
+  const raw = await readFile(new URL("../content/new/fiido-c21.md", import.meta.url), "utf8");
+  const { data } = matter(raw);
+  const r = validateNewBike(data);
+  assert.equal(r.ok, true, r.errors.map((e) => `${e.code}:${e.field}:${e.message}`).join("; "));
+  assert.deepEqual(r.errors, []);
 });

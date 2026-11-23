@@ -36,6 +36,7 @@ export const NEW_BIKE_ERROR_CODES = [
   "colours_missing",
   "date_invalid",
   "edition_invalid",
+  "edition_price_missing",
   "edition_range_invalid",
   "edition_was_price_invalid",
   "edition_was_price_not_higher",
@@ -370,8 +371,16 @@ function parseEditions(raw: unknown, errors: FieldError[]): Edition[] {
     }
     const name = typeof o.name === "string" ? o.name.trim() : "";
     const priceRaw = o.price;
+    const priceEmpty =
+      priceRaw == null ||
+      priceRaw === "" ||
+      (typeof priceRaw === "string" && priceRaw.trim() === "");
+    if (priceEmpty) {
+      errors.push(fe(field, `${field} needs a name and a price in range`, "edition_price_missing"));
+      return;
+    }
     const price =
-      typeof priceRaw === "number" ? priceRaw : Number(String(priceRaw ?? "").replace(/[£,\s]/g, ""));
+      typeof priceRaw === "number" ? priceRaw : Number(String(priceRaw).replace(/[£,\s]/g, ""));
     if (!name || !Number.isFinite(price) || price < 0 || price > 100_000) {
       errors.push(fe(field, `${field} needs a name and a price in range`, "edition_invalid"));
       return;
