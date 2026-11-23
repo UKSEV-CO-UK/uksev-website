@@ -1,7 +1,7 @@
 /**
- * Proposed new-bike listing types (first use: Fiido C21).
+ * New-bike listing types (first use: Fiido C21).
  * Same idea as the pre-owned module: one schema in this repo, which the admin
- * will copy later. Field names are a starting point for backend review.
+ * will copy later.
  */
 
 export const TYPES = ["e-bike", "e-scooter"] as const;
@@ -52,8 +52,8 @@ export type NewBike = {
   wasPrice?: number;
   availability: Availability;
   /**
-   * Arrival / lead-time wording, e.g. "Dec 2026".
-   * Shown beside the price when availability is `arriving` (and also
+   * Arrival month as YYYY-MM, e.g. "2026-12".
+   * Shown as "Arriving Dec 2026" when availability is `arriving` (and also
    * used if present for `check`).
    */
   arrival?: string;
@@ -93,11 +93,28 @@ export function money(n: number): string {
   return `£${n.toLocaleString("en-GB", { maximumFractionDigits: 0 })}`;
 }
 
+/** Arrival month stored as YYYY-MM (e.g. 2026-12). */
+export const ARRIVAL_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+/** Format a YYYY-MM arrival as an en-GB short month and year, e.g. "Dec 2026". */
+export function formatArrivalMonth(arrival: string): string {
+  if (!ARRIVAL_RE.test(arrival)) return arrival;
+  const year = Number(arrival.slice(0, 4));
+  const month = Number(arrival.slice(5, 7));
+  const mon = new Date(Date.UTC(year, month - 1, 1)).toLocaleString("en-GB", {
+    month: "short",
+    timeZone: "UTC",
+  });
+  return `${mon} ${year}`;
+}
+
 /** Stock / arrival line shown next to the price. */
 export function stockLabel(b: Pick<NewBike, "availability" | "arrival">): string {
   if (b.availability === "in-stock") return "UK stock";
-  if (b.availability === "arriving") return b.arrival ? `Arriving ${b.arrival}` : "Arriving";
-  if (b.arrival) return b.arrival;
+  if (b.availability === "arriving") {
+    return b.arrival ? `Arriving ${formatArrivalMonth(b.arrival)}` : "Arriving";
+  }
+  if (b.arrival) return formatArrivalMonth(b.arrival);
   return "Check stock";
 }
 
