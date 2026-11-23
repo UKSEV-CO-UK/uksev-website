@@ -19,15 +19,15 @@ Stack: Next.js App Router, React 19, TypeScript, Tailwind CSS 4. Static export
 ## New bikes (`/shop/<slug>/`)
 
 Markdown files in `content/new/<slug>.md` (the file name is the URL `/shop/<slug>/`).
-Photos go in `public/uploads/new/`. This is the proposed first version of the
-new-bike format, written so the Fiido C21 can be the first listing; backend
-review may still adjust field names.
+Photos go in `public/uploads/new/`.
 
 Required frontmatter: `brand`, `model`, `price`, `colours` (at least one colour,
 each with a name and at least one photo; the first photo is the cover, a
 side-on full-bike shot). Optional: `wasPrice` (original / list price; only
 shown when it is higher than `price`), `availability` (`in-stock` / `check` /
-`arriving` / `hidden`), `arrival`, `sizes`, `editions`, card highlights
+`arriving` / `hidden`; default `check`), `arrival` (`YYYY-MM`, e.g. `2026-12`;
+required when availability is `arriving`, shown as "Arriving Dec 2026"),
+`sizes`, `editions`, card highlights
 (`rangeKm`, `rangeMiles`, `weightKg`, `topSpeedKmh`, `battery`), and `specs`
 (label / value rows for the detail table). Hidden listings are not published.
 

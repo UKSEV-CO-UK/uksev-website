@@ -2,10 +2,10 @@
  * New-bike listing rules: ONE copy, used by the build (src/lib/newbikes.ts)
  * and later by the admin. Pure: no fs, no DOM.
  *
- * Proposed first version for backend review — C21 is the first file written
- * against this shape.
+ * C21 is the first file written against this shape.
  */
 import {
+  ARRIVAL_RE,
   AVAILABILITIES,
   TYPES,
   type Availability,
@@ -338,8 +338,16 @@ export function normaliseNewBike(data: Data, opts: NormaliseOptions = {}): Norma
     c.errors.push({ field: "wasPrice", message: "Was price must be higher than Price" });
   }
   const availability = c.pick("availability", AVAILABILITIES, "check") ?? "check";
-  const arrival = c.text("arrival");
-  if (availability === "arriving" && !arrival) {
+  const arrivalRaw = c.text("arrival");
+  let arrival: string | undefined;
+  if (arrivalRaw) {
+    if (!ARRIVAL_RE.test(arrivalRaw)) {
+      c.errors.push({ field: "arrival", message: '"arrival" must be a month like 2026-12' });
+    } else {
+      arrival = arrivalRaw;
+    }
+  }
+  if (availability === "arriving" && !arrivalRaw) {
     c.errors.push({ field: "arrival", message: '"arrival" is required when availability is "arriving"' });
   }
   const colours = parseColours(data.colours, c.errors, c.missing, opts.photoExists);
