@@ -11,6 +11,7 @@ import {
   validateBike,
   type FieldError,
 } from "../src/lib/preowned-schema";
+import { validateNewBike } from "../src/lib/newbikes-schema";
 
 /** Same limit as uksev-admin `MAX_PHOTO_BYTES`. */
 export const MAX_PHOTO_BYTES = 2.5 * 1024 * 1024;
@@ -19,7 +20,12 @@ export const MAX_PHOTO_MB = 2.5;
 export const ALLOWED_PREFIXES = [
   "content/pre-owned/",
   "public/uploads/pre-owned/",
+  "content/new/",
+  "public/uploads/new/",
 ] as const;
+
+const LISTING_DIRS = ["content/pre-owned/", "content/new/"] as const;
+const UPLOAD_DIRS = ["public/uploads/pre-owned/", "public/uploads/new/"] as const;
 
 const IMAGE_RE = /\.(jpe?g|png|webp|gif|avif|svg)$/i;
 
@@ -59,6 +65,18 @@ function fieldLabel(field: string): string {
     draft: "Draft",
     inspection: "Inspection",
     included: "Included items",
+    wasPrice: "Was price",
+    availability: "Availability",
+    arrival: "Arrival",
+    colours: "Colours",
+    sizes: "Sizes",
+    editions: "Editions",
+    rangeKm: "Range (km)",
+    rangeMiles: "Range (miles)",
+    weightKg: "Weight (kg)",
+    topSpeedKmh: "Top speed (km/h)",
+    battery: "Battery",
+    specs: "Specs",
   };
   return labels[field] ?? field.charAt(0).toUpperCase() + field.slice(1);
 }
@@ -126,7 +144,7 @@ export function photoOversizeMessage(
 }
 
 export function pathViolationMessage(p: string): string {
-  return `File is outside the allowed paths (only content/pre-owned/ and public/uploads/pre-owned/ may change): ${p}`;
+  return `File is outside the allowed paths (only content/pre-owned/, content/new/, public/uploads/pre-owned/ and public/uploads/new/ may change): ${p}`;
 }
 
 function gitDiffNames(base: string, head: string): string[] {
@@ -190,12 +208,15 @@ export function checkListingFile(
       return rel != null && fs.existsSync(path.resolve(root, rel));
     });
 
-  const result = validateBike(data, { photoExists });
+  const isNew = filePath.replace(/\\/g, "/").startsWith("content/new/");
+  const result = isNew
+    ? validateNewBike(data, { photoExists })
+    : validateBike(data, { photoExists });
   for (const err of result.errors) {
     anns.push({ file: filePath, message: friendlySchemaMessage(err) });
   }
 
-  const photos = Array.isArray(data.photos) ? data.photos : [];
+  const photos = isNew ? newBikePhotos(data) : Array.isArray(data.photos) ? data.photos : [];
   photos.forEach((p, i) => {
     const o = p && typeof p === "object" ? (p as Record<string, unknown>) : null;
     const src =
@@ -221,6 +242,20 @@ export function checkListingFile(
   });
 
   return anns;
+}
+
+/** Every photo entry across a new bike's colours, in order (colour 1 first). */
+function newBikePhotos(data: Record<string, unknown>): unknown[] {
+  const colours = Array.isArray(data.colours) ? data.colours : [];
+  const out: unknown[] = [];
+  for (const c of colours) {
+    if (!c || typeof c !== "object") continue;
+    const o = c as Record<string, unknown>;
+    const raw = o.photos ?? o.src;
+    if (Array.isArray(raw)) out.push(...raw);
+    else if (raw != null) out.push(raw);
+  }
+  return out;
 }
 
 export function checkImageFile(filePath: string, cwd = process.cwd()): Annotation[] {
@@ -254,9 +289,9 @@ export function runGuard(
 
     for (const { status, path: p } of statuses) {
       if (status === "D") continue;
-      if (p.startsWith("content/pre-owned/") && p.endsWith(".md")) {
+      if (LISTING_DIRS.some((d) => p.startsWith(d)) && p.endsWith(".md")) {
         annotations.push(...checkListingFile(p, { cwd }));
-      } else if (p.startsWith("public/uploads/pre-owned/")) {
+      } else if (UPLOAD_DIRS.some((d) => p.startsWith(d))) {
         // Skip if a listing already flagged this file (e.g. Photo N oversize).
         if (!annotations.some((a) => a.file === p)) {
           annotations.push(...checkImageFile(p, cwd));
