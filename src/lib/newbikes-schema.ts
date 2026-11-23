@@ -37,6 +37,7 @@ export const NEW_BIKE_ERROR_CODES = [
   "date_invalid",
   "edition_invalid",
   "edition_price_missing",
+  "edition_price_zero",
   "edition_range_invalid",
   "edition_was_price_invalid",
   "edition_was_price_not_higher",
@@ -47,6 +48,7 @@ export const NEW_BIKE_ERROR_CODES = [
   "photo_src_invalid",
   "price_invalid",
   "price_missing",
+  "price_zero",
   "range_km_invalid",
   "range_miles_invalid",
   "size_invalid",
@@ -385,6 +387,10 @@ function parseEditions(raw: unknown, errors: FieldError[]): Edition[] {
       errors.push(fe(field, `${field} needs a name and a price in range`, "edition_invalid"));
       return;
     }
+    if (price === 0) {
+      errors.push(fe(field, `${field} price must be more than 0`, "edition_price_zero"));
+      return;
+    }
     let wasPrice: number | undefined;
     if (o.wasPrice != null && o.wasPrice !== "") {
       const w =
@@ -446,7 +452,11 @@ export function normaliseNewBike(data: Data, opts: NormaliseOptions = {}): Norma
   const type = c.pick("type", TYPES, "e-bike") ?? "e-bike";
   const brand = c.text("brand", true) ?? "";
   const model = c.text("model", true) ?? "";
-  const price = c.num("price", ...LIMITS.price, true) ?? 0;
+  const parsedPrice = c.num("price", ...LIMITS.price, true);
+  if (parsedPrice === 0) {
+    c.errors.push(fe("price", "Price must be more than 0", "price_zero"));
+  }
+  const price = parsedPrice ?? 0;
   const wasPrice = c.num("wasPrice", ...LIMITS.wasPrice);
   if (wasPrice != null && wasPrice <= price) {
     c.errors.push(fe("wasPrice", "Was price must be higher than Price", "was_price_not_higher"));
