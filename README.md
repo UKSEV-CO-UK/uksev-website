@@ -104,3 +104,44 @@ This public site stays a pure static export. Builds still write `public/build.js
 as `{ "sha": "<GITHUB_SHA>" }` (or `"local"` in `npm run dev`) so the admin can
 tell when a published change is live on uksev.co.uk. Schema rules stay here in
 `src/lib/preowned-schema.ts` — the admin copies them.
+
+
+## Renaming the company or domain
+
+Company name, domain and contact details live in [`src/config/site.ts`](src/config/site.ts). There are **no environment-variable overrides**; change that file and rebuild. `email` is set on its own — it is not derived from `domain`. Do not add a street address to this file.
+
+`SITE` (phone and email `href`s) and the `enquireMailto` / `whatsappHref` helpers are derived from the same object and do not need a separate edit.
+
+### Fields in `src/config/site.ts`
+
+| Field | What it controls |
+| --- | --- |
+| `name` | Legal name: default document title, Organisation JSON-LD, nav `aria-label`, hero, About copy, footer, shop meta |
+| `shortName` | Short label: title template (`%s — {shortName}`), shop and pre-owned meta, large decorative word on the contact block |
+| `domain` | Hostname only. **Not read by any component today.** Keep it in line with `url` and `public/CNAME` |
+| `url` | Canonical origin (`metadataBase`, Organisation JSON-LD, pre-owned WhatsApp message links) |
+| `email` | Enquire and footer email (and `mailto:` links) |
+| `phone` | Displayed phone number; `SITE.phoneHref` / `phoneDisplay` are derived from it |
+| `whatsapp` | WhatsApp chat URL (`wa.me/…`); `whatsappHref()` may append a pre-filled message |
+| `companyNumber` | Companies House number in the footer and JSON-LD; omit or leave empty to hide it |
+| `logo` | Navbar logo path (default `/brand/logo.svg`) |
+| `logoMark` | Path to the mark asset (default `/brand/logo-mark.svg`). **Not referenced by any component today**; keep it if you still ship the file |
+
+### Still hardcoded (not covered by `site.ts`)
+
+- `package.json` `"name"` (`uksev-website`) — npm package name, not shown on the site.
+- Comments and this README still mention the admin repo (`UKSEV-CO-UK/uksev-admin`) and `https://admin.uksev.co.uk`.
+- Marketing lines such as “UK warehouse” live in page copy, not in the config.
+- Catalogue data under `content/` (including model codes) is unrelated to a company rename.
+
+Phone, email and WhatsApp are not hardcoded outside `src/config/site.ts`.
+
+### Manual steps outside the code
+
+These are not driven by `site.ts` and must be changed by hand:
+
+- **`public/CNAME`** — this repo’s custom-domain file (Next.js copies `public/` to the static export root, so GitHub Pages sees it as `/CNAME`). Put the bare hostname here, with no `https://`. There is no `CNAME` at the repository root.
+- **GitHub Pages custom domain** — repo Settings → Pages.
+- **Cloudflare DNS** — configured by hand in the Cloudflare dashboard, not from this repository (apex and `www` for the public site).
+- **Logo files** — replace the assets in `public/brand/` (`logo.svg`, `logo-mark.svg`, `logo-on-light.svg`; the last is not referenced in `site.ts`). Also replace `src/app/favicon.ico` if the icon should change.
+- **GitHub org and repo rename** — rename on GitHub if needed. Then update the admin’s repo setting and any vendored schema headers; follow the uksev-admin README section **更换公司名、域名或仓库** (in [uksev-admin#41](https://github.com/UKSEV-CO-UK/uksev-admin/pull/41) until that lands on main).
