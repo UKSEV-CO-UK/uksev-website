@@ -149,9 +149,11 @@ export function PreownedList({ bikes }: { bikes: PreownedSummary[] }) {
       </div>
 
       <div className="bar">
-        <span>
-          <b>{list.length}</b> bike{list.length === 1 ? "" : "s"} ·{" "}
-          {soldCount ? `${soldCount} recently sold` : "all available"}
+        <span className="sum">
+          <span>
+            <b>{list.length}</b> bike{list.length === 1 ? "" : "s"}
+          </span>
+          <span>{soldCount ? `${soldCount} recently sold` : "all available"}</span>
         </span>
         <label className="sort">
           <span className="sr-only">Sort</span>

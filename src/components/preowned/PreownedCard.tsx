@@ -44,9 +44,13 @@ export function PreownedCard({ bike: b }: { bike: PreownedSummary }) {
       </Link>
       <div className="body">
         <h3>
-          <span className="ident">{TYPE_LABEL[b.type]} · {b.brand} · {b.year}</span>
           <Link href={href}>{b.model}</Link>
         </h3>
+        <div className="idline">
+          <span>{TYPE_LABEL[b.type]}</span>
+          <span>{b.brand}</span>
+          <span>{b.year}</span>
+        </div>
         <div className="specs">
           <div>
             <b>{b.mileage.toLocaleString("en-GB")} mi</b>

@@ -10,6 +10,7 @@ import { enquireHref, similarHref, whatsappBike, whatsappHref } from "@/lib/preo
 import {
   GRADE_NOTE,
   GRADE_WORD,
+  TYPE_LABEL,
   bikeName,
   money,
   shortDate,
@@ -96,6 +97,11 @@ export default async function PreownedBikePage({ params }: Props) {
             </p>
           )}
           <h1>{b.model}</h1>
+          <div className="idline">
+            <span>{TYPE_LABEL[b.type]}</span>
+            <span>{b.brand}</span>
+            <span>{b.year}</span>
+          </div>
           <div className={`st ${b.status}`}>
             <i />
             {statusLine}
@@ -276,10 +282,11 @@ export default async function PreownedBikePage({ params }: Props) {
                     <img src={x.photos[0].src} alt="" loading="lazy" />
                   </div>
                   <div className="b">
-                    <h3>
-                      <span className="ident">{x.brand} · {x.year}</span>
-                      {x.model}
-                    </h3>
+                    <h3>{x.model}</h3>
+                    <div className="idline">
+                      <span>{x.brand}</span>
+                      <span>{x.year}</span>
+                    </div>
                     <p>
                       {x.mileage.toLocaleString("en-GB")} mi
                       {x.batteryHealth != null && ` · ${x.batteryHealth}% battery`}
