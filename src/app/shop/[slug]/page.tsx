@@ -5,7 +5,7 @@ import { Btn } from "@/components/Btn";
 import { NewBikeGallery } from "@/components/NewBikeGallery";
 import { SalePrice } from "@/components/SalePrice";
 import { getAll, getBySlug } from "@/lib/newbikes";
-import { bikeName, money } from "@/lib/newbikes-types";
+import { bikeName, priceText } from "@/lib/newbikes-types";
 import { enquireMailto, SITE } from "@/lib/site";
 
 const PLACEHOLDER = "none";
@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!bike) return { title: "Not found", robots: { index: false } };
   return {
     title: bikeName(bike),
-    description: `${bikeName(bike)} — ${money(bike.price)} at UKSEV. Enquire to confirm.`,
+    description: `${bikeName(bike)} — ${priceText(bike)} at UKSEV. Enquire to confirm.`,
   };
 }
 
@@ -62,17 +62,22 @@ export default async function NewBikePage({ params }: Props) {
       </div>
 
       <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
-        <NewBikeGallery colours={bike.colours} alt={name} />
+        <NewBikeGallery colours={bike.colours} photos={bike.photos} alt={name} />
 
         <aside>
           <div className="mb-2 text-[10.5px] font-semibold tracking-[0.15em] text-teal uppercase">
-            {bike.brand}
+            {bike.code ? `${bike.code} · ${bike.brand}` : bike.brand}
           </div>
           <h1 className="font-display mb-4 text-[clamp(32px,4vw,52px)] leading-none font-extrabold tracking-[-0.03em]">
             {bike.model}
           </h1>
           <div className="mb-6 flex flex-wrap items-end gap-2">
-            <SalePrice price={bike.price} wasPrice={bike.wasPrice} className="text-[28px]" />
+            <SalePrice
+              price={bike.price}
+              wasPrice={bike.wasPrice}
+              label={bike.priceLabel}
+              className="text-[28px]"
+            />
           </div>
 
           {bike.sizes.length > 0 && (
@@ -131,9 +136,9 @@ export default async function NewBikePage({ params }: Props) {
         <section className="mt-12">
           <h2 className="font-display mb-4 text-2xl font-bold tracking-[-0.02em]">Specifications</h2>
           <dl className="divide-y divide-hair border-y border-hair">
-            {bike.specs.map((row) => (
+            {bike.specs.map((row, i) => (
               <div
-                key={row.label}
+                key={`${i}-${row.label}`}
                 className="grid grid-cols-[minmax(0,0.4fr)_minmax(0,0.6fr)] gap-4 py-3 text-sm"
               >
                 <dt className="text-muted">{row.label}</dt>

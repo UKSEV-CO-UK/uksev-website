@@ -1,9 +1,24 @@
-import { featuredDeck } from "@/data/products";
+import { getListed } from "@/lib/newbikes";
+import { coverPhoto, priceText } from "@/lib/newbikes-types";
 import { SITE, enquireMailto } from "@/lib/site";
 import { Btn } from "./Btn";
-import { ThrowableDeck } from "./ThrowableDeck";
+import { ThrowableDeck, type DeckItem } from "./ThrowableDeck";
 
-export function ReleasesDeck() {
+/** The first four listings by `order` (the old `featured <= 4` deck). */
+async function featuredDeck(): Promise<DeckItem[]> {
+  return (await getListed())
+    .filter((b) => b.order != null)
+    .slice(0, 4)
+    .map((b) => ({
+      img: coverPhoto(b)?.src ?? "",
+      eyebrow: b.code ?? b.brand,
+      title: `${b.brand} ${b.model}`,
+      meta: [priceText(b), b.specs[0]?.value].filter(Boolean).join(" · "),
+    }));
+}
+
+export async function ReleasesDeck() {
+  const items = await featuredDeck();
   return (
     <section id="rides" className="bg-ground-2 px-7 py-[100px] md:py-20">
       <div className="mx-auto grid max-w-[1180px] grid-cols-1 items-center gap-9 md:grid-cols-2 md:gap-12">
@@ -29,7 +44,7 @@ export function ReleasesDeck() {
           </div>
         </div>
         <div className="reveal">
-          <ThrowableDeck items={featuredDeck} />
+          <ThrowableDeck items={items} />
         </div>
       </div>
     </section>

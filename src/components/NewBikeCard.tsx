@@ -17,6 +17,21 @@ function whatsappBike(name: string): string {
   return `${base}?text=${encodeURIComponent(text)}`;
 }
 
+/** One-line spec summary for listings without card highlights (e.g. migrated catalogue rows). */
+function specLine(bike: NewBikeSummary): string {
+  return bike.specs.map((row) => row.value).join(" · ");
+}
+
+function hasHighlights(bike: NewBikeSummary): boolean {
+  return (
+    bike.rangeKm != null ||
+    bike.rangeMiles != null ||
+    bike.weightKg != null ||
+    bike.topSpeedKmh != null ||
+    bike.batteryWh != null
+  );
+}
+
 function highlight(bike: NewBikeSummary) {
   return [
     {
@@ -52,11 +67,11 @@ export function NewBikeCard({ bike }: { bike: NewBikeSummary }) {
 
   return (
     <article className="flex flex-col overflow-hidden rounded-2xl border border-hair bg-ground-2 transition-colors hover:border-[rgba(232,145,60,0.45)]">
-      <Link href={href} className="relative aspect-[4/3] bg-[#15181c]" aria-label={name}>
+      <Link href={href} className="relative block aspect-[4/3] bg-[#15181c]" aria-label={name}>
         {cover && (
           // plain img: static export, unoptimized images
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={cover.src} alt="" className="h-full w-full object-contain" />
+          <img src={cover.src} alt="" className="absolute inset-0 h-full w-full object-contain" />
         )}
         {bike.colours.length > 1 && (
           <div
@@ -89,22 +104,30 @@ export function NewBikeCard({ bike }: { bike: NewBikeSummary }) {
       </Link>
       <div className="flex flex-1 flex-col gap-2 px-4 pt-4 pb-[18px]">
         <div className="text-[10px] font-semibold tracking-[0.14em] text-amber uppercase">
-          {bike.brand}
+          {bike.code ? `${bike.code} · ${bike.brand}` : bike.brand}
         </div>
         <h3 className="font-display text-xl font-bold tracking-[-0.02em]">
           <Link href={href}>{bike.model}</Link>
         </h3>
         <div className="flex flex-wrap items-end gap-2">
-          <SalePrice price={bike.price} wasPrice={bike.wasPrice} />
+          <SalePrice price={bike.price} wasPrice={bike.wasPrice} label={bike.priceLabel} />
         </div>
-        <div className="mt-1 grid grid-cols-4 gap-1 border-t border-hair pt-3">
-          {highlight(bike).map((row) => (
-            <div key={row.label} className="min-w-0">
-              <div className="truncate font-display text-sm font-semibold tracking-[-0.02em]">{row.value}</div>
-              <div className="text-[9.5px] tracking-[0.1em] text-muted uppercase">{row.label}</div>
+        {hasHighlights(bike) ? (
+          <div className="mt-1 grid grid-cols-4 gap-1 border-t border-hair pt-3">
+            {highlight(bike).map((row) => (
+              <div key={row.label} className="min-w-0">
+                <div className="truncate font-display text-sm font-semibold tracking-[-0.02em]">{row.value}</div>
+                <div className="text-[9.5px] tracking-[0.1em] text-muted uppercase">{row.label}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          specLine(bike) && (
+            <div className="mt-1 flex-1 border-t border-hair pt-3 text-xs leading-[1.45] text-ink-2">
+              {specLine(bike)}
             </div>
-          ))}
-        </div>
+          )
+        )}
         <div className="mt-2.5 grid grid-cols-[1.2fr_1fr] gap-2">
           <Btn href={enquireMailto(name)} solid className="!px-2 !py-[11px] text-center">
             Enquire

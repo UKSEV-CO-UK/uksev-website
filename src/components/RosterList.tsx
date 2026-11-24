@@ -1,4 +1,11 @@
-import { brandRoster } from "@/data/products";
+/** Brand lines shown on the home page (copy, not catalogue data). */
+const brandRoster = [
+  { name: "ADO", blurb: "Carbon fold" },
+  { name: "ENGWE", blurb: "Fat / utility" },
+  { name: "LANKELEISI", blurb: "Dual motor" },
+  { name: "COSWHEEL", blurb: "High power" },
+  { name: "DUOTTS · DYU · Eleglide", blurb: "More lines" },
+] as const;
 
 export function RosterList() {
   return (
