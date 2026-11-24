@@ -164,3 +164,33 @@ export function coverPhoto(
     (colourName && b.colours.find((c) => c.name === colourName)) || b.colours[0];
   return colour?.photos[0] ?? b.photos[0];
 }
+
+/**
+ * Detail-gallery order: photos of the selected colour first (when named),
+ * then the other colours in listed order, then general `photos`. Identical
+ * `src` values appear once, at their first position. Cards still use
+ * `coverPhoto` and are not affected.
+ */
+export function galleryPhotos(
+  b: Pick<NewBike, "colours" | "photos">,
+  selectedColourName?: string,
+): Photo[] {
+  const out: Photo[] = [];
+  const seen = new Set<string>();
+  const add = (photo: Photo | undefined) => {
+    if (!photo?.src || seen.has(photo.src)) return;
+    seen.add(photo.src);
+    out.push(photo);
+  };
+  const selected =
+    selectedColourName ? b.colours.find((c) => c.name === selectedColourName) : undefined;
+  if (selected) {
+    for (const photo of selected.photos) add(photo);
+  }
+  for (const colour of b.colours) {
+    if (selected && colour.name === selected.name) continue;
+    for (const photo of colour.photos) add(photo);
+  }
+  for (const photo of b.photos) add(photo);
+  return out;
+}

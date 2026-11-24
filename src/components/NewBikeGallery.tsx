@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Colour, Photo } from "@/lib/newbikes-types";
+import { galleryPhotos, type Colour, type Photo } from "@/lib/newbikes-types";
 
 /** Colour picker only when colours exist; otherwise the first loose photo. */
 export function NewBikeGallery({
@@ -15,7 +15,15 @@ export function NewBikeGallery({
 }) {
   const [colourName, setColourName] = useState(colours[0]?.name);
   const colour = colours.find((c) => c.name === colourName) ?? colours[0];
-  const photo = colour?.photos[0] ?? photos[0];
+  const list = galleryPhotos({ colours, photos }, colour?.name);
+  const [activeSrc, setActiveSrc] = useState<string | undefined>(undefined);
+  const photo = list.find((p) => p.src === activeSrc) ?? list[0];
+
+  const selectColour = (name: string) => {
+    const next = colours.find((c) => c.name === name) ?? colours[0];
+    setColourName(next?.name);
+    setActiveSrc(next?.photos[0]?.src);
+  };
 
   return (
     <div>
@@ -29,6 +37,32 @@ export function NewBikeGallery({
           />
         )}
       </div>
+      {list.length > 1 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {list.map((p, k) => {
+            const selected = p.src === photo?.src;
+            return (
+              <button
+                key={p.src}
+                type="button"
+                onClick={() => setActiveSrc(p.src)}
+                aria-label={`Show photo ${k + 1} of ${list.length}`}
+                aria-current={selected ? "true" : undefined}
+                className={`overflow-hidden rounded-lg border bg-photo-ground ${
+                  selected ? "border-ink" : "border-hair hover:border-amber"
+                }`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={p.src}
+                  alt=""
+                  className="h-16 w-16 object-contain p-1 mix-blend-multiply"
+                />
+              </button>
+            );
+          })}
+        </div>
+      )}
       {colours.length > 0 && (
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {colours.map((c) => {
@@ -37,7 +71,7 @@ export function NewBikeGallery({
               <button
                 key={c.name}
                 type="button"
-                onClick={() => setColourName(c.name)}
+                onClick={() => selectColour(c.name)}
                 className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] ${
                   selected ? "border-ink text-ink" : "border-hair text-ink-2 hover:border-amber hover:text-amber"
                 }`}
