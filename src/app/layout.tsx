@@ -1,4 +1,4 @@
-import { SITE, site } from "@/config/site";
+import { SITE, site, siteOrigin, siteUrl } from "@/config/site";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { NavBar } from "@/components/NavBar";
@@ -26,7 +26,9 @@ export const metadata: Metadata = {
   },
   description:
     `${site.name} — electric bikes from our UK warehouse. Guide prices, enquire to confirm.`,
-  metadataBase: new URL(site.url),
+  metadataBase: new URL(siteOrigin),
+  alternates: { canonical: siteUrl("/") },
+  openGraph: { url: siteUrl("/") },
 };
 
 const ORG_LD = {

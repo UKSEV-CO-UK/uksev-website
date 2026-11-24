@@ -79,6 +79,12 @@ export function money(n: number): string {
   return `£${n.toLocaleString("en-GB", { maximumFractionDigits: 0 })}`;
 }
 
+/** List-bar summary: real singular/plural, never a literal "(s)". */
+export function listSummary(count: number, soldCount: number): string {
+  const bikes = `${count} bike${count === 1 ? "" : "s"}`;
+  return soldCount ? `${bikes}, ${soldCount} recently sold` : `${bikes}, all available`;
+}
+
 export function shortDate(iso: string): string {
   const d = new Date(`${iso}T00:00:00Z`);
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });

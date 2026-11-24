@@ -16,7 +16,7 @@ import {
   shortDate,
   type InspectionResult,
 } from "@/lib/preowned-types";
-import { SITE, site } from "@/config/site";
+import { SITE, site, siteUrl } from "@/config/site";
 
 /** Static export needs ≥ 1 param; with no published bikes we emit one 404 placeholder. */
 const PLACEHOLDER = "none";
@@ -38,6 +38,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: `Pre-owned ${bikeName(bike)}, ${bike.year}, ${bike.mileage.toLocaleString("en-GB")} miles${
       bike.batteryHealth != null ? `, ${bike.batteryHealth}% battery health` : ""
     }${sold ? " — sold." : ` — guide ${money(bike.price)} at ${site.shortName}.`}`,
+    alternates: { canonical: siteUrl(`/pre-owned/${bike.slug}/`) },
+    openGraph: { url: siteUrl(`/pre-owned/${bike.slug}/`) },
     ...(bike.draft ? { robots: { index: false } } : {}),
   };
 }
@@ -51,12 +53,6 @@ export default async function PreownedBikePage({ params }: Props) {
   const sold = b.status === "sold";
   const name = bikeName(b);
 
-  const statusLine =
-    b.status === "available"
-      ? `Available now${b.date ? ` · listed ${shortDate(b.date)}` : ""}`
-      : b.status === "reserved"
-        ? "Reserved · ask to join the waiting list"
-        : `Sold${b.soldDate ? ` · ${shortDate(b.soldDate)}` : ""}`;
 
   const specs: [string, string | undefined][] = [
     ["Motor", b.motorW != null ? `${b.motorW}W` : undefined],
@@ -104,7 +100,17 @@ export default async function PreownedBikePage({ params }: Props) {
           </div>
           <div className={`st ${b.status}`}>
             <i />
-            {statusLine}
+            <span>
+              {b.status === "available"
+                ? b.date
+                  ? `Available now, listed ${shortDate(b.date)}`
+                  : "Available now"
+                : b.status === "reserved"
+                  ? "Reserved. Ask to join the waiting list."
+                  : b.soldDate
+                    ? `Sold on ${shortDate(b.soldDate)}`
+                    : "Sold"}
+            </span>
           </div>
 
           {sold ? (
@@ -287,10 +293,10 @@ export default async function PreownedBikePage({ params }: Props) {
                       <span>{x.brand}</span>
                       <span>{x.year}</span>
                     </div>
-                    <p>
-                      {x.mileage.toLocaleString("en-GB")} mi
-                      {x.batteryHealth != null && ` · ${x.batteryHealth}% battery`}
-                      {x.grade && ` · Grade ${x.grade}`}
+                    <p className="parts">
+                      <span>{x.mileage.toLocaleString("en-GB")} mi</span>
+                      {x.batteryHealth != null && <span>{x.batteryHealth}% battery</span>}
+                      {x.grade && <span>Grade {x.grade}</span>}
                     </p>
                     <strong>{money(x.price)}</strong>
                   </div>
@@ -315,7 +321,10 @@ export default async function PreownedBikePage({ params }: Props) {
           </a>
         ) : (
           <a className="btn solid" href={enquireHref(b)}>
-            Enquire · {money(b.price)}
+            <span className="parts">
+              <span>Enquire</span>
+              <span className="askprice">{money(b.price)}</span>
+            </span>
           </a>
         )}
       </div>

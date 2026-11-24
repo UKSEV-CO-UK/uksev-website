@@ -6,6 +6,7 @@ import {
   GRADE_WORD,
   TYPES,
   TYPE_LABEL,
+  listSummary,
   newestFirst,
   priceBand,
   type Grade,
@@ -141,7 +142,7 @@ export function PreownedList({ bikes }: { bikes: PreownedSummary[] }) {
             <span className="lab">Grade</span>
             {(["all", ...GRADES] as const).map((v) => (
               <button key={v} type="button" className="chip opt" aria-pressed={grade === v} onClick={() => setGrade(v)}>
-                {v === "all" ? "Any" : `${v} · ${GRADE_WORD[v]}`}
+                {v === "all" ? "Any" : `${v}, ${GRADE_WORD[v].toLowerCase()}`}
               </button>
             ))}
           </div>
@@ -149,18 +150,13 @@ export function PreownedList({ bikes }: { bikes: PreownedSummary[] }) {
       </div>
 
       <div className="bar">
-        <span className="sum">
-          <span>
-            <b>{list.length}</b> bike{list.length === 1 ? "" : "s"}
-          </span>
-          <span>{soldCount ? `${soldCount} recently sold` : "all available"}</span>
-        </span>
+        <span className="sum">{listSummary(list.length, soldCount)}</span>
         <label className="sort">
           <span className="sr-only">Sort</span>
           <select value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
             <option value="newest">Newest first</option>
-            <option value="price-asc">Price · low to high</option>
-            <option value="price-desc">Price · high to low</option>
+            <option value="price-asc">Price: low to high</option>
+            <option value="price-desc">Price: high to low</option>
           </select>
           <Icon name="chev" />
         </label>

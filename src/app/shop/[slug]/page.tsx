@@ -6,7 +6,7 @@ import { NewBikeGallery } from "@/components/NewBikeGallery";
 import { SalePrice } from "@/components/SalePrice";
 import { getAll, getBySlug } from "@/lib/newbikes";
 import { bikeName, priceText, splitSpecValue } from "@/lib/newbikes-types";
-import { enquireMailto, site, whatsappHref } from "@/config/site";
+import { enquireMailto, site, siteUrl, whatsappHref } from "@/config/site";
 
 const PLACEHOLDER = "none";
 export const dynamicParams = false;
@@ -24,6 +24,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: bikeName(bike),
     description: `${bikeName(bike)} — ${priceText(bike)} at ${site.shortName}. Enquire to confirm.`,
+    alternates: { canonical: siteUrl(`/shop/${bike.slug}/`) },
+    openGraph: { url: siteUrl(`/shop/${bike.slug}/`) },
   };
 }
 
@@ -82,9 +84,9 @@ export default async function NewBikePage({ params }: Props) {
               </div>
               <ul className="space-y-1 text-sm text-ink-2">
                 {bike.sizes.map((s) => (
-                  <li key={s.name}>
+                  <li key={s.name} className="flex flex-wrap gap-x-3">
                     <span className="font-medium text-ink">{s.name}</span>
-                    {s.riderHeight ? ` · ${s.riderHeight}` : ""}
+                    {s.riderHeight ? <span>{s.riderHeight}</span> : null}
                   </li>
                 ))}
               </ul>

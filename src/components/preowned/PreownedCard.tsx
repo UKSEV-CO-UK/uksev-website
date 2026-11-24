@@ -67,7 +67,9 @@ export function PreownedCard({ bike: b }: { bike: PreownedSummary }) {
           </div>
           <div className="g">
             <b>{b.grade ?? "—"}</b>
-            <span>{b.grade ? `Grade · ${GRADE_WORD[b.grade].toLowerCase()}` : "Grade"}</span>
+            <span>
+              {b.grade ? `Grade, ${GRADE_WORD[b.grade].toLowerCase()}` : "Grade"}
+            </span>
           </div>
         </div>
         {sold ? (

@@ -140,7 +140,10 @@ export function PortalHero() {
           {site.name} <span className="text-amber">/</span> Electric bikes
         </div>
         <div className="absolute top-[78px] right-7 z-[5] hidden text-right text-[10.5px] font-medium text-ink-2 sm:block">
-          UK warehouse <span className="text-amber">·</span> by appointment
+          <span className="flex flex-wrap justify-end gap-x-3">
+            <span>UK warehouse</span>
+            <span>by appointment</span>
+          </span>
         </div>
         <div className="absolute bottom-7 left-7 z-[5] text-[10.5px] font-medium text-ink-2">
           Scroll to open

@@ -18,6 +18,16 @@ export const site = {
 
 export type SiteConfig = typeof site;
 
+/** Canonical origin, derived from `domain`. */
+export const siteOrigin = `https://${site.domain}`;
+
+/** Absolute URL on the configured domain (always with a trailing slash). */
+export function siteUrl(path = "/"): string {
+  const pathname = !path || path === "/" ? "/" : path.startsWith("/") ? path : `/${path}`;
+  const withSlash = pathname.endsWith("/") ? pathname : `${pathname}/`;
+  return `${siteOrigin}${withSlash}`;
+}
+
 function telHref(phone: string): string {
   return `tel:${phone.replace(/[^\d+]/g, "")}`;
 }
