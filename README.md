@@ -29,8 +29,8 @@ shown when it is higher than `price`), `hidden` (`true` / `false`, default
 (`rangeKm`, `rangeMiles`, `weightKg`, `topSpeedKmh`, `battery`), and `specs`
 (label / value rows for the detail table). Hidden listings are not published.
 New bikes are a showcase catalogue, so there is no stock state or arrival month:
-the old `availability` and `arrival` keys are ignored with a build warning, except
-that `availability: hidden` is still treated as `hidden: true`.
+the old `availability` and `arrival` keys fail the build and content-guard with
+error code `legacy_field_removed`. Use `hidden: true` to keep a bike off the site.
 
 Rules live in `src/lib/newbikes-schema.ts` (`validateNewBike` / `normaliseNewBike`).
 
