@@ -99,3 +99,20 @@ test("new-bike hidden flag and legacy stock keys", async () => {
   assert.equal(anns.length, 1);
   assert.match(anns[0].message, /Hidden|hidden/);
 });
+
+test("new-bike listing with top-level photos and no colours passes; oversize loose photo is flagged", async () => {
+  const fs = await import("node:fs");
+  const os = await import("node:os");
+  const path = await import("node:path");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "cg-"));
+  fs.mkdirSync(path.join(dir, "content/new"), { recursive: true });
+  fs.mkdirSync(path.join(dir, "public/uploads/new/x"), { recursive: true });
+  fs.writeFileSync(path.join(dir, "public/uploads/new/x/cover.jpg"), "x");
+  const body = "brand: ADO\nmodel: X\nprice: 1000\npriceLabel: From £1,000\ncode: UK-ADO-X\norder: 3\nphotos:\n  - src: /uploads/new/x/cover.jpg\n";
+  fs.writeFileSync(path.join(dir, "content/new/x.md"), `---\n${body}---\n`);
+  assert.deepEqual(checkListingFile("content/new/x.md", { cwd: dir }), []);
+
+  fs.writeFileSync(path.join(dir, "public/uploads/new/x/cover.jpg"), Buffer.alloc(3 * 1024 * 1024));
+  const anns = checkListingFile("content/new/x.md", { cwd: dir });
+  assert.ok(anns.some((a) => /over 2.5 MB/.test(a.message)), JSON.stringify(anns));
+});

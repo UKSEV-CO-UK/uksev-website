@@ -147,7 +147,7 @@ function assertCoded(errors: { field: string; message: string; code?: string }[]
 
 test("NEW_BIKE_ERROR_CODES has unique entries and matches the exported union length", () => {
   assert.equal(new Set(NEW_BIKE_ERROR_CODES).size, NEW_BIKE_ERROR_CODES.length);
-  assert.equal(NEW_BIKE_ERROR_CODES.length, 35);
+  assert.equal(NEW_BIKE_ERROR_CODES.length, 36);
 });
 
 test("every emitted error has a stable code; field and message stay the same", () => {
@@ -299,6 +299,7 @@ test("each new-bike error code is emitted with the expected field", () => {
     { code: "battery_wh_invalid", field: "batteryWh", data: { ...good, batteryWh: 1 } },
     { code: "battery_invalid", field: "battery", data: { ...good, battery: { label: "36V" } } },
     { code: "motor_w_invalid", field: "motorW", data: { ...good, motorW: 1 } },
+    { code: "order_invalid", field: "order", data: { ...good, order: -1 } },
     { code: "spec_row_invalid", field: "specs[0]", data: { ...good, specs: [{ label: "Motor" }] } },
     { code: "size_invalid", field: "sizes[0]", data: { ...good, sizes: [{ name: "" }] } },
     { code: "edition_invalid", field: "editions[0]", data: { ...good, editions: [{ name: "Standard", price: "abc" }] } },
@@ -356,4 +357,79 @@ test("content/new/fiido-c21.md still passes validateNewBike", async () => {
   const r = validateNewBike(data);
   assert.equal(r.ok, true, r.errors.map((e) => `${e.code}:${e.field}:${e.message}`).join("; "));
   assert.deepEqual(r.errors, []);
+});
+
+const loose = {
+  brand: "ADO",
+  model: "Air Carbon",
+  price: 1799,
+  wasPrice: 2999,
+  photos: [{ src: "/uploads/new/ado-air-carbon/cover.jpg" }],
+};
+
+test("colours are optional when top-level photos are given", () => {
+  const r = normaliseNewBike(loose);
+  assert.deepEqual([...r.missing, ...r.errors], []);
+  assert.deepEqual(r.bike.colours, []);
+  assert.equal(r.bike.photos[0].src, "/uploads/new/ado-air-carbon/cover.jpg");
+  assert.equal(validateNewBike({ ...loose, colours: [] }).ok, true);
+
+  // Neither colours nor photos: still colours_missing.
+  const none = validateNewBike({ ...loose, photos: [] });
+  assert.equal(none.ok, false);
+  assert.equal(none.errors[0].code, "colours_missing");
+
+  // Top-level photos follow the same path rules as colour photos.
+  for (const photos of [["uploads/new/x.jpg"], ["/uploads/pre-owned/x.jpg"], ["/uploads/new/x.txt"]]) {
+    const bad = validateNewBike({ ...loose, photos });
+    assert.ok(bad.errors.some((e) => e.code === "photo_src_invalid" && e.field === "photos[0]"), JSON.stringify(photos));
+  }
+  const missing = validateNewBike(loose, { photoExists: () => false });
+  assert.equal(missing.errors[0].code, "photo_not_found");
+  assert.equal(validateNewBike({ ...loose, photos: "/uploads/new/x.jpg" }).errors[0].code, "list_invalid");
+  assert.equal(validateNewBike({ ...good, colours: "Grey" }).errors[0].code, "list_invalid");
+});
+
+test("code, order and priceLabel are optional and carried through", () => {
+  const r = normaliseNewBike({ ...loose, code: "UK-ADO-AIR-CARBON", order: 1, priceLabel: "From £1,799" });
+  assert.equal(r.errors.length, 0);
+  assert.equal(r.bike.code, "UK-ADO-AIR-CARBON");
+  assert.equal(r.bike.order, 1);
+  assert.equal(r.bike.priceLabel, "From £1,799");
+  const plain = normaliseNewBike(loose).bike;
+  assert.ok(!("code" in plain) && !("order" in plain) && !("priceLabel" in plain));
+  assert.equal(validateNewBike({ ...loose, order: "first" }).errors[0].code, "order_invalid");
+  assert.equal(validateNewBike({ ...loose, priceLabel: { a: 1 } }).errors[0].code, "text_invalid");
+});
+
+test("accessory is a valid type", () => {
+  assert.equal(normaliseNewBike({ ...loose, type: "accessory" }).bike.type, "accessory");
+});
+
+test("featuredFirst: unordered listings first (newest first), then ascending order", async () => {
+  const { featuredFirst } = await import("../src/lib/newbikes-types");
+  const mk = (model: string, order?: number, date?: string) =>
+    ({ ...normaliseNewBike({ ...loose, model, order, date }).bike, slug: model });
+  const sorted = [mk("b", 2), mk("a", 1), mk("old", undefined, "2026-01-01"), mk("new", undefined, "2026-11-23")]
+    .sort(featuredFirst)
+    .map((b) => b.slug);
+  assert.deepEqual(sorted, ["new", "old", "a", "b"]);
+});
+
+test("every migrated content/new listing passes validateNewBike with its photo on disk", async () => {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const { default: matter } = await import("gray-matter");
+  const dir = new URL("../content/new/", import.meta.url);
+  const pub = new URL("../public", import.meta.url).pathname;
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".md"));
+  assert.ok(files.length >= 87, `expected at least 87 listings, got ${files.length}`);
+  for (const f of files) {
+    const { data } = matter(fs.readFileSync(new URL(f, dir), "utf8"));
+    const r = validateNewBike(data, { photoExists: (src) => fs.existsSync(path.join(pub, src)) });
+    assert.equal(r.ok, true, `${f}: ${r.errors.map((e) => e.message).join("; ")}`);
+    if (Array.isArray(data.colours)) {
+      for (const c of data.colours) assert.notEqual(String(c?.name).toLowerCase(), "standard", f);
+    }
+  }
 });

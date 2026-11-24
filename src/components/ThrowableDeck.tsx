@@ -1,10 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Product } from "@/data/products";
+/** One card in the deck; built server-side from a new-bike listing. */
+export type DeckItem = {
+  img: string;
+  eyebrow: string;
+  title: string;
+  meta: string;
+};
 
 type Props = {
-  items: Product[];
+  items: DeckItem[];
 };
 
 function stackStyle(i: number) {
@@ -13,14 +19,6 @@ function stackStyle(i: number) {
   const s = 1 - i * 0.04;
   const r = i * -2.5;
   return `translate(${x}px, ${y}px) scale(${s}) rotate(${r}deg)`;
-}
-
-function deckMeta(p: Product) {
-  const bits = [p.priceLabel];
-  if (p.stock) bits.push("UK stock");
-  const short = p.spec.split("·")[0]?.trim();
-  if (short) bits.push(short);
-  return bits.join(" · ");
 }
 
 export function ThrowableDeck({ items }: Props) {
@@ -145,12 +143,12 @@ export function ThrowableDeck({ items }: Props) {
               />
               <div className="px-[18px] pt-[18px] pb-5">
                 <div className="mb-2 text-[10.5px] font-semibold tracking-[0.14em] text-amber uppercase">
-                  {r.code}
+                  {r.eyebrow}
                 </div>
                 <h3 className="font-display mb-1.5 text-[22px] tracking-[-0.02em]">
-                  {r.brand} {r.name}
+                  {r.title}
                 </h3>
-                <div className="text-xs text-ink-2">{deckMeta(r)}</div>
+                <div className="text-xs text-ink-2">{r.meta}</div>
               </div>
             </article>
           );

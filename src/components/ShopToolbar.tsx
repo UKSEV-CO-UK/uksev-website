@@ -1,56 +1,54 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { productBrands, products, type Product } from "@/data/products";
-import { ProductCard } from "./ProductCard";
+import { featuredFirst, type NewBikeSummary } from "@/lib/newbikes-types";
+import { NewBikeCard } from "./NewBikeCard";
 
-type StockFilter = "all" | "uk" | "sale";
+type PriceFilter = "all" | "sale";
 type SortKey = "featured" | "name" | "brand" | "price-asc" | "price-desc";
 
-function priceKey(i: Product) {
-  return i.price == null ? Infinity : i.price;
+/** Brand chips in the order brands first appear in the Featured list. */
+function brandsOf(bikes: NewBikeSummary[]): string[] {
+  return ["All", ...Array.from(new Set([...bikes].sort(featuredFirst).map((b) => b.brand)))];
 }
 
-export function ShopToolbar() {
+export function ShopToolbar({ bikes }: { bikes: NewBikeSummary[] }) {
   const [q, setQ] = useState("");
   const [brand, setBrand] = useState("All");
-  const [stock, setStock] = useState<StockFilter>("all");
+  const [priceFilter, setPriceFilter] = useState<PriceFilter>("all");
   const [sort, setSort] = useState<SortKey>("featured");
+  const brands = useMemo(() => brandsOf(bikes), [bikes]);
 
   const list = useMemo(() => {
     const query = q.trim().toLowerCase();
-    let filtered = products.filter((i) => {
+    let filtered = bikes.filter((i) => {
       if (brand !== "All" && i.brand !== brand) return false;
-      if (stock === "uk" && !i.stock) return false;
-      if (stock === "sale" && i.was == null) return false;
+      if (priceFilter === "sale" && !(i.wasPrice != null && i.wasPrice > i.price)) return false;
       if (query) {
-        const hay = `${i.brand} ${i.name} ${i.code} ${i.spec}`.toLowerCase();
+        const spec = i.specs.map((s) => s.value).join(" ");
+        const hay = `${i.brand} ${i.model} ${i.code ?? ""} ${spec}`.toLowerCase();
         if (!hay.includes(query)) return false;
       }
       return true;
     });
 
     filtered = [...filtered].sort((a, b) => {
-      if (sort === "name") return a.name.localeCompare(b.name);
+      if (sort === "name") return a.model.localeCompare(b.model);
       if (sort === "brand")
-        return a.brand.localeCompare(b.brand) || a.name.localeCompare(b.name);
-      if (sort === "price-asc") return priceKey(a) - priceKey(b);
-      if (sort === "price-desc") {
-        const pa = a.price == null ? -1 : a.price;
-        const pb = b.price == null ? -1 : b.price;
-        return pb - pa;
-      }
-      return a.featured - b.featured;
+        return a.brand.localeCompare(b.brand) || a.model.localeCompare(b.model);
+      if (sort === "price-asc") return a.price - b.price;
+      if (sort === "price-desc") return b.price - a.price;
+      return featuredFirst(a, b);
     });
 
     return filtered;
-  }, [q, brand, stock, sort]);
+  }, [bikes, q, brand, priceFilter, sort]);
 
   const clear = () => {
     setBrand("All");
     setQ("");
     setSort("featured");
-    setStock("all");
+    setPriceFilter("all");
   };
 
   return (
@@ -73,17 +71,16 @@ export function ShopToolbar() {
           />
         </div>
         <select
-          value={stock}
-          onChange={(e) => setStock(e.target.value as StockFilter)}
-          aria-label="Stock filter"
+          value={priceFilter}
+          onChange={(e) => setPriceFilter(e.target.value as PriceFilter)}
+          aria-label="Price filter"
           className="min-w-[160px] appearance-none rounded-full border border-hair bg-ground-2 bg-[length:5px_5px,5px_5px] bg-[position:calc(100%-16px)_55%,calc(100%-11px)_55%] bg-no-repeat py-3 pr-9 pl-4 text-[10.5px] tracking-[0.1em] uppercase outline-none focus:border-amber"
           style={{
             backgroundImage:
               "linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%)",
           }}
         >
-          <option value="all">Stock · All</option>
-          <option value="uk">UK Stock only</option>
+          <option value="all">Price · All</option>
           <option value="sale">Guide sale</option>
         </select>
         <select
@@ -105,7 +102,7 @@ export function ShopToolbar() {
       </div>
 
       <div className="mb-5 flex flex-wrap gap-2 border-b border-hair pb-5">
-        {productBrands.map((b) => (
+        {brands.map((b) => (
           <button
             key={b}
             type="button"
@@ -140,7 +137,7 @@ export function ShopToolbar() {
             No rides match. Clear filters or try another search.
           </div>
         ) : (
-          list.map((p) => <ProductCard key={p.code} product={p} />)
+          list.map((b) => <NewBikeCard key={b.slug} bike={b} />)
         )}
       </div>
     </>

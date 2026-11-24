@@ -9,7 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { Marked } from "marked";
-import { newestFirst, type NewBike } from "./newbikes-types";
+import { featuredFirst, newestFirst, type NewBike } from "./newbikes-types";
 import { SLUG_RE, normaliseNewBike } from "./newbikes-schema";
 
 const CONTENT_DIR = path.join(process.cwd(), "content", "new");
@@ -67,11 +67,12 @@ function loadFiles(): NewBike[] {
 
 /** Every published (non-hidden) bike, newest first. */
 export async function getAll(): Promise<NewBike[]> {
-  return loadFiles().sort(newestFirst);
+  return [...loadFiles()].sort(newestFirst);
 }
 
+/** Every published bike in "Featured" order (see `featuredFirst`). */
 export async function getListed(): Promise<NewBike[]> {
-  return getAll();
+  return [...loadFiles()].sort(featuredFirst);
 }
 
 export async function getBySlug(slug: string): Promise<NewBike | undefined> {

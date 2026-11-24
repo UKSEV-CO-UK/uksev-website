@@ -1,19 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import type { Colour } from "@/lib/newbikes-types";
+import type { Colour, Photo } from "@/lib/newbikes-types";
 
-export function NewBikeGallery({ colours, alt }: { colours: Colour[]; alt: string }) {
+/** Colour picker only when colours exist; otherwise the first loose photo. */
+export function NewBikeGallery({
+  colours,
+  photos = [],
+  alt,
+}: {
+  colours: Colour[];
+  photos?: Photo[];
+  alt: string;
+}) {
   const [colourName, setColourName] = useState(colours[0]?.name);
   const colour = colours.find((c) => c.name === colourName) ?? colours[0];
-  const photo = colour?.photos[0];
+  const photo = colour?.photos[0] ?? photos[0];
 
   return (
     <div>
-      <div className="overflow-hidden rounded-2xl border border-hair bg-[#15181c]">
+      <div className="overflow-hidden rounded-2xl border border-hair bg-[#f4f4f2]">
         {photo && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={photo.src} alt={alt} className="mx-auto aspect-square w-full max-w-[640px] object-contain" />
+          <img
+            src={photo.src}
+            alt={alt}
+            className="mx-auto box-border aspect-square w-full max-w-[640px] object-contain p-[6%]"
+          />
         )}
       </div>
       {colours.length > 0 && (

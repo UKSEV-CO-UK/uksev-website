@@ -76,6 +76,9 @@ function fieldLabel(field: string): string {
     topSpeedKmh: "Top speed (km/h)",
     battery: "Battery",
     specs: "Specs",
+    code: "Code",
+    order: "Order",
+    priceLabel: "Price label",
   };
   return labels[field] ?? field.charAt(0).toUpperCase() + field.slice(1);
 }
@@ -243,10 +246,14 @@ export function checkListingFile(
   return anns;
 }
 
-/** Every photo entry across a new bike's colours, in order (colour 1 first). */
+/**
+ * Every photo entry across a new bike's colours, in order (colour 1 first),
+ * then the top-level `photos` (listings without colour names).
+ */
 function newBikePhotos(data: Record<string, unknown>): unknown[] {
   const colours = Array.isArray(data.colours) ? data.colours : [];
   const out: unknown[] = [];
+  const loose = Array.isArray(data.photos) ? data.photos : [];
   for (const c of colours) {
     if (!c || typeof c !== "object") continue;
     const o = c as Record<string, unknown>;
@@ -254,6 +261,7 @@ function newBikePhotos(data: Record<string, unknown>): unknown[] {
     if (Array.isArray(raw)) out.push(...raw);
     else if (raw != null) out.push(raw);
   }
+  out.push(...loose);
   return out;
 }
 
