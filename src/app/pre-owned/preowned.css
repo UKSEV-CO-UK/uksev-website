@@ -217,8 +217,8 @@
 .po .mini strong { display: block; font: 700 20px/1 var(--font-syne), sans-serif; margin-top: 10px; letter-spacing: -0.02em; }
 .po .ctabar { position: sticky; left: 0; right: 0; bottom: 0; z-index: 60; display: grid; grid-template-columns: 48px 1fr 1.25fr; gap: 8px; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: var(--ground-94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid var(--hair); }
 .po .ctabar .btn { min-height: 48px; padding: 0 12px; }
-.po .ctabar .btn.solid .askprice { color: var(--muted); }
-.po .ctabar .btn.solid:hover .askprice { color: var(--muted); }
+.po .ctabar .btn.solid .askprice { color: var(--po-muted); }
+.po .ctabar .btn.solid:hover .askprice { color: var(--po-muted); }
 .po .ctabar .call { padding: 0; width: 48px; }
 .po .ctabar .call svg { width: 18px; height: 18px; }
 .po .foot { border-top: 1px solid var(--hair); padding: 28px 16px 32px; color: var(--ink-2); font-size: 12.5px; }

@@ -6,6 +6,7 @@ import {
   GRADE_WORD,
   TYPES,
   TYPE_LABEL,
+  listSummary,
   newestFirst,
   priceBand,
   type Grade,
@@ -149,11 +150,7 @@ export function PreownedList({ bikes }: { bikes: PreownedSummary[] }) {
       </div>
 
       <div className="bar">
-        <span className="sum">
-          {soldCount
-            ? `${list.length} bike${list.length === 1 ? "" : "s"}, ${soldCount} recently sold`
-            : `${list.length} bike${list.length === 1 ? "" : "s"}, all available`}
-        </span>
+        <span className="sum">{listSummary(list.length, soldCount)}</span>
         <label className="sort">
           <span className="sr-only">Sort</span>
           <select value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
