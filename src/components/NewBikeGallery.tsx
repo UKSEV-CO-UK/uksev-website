@@ -19,10 +19,14 @@ export function NewBikeGallery({
 
   return (
     <div>
-      <div className="overflow-hidden rounded-2xl border border-hair bg-[#15181c]">
+      <div className="overflow-hidden rounded-2xl border border-hair bg-[#f4f4f2]">
         {photo && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={photo.src} alt={alt} className="mx-auto aspect-square w-full max-w-[640px] object-contain" />
+          <img
+            src={photo.src}
+            alt={alt}
+            className="mx-auto box-border aspect-square w-full max-w-[640px] object-contain p-[6%]"
+          />
         )}
       </div>
       {colours.length > 0 && (

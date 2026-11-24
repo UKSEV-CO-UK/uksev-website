@@ -44,7 +44,7 @@ export type NewBike = {
   type: VehicleType;
   brand: string;
   model: string;
-  /** Optional catalogue code, e.g. "UK-ADO-AIR-CARBON". Shown on the card and searchable. */
+  /** Optional catalogue code, e.g. "UK-ADO-AIR-CARBON". Searchable; not shown on the card. */
   code?: string;
   /**
    * Optional sort position for "Featured" (ascending; 1 is first). Listings

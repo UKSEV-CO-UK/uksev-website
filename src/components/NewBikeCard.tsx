@@ -8,6 +8,7 @@ import { enquireMailto, SITE } from "@/lib/site";
 import {
   bikeName,
   coverPhoto,
+  TYPE_LABEL,
   type NewBikeSummary,
 } from "@/lib/newbikes-types";
 
@@ -17,9 +18,19 @@ function whatsappBike(name: string): string {
   return `${base}?text=${encodeURIComponent(text)}`;
 }
 
+/** True when a spec value just repeats the card title or the type label. */
+function isDuplicateSpec(value: string, bike: NewBikeSummary): boolean {
+  const v = value.trim().toLowerCase();
+  if (!v) return true;
+  return v === bike.model.trim().toLowerCase() || v === TYPE_LABEL[bike.type].trim().toLowerCase();
+}
+
 /** One-line spec summary for listings without card highlights (e.g. migrated catalogue rows). */
 function specLine(bike: NewBikeSummary): string {
-  return bike.specs.map((row) => row.value).join(" · ");
+  return bike.specs
+    .map((row) => row.value)
+    .filter((value) => !isDuplicateSpec(value, bike))
+    .join(" · ");
 }
 
 function hasHighlights(bike: NewBikeSummary): boolean {
@@ -67,11 +78,15 @@ export function NewBikeCard({ bike }: { bike: NewBikeSummary }) {
 
   return (
     <article className="flex flex-col overflow-hidden rounded-2xl border border-hair bg-ground-2 transition-colors hover:border-[rgba(232,145,60,0.45)]">
-      <Link href={href} className="relative block aspect-[4/3] bg-[#15181c]" aria-label={name}>
+      <Link href={href} className="relative block aspect-[4/3] bg-[#f4f4f2]" aria-label={name}>
         {cover && (
           // plain img: static export, unoptimized images
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={cover.src} alt="" className="absolute inset-0 h-full w-full object-contain" />
+          <img
+            src={cover.src}
+            alt=""
+            className="absolute inset-0 box-border h-full w-full object-contain p-[6%]"
+          />
         )}
         {bike.colours.length > 1 && (
           <div
@@ -104,7 +119,7 @@ export function NewBikeCard({ bike }: { bike: NewBikeSummary }) {
       </Link>
       <div className="flex flex-1 flex-col gap-2 px-4 pt-4 pb-[18px]">
         <div className="text-[10px] font-semibold tracking-[0.14em] text-amber uppercase">
-          {bike.code ? `${bike.code} · ${bike.brand}` : bike.brand}
+          {bike.brand}
         </div>
         <h3 className="font-display text-xl font-bold tracking-[-0.02em]">
           <Link href={href}>{bike.model}</Link>
