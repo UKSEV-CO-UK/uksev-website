@@ -7,7 +7,7 @@ model: LE20
 code: UK-ENG-LE20
 order: 48
 price: 1449
-priceLabel: 'From £1,449'
+priceFrom: true
 wasPrice: 1999
 photos:
   - src: /uploads/new/eng-le20/cover.jpg

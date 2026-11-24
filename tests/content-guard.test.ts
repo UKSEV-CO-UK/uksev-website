@@ -94,6 +94,16 @@ test("new-bike hidden flag and legacy stock keys", async () => {
   assert.match(legacy[0].message, /availability/);
   assert.match(legacy[1].message, /arrival/);
 
+  // priceLabel was replaced by priceFrom.
+  write("label", "priceLabel: From £1,000\n");
+  const label = checkListingFile("content/new/label.md", { cwd: dir });
+  assert.equal(label.length, 1);
+  assert.match(label[0].message, /Price label/);
+  write("from", "priceFrom: maybe\n");
+  const from = checkListingFile("content/new/from.md", { cwd: dir });
+  assert.equal(from.length, 1);
+  assert.equal(from[0].message, "Starting price must be true or false");
+
   write("bad", "hidden: maybe\n");
   const anns = checkListingFile("content/new/bad.md", { cwd: dir });
   assert.equal(anns.length, 1);
@@ -108,7 +118,7 @@ test("new-bike listing with top-level photos and no colours passes; oversize loo
   fs.mkdirSync(path.join(dir, "content/new"), { recursive: true });
   fs.mkdirSync(path.join(dir, "public/uploads/new/x"), { recursive: true });
   fs.writeFileSync(path.join(dir, "public/uploads/new/x/cover.jpg"), "x");
-  const body = "brand: ADO\nmodel: X\nprice: 1000\npriceLabel: From £1,000\ncode: UK-ADO-X\norder: 3\nphotos:\n  - src: /uploads/new/x/cover.jpg\n";
+  const body = "brand: ADO\nmodel: X\nprice: 1000\npriceFrom: true\ncode: UK-ADO-X\norder: 3\nphotos:\n  - src: /uploads/new/x/cover.jpg\n";
   fs.writeFileSync(path.join(dir, "content/new/x.md"), `---\n${body}---\n`);
   assert.deepEqual(checkListingFile("content/new/x.md", { cwd: dir }), []);
 

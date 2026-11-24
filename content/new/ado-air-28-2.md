@@ -7,7 +7,6 @@ model: AIR 28
 code: UK-ADO-AIR-28-2
 order: 18
 price: 1199
-priceLabel: '£1,199'
 wasPrice: 1899
 photos:
   - src: /uploads/new/ado-air-28-2/cover.jpg

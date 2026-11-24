@@ -7,7 +7,6 @@ model: C20 Pro
 code: UK-ENG-C20-PRO
 order: 35
 price: 949
-priceLabel: £949
 wasPrice: 999
 photos:
   - src: /uploads/new/eng-c20-pro/cover.jpg

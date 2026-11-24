@@ -7,7 +7,6 @@ model: MG800MAX
 code: UK-LAN-MG800MAX
 order: 65
 price: 2199
-priceLabel: '£2,199'
 photos:
   - src: /uploads/new/lan-mg800max/cover.jpg
 battery: 48V/20Ah

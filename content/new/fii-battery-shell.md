@@ -7,7 +7,7 @@ model: Battery Shell
 code: UK-FII-BATTERY-SHELL
 order: 85
 price: 30
-priceLabel: From £30
+priceFrom: true
 photos:
   - src: /uploads/new/fii-battery-shell/cover.png
 specs:

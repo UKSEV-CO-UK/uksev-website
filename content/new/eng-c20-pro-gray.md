@@ -7,7 +7,6 @@ model: C20 Pro Gray
 code: UK-ENG-C20-PRO-GRAY
 order: 36
 price: 949
-priceLabel: £949
 wasPrice: 1199
 photos:
   - src: /uploads/new/eng-c20-pro-gray/cover.jpg

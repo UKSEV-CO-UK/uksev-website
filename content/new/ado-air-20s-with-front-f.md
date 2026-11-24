@@ -7,7 +7,6 @@ model: AIR 20S (With Front Fork Suspension) 2026
 code: UK-ADO-AIR-20S-WITH-FRONT-F
 order: 16
 price: 1199
-priceLabel: '£1,199'
 photos:
   - src: /uploads/new/ado-air-20s-with-front-f/cover.jpg
 battery: 9.6Ah

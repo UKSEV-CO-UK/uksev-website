@@ -7,7 +7,6 @@ model: X V2 Upgraded version
 code: UK-FII-X-V2-UPGRADED-VERSIO
 order: 62
 price: 1199
-priceLabel: '£1,199'
 wasPrice: 1599
 photos:
   - src: /uploads/new/fii-x-v2-upgraded-versio/cover.png

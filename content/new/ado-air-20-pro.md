@@ -7,7 +7,6 @@ model: Air 20 Pro
 code: UK-ADO-AIR-20-PRO
 order: 2
 price: 1399
-priceLabel: '£1,399'
 wasPrice: 1899
 photos:
   - src: /uploads/new/ado-air-20-pro/cover.jpg

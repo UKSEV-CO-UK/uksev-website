@@ -7,7 +7,7 @@ model: Battery 12.8Ah/13Ah/16Ah Lithium Battery
 code: UK-ENG-BATTERY-12-8AH-13AH-
 order: 82
 price: 360
-priceLabel: From £360
+priceFrom: true
 photos:
   - src: /uploads/new/eng-battery-12-8ah-13ah/cover.jpg
 specs:

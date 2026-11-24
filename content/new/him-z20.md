@@ -7,7 +7,6 @@ model: Z20
 code: UK-HIM-Z20
 order: 63
 price: 769
-priceLabel: £769
 wasPrice: 999
 photos:
   - src: /uploads/new/him-z20/cover.jpg

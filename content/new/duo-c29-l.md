@@ -7,7 +7,7 @@ model: C29-L
 code: UK-DUO-C29-L
 order: 13
 price: 759
-priceLabel: From £759
+priceFrom: true
 photos:
   - src: /uploads/new/duo-c29-l/cover.jpg
 battery: 48V/15Ah

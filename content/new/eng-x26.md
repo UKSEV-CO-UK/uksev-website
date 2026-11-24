@@ -7,7 +7,7 @@ model: X26
 code: UK-ENG-X26
 order: 58
 price: 1899
-priceLabel: 'From £1,899'
+priceFrom: true
 wasPrice: 2049
 photos:
   - src: /uploads/new/eng-x26/cover.jpg

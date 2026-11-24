@@ -7,7 +7,6 @@ model: RV800 PLUS
 code: UK-LAN-RV800-PLUS
 order: 67
 price: 1999
-priceLabel: '£1,999'
 photos:
   - src: /uploads/new/lan-rv800-plus/cover.jpg
 battery: 48V/20Ah

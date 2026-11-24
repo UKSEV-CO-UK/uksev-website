@@ -7,7 +7,6 @@ model: Battery
 code: UK-FII-BATTERY
 order: 73
 price: 349
-priceLabel: £349
 wasPrice: 499
 photos:
   - src: /uploads/new/fii-battery/cover.jpg

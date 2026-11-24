@@ -7,7 +7,7 @@ model: C29
 code: UK-DUO-C29
 order: 10
 price: 709
-priceLabel: From £709
+priceFrom: true
 wasPrice: 1399
 photos:
   - src: /uploads/new/duo-c29/cover.jpg

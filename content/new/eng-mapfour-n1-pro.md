@@ -7,7 +7,6 @@ model: MAPFOUR N1 PRO
 code: UK-ENG-MAPFOUR-N1-PRO
 order: 50
 price: 1899
-priceLabel: '£1,899'
 wasPrice: 2199
 photos:
   - src: /uploads/new/eng-mapfour-n1-pro/cover.jpg

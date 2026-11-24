@@ -7,7 +7,6 @@ model: FF500
 code: UK-DYU-FF500
 order: 32
 price: 1099
-priceLabel: '£1,099'
 wasPrice: 1699
 photos:
   - src: /uploads/new/dyu-ff500/cover.png

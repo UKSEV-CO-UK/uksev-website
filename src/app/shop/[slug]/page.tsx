@@ -75,7 +75,7 @@ export default async function NewBikePage({ params }: Props) {
             <SalePrice
               price={bike.price}
               wasPrice={bike.wasPrice}
-              label={bike.priceLabel}
+              priceFrom={bike.priceFrom}
               className="text-[28px]"
             />
           </div>

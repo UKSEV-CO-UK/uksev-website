@@ -147,7 +147,7 @@ function assertCoded(errors: { field: string; message: string; code?: string }[]
 
 test("NEW_BIKE_ERROR_CODES has unique entries and matches the exported union length", () => {
   assert.equal(new Set(NEW_BIKE_ERROR_CODES).size, NEW_BIKE_ERROR_CODES.length);
-  assert.equal(NEW_BIKE_ERROR_CODES.length, 36);
+  assert.equal(NEW_BIKE_ERROR_CODES.length, 37);
 });
 
 test("every emitted error has a stable code; field and message stay the same", () => {
@@ -310,6 +310,7 @@ test("each new-bike error code is emitted with the expected field", () => {
     { code: "edition_range_invalid", field: "editions[0]", data: { ...good, editions: [{ name: "Standard", price: 999, rangeKm: 0 }] } },
     { code: "hidden_invalid", field: "hidden", data: { ...good, hidden: "yes" } },
     { code: "legacy_field_removed", field: "availability", data: { ...good, availability: "in-stock" } },
+    { code: "price_from_invalid", field: "priceFrom", data: { ...good, priceFrom: "yes" } },
     { code: "type_invalid", field: "type", data: { ...good, type: "car" } },
     { code: "date_invalid", field: "date", data: { ...good, date: "09/10/2026" } },
     { code: "text_invalid", field: "brand", data: { ...good, brand: { n: "FIIDO" } } },
@@ -390,16 +391,47 @@ test("colours are optional when top-level photos are given", () => {
   assert.equal(validateNewBike({ ...good, colours: "Grey" }).errors[0].code, "list_invalid");
 });
 
-test("code, order and priceLabel are optional and carried through", () => {
-  const r = normaliseNewBike({ ...loose, code: "UK-ADO-AIR-CARBON", order: 1, priceLabel: "From £1,799" });
+test("code, order and priceFrom are optional and carried through", () => {
+  const r = normaliseNewBike({ ...loose, code: "UK-ADO-AIR-CARBON", order: 1, priceFrom: true });
   assert.equal(r.errors.length, 0);
   assert.equal(r.bike.code, "UK-ADO-AIR-CARBON");
   assert.equal(r.bike.order, 1);
-  assert.equal(r.bike.priceLabel, "From £1,799");
+  assert.equal(r.bike.priceFrom, true);
   const plain = normaliseNewBike(loose).bike;
-  assert.ok(!("code" in plain) && !("order" in plain) && !("priceLabel" in plain));
+  assert.ok(!("code" in plain) && !("order" in plain) && !("priceFrom" in plain));
   assert.equal(validateNewBike({ ...loose, order: "first" }).errors[0].code, "order_invalid");
-  assert.equal(validateNewBike({ ...loose, priceLabel: { a: 1 } }).errors[0].code, "text_invalid");
+});
+
+test("priceFrom defaults to false and accepts booleans or true/false strings", () => {
+  assert.equal(normaliseNewBike({ ...loose, priceFrom: "true" }).bike.priceFrom, true);
+  for (const priceFrom of [false, "false", "", null, undefined]) {
+    const r = normaliseNewBike({ ...loose, priceFrom });
+    assert.equal(r.errors.length, 0, String(priceFrom));
+    assert.ok(!("priceFrom" in r.bike), String(priceFrom));
+  }
+  for (const priceFrom of ["yes", 1, "From", { a: 1 }]) {
+    const bad = validateNewBike({ ...loose, priceFrom });
+    assert.equal(bad.ok, false, String(priceFrom));
+    assert.deepEqual(bad.errors.map((e) => [e.field, e.code]), [["priceFrom", "price_from_invalid"]]);
+  }
+});
+
+test("legacy priceLabel is rejected with legacy_field_removed", () => {
+  for (const priceLabel of ["£1,799", "From £1,799", { a: 1 }]) {
+    const r = validateNewBike({ ...loose, priceLabel });
+    assert.equal(r.ok, false);
+    assert.deepEqual(r.errors.map((e) => [e.field, e.code]), [["priceLabel", "legacy_field_removed"]]);
+    assert.match(r.errors[0].message, /priceFrom: true/);
+  }
+  assert.equal(validateNewBike({ ...loose, priceLabel: "" }).ok, true);
+});
+
+test("priceText: formatted price, with From when priceFrom is set", async () => {
+  const { priceText } = await import("../src/lib/newbikes-types");
+  assert.equal(priceText({ price: 1299 }), "£1,299");
+  assert.equal(priceText({ price: 1299, priceFrom: false }), "£1,299");
+  assert.equal(priceText({ price: 1299, priceFrom: true }), "From £1,299");
+  assert.equal(priceText({ price: 18 }), "£18");
 });
 
 test("accessory is a valid type", () => {

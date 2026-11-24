@@ -7,7 +7,6 @@ model: T20
 code: UK-COS-T20
 order: 24
 price: 1166
-priceLabel: '£1,166'
 wasPrice: 1899
 photos:
   - src: /uploads/new/cos-t20/cover.jpg

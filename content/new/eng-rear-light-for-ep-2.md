@@ -7,7 +7,6 @@ model: Rear Light for EP-2 Pro
 code: UK-ENG-REAR-LIGHT-FOR-EP-2-
 order: 79
 price: 18
-priceLabel: £18
 wasPrice: 48
 photos:
   - src: /uploads/new/eng-rear-light-for-ep-2/cover.png

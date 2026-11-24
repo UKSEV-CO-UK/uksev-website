@@ -7,7 +7,6 @@ model: Rear Light For ENGINE PRO
 code: UK-ENG-REAR-LIGHT-FOR-ENGIN
 order: 78
 price: 28
-priceLabel: £28
 wasPrice: 58
 photos:
   - src: /uploads/new/eng-rear-light-for-engin/cover.jpg
