@@ -7,7 +7,6 @@ model: MY275
 code: UK-SAM-MY275
 order: 71
 price: 1040
-priceLabel: '£1,040'
 photos:
   - src: /uploads/new/sam-my275/cover.jpg
 battery: 48V/13Ah

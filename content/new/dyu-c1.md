@@ -7,7 +7,6 @@ model: C1
 code: UK-DYU-C1
 order: 29
 price: 999
-priceLabel: £999
 wasPrice: 1299
 photos:
   - src: /uploads/new/dyu-c1/cover.png

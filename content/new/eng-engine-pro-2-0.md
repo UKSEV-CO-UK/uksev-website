@@ -7,7 +7,6 @@ model: ENGINE Pro 2.0
 code: UK-ENG-ENGINE-PRO-2-0
 order: 39
 price: 1299
-priceLabel: '£1,299'
 wasPrice: 1699
 photos:
   - src: /uploads/new/eng-engine-pro-2-0/cover.jpg

@@ -7,7 +7,6 @@ model: Front Light + Tail Light Set
 code: UK-ACC-FRONT-LIGHT-TAIL-LIG
 order: 81
 price: 18
-priceLabel: £18
 wasPrice: 28
 photos:
   - src: /uploads/new/acc-front-light-tail-lig/cover.jpg

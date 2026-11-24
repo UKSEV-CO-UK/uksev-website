@@ -24,13 +24,16 @@ Photos go in `public/uploads/new/`.
 Required frontmatter: `brand`, `model`, `price`, `colours` (at least one colour,
 each with a name and at least one photo; the first photo is the cover, a
 side-on full-bike shot). Optional: `wasPrice` (original / list price; only
-shown when it is higher than `price`), `hidden` (`true` / `false`, default
+shown when it is higher than `price`), `priceFrom` (`true` / `false`, default
+`false`; `true` shows the price as "From £…"), `hidden` (`true` / `false`, default
 `false`), `sizes`, `editions`, card highlights
 (`rangeKm`, `rangeMiles`, `weightKg`, `topSpeedKmh`, `battery`), and `specs`
 (label / value rows for the detail table). Hidden listings are not published.
 New bikes are a showcase catalogue, so there is no stock state or arrival month:
 the old `availability` and `arrival` keys fail the build and content-guard with
 error code `legacy_field_removed`. Use `hidden: true` to keep a bike off the site.
+The price text always comes from `price`; the old free-text `priceLabel` key fails
+the same way (use `priceFrom: true` for "From £…").
 
 Rules live in `src/lib/newbikes-schema.ts` (`validateNewBike` / `normaliseNewBike`).
 

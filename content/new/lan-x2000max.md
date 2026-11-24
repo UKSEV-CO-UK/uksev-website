@@ -7,7 +7,6 @@ model: X2000MAX
 code: UK-LAN-X2000MAX
 order: 68
 price: 1599
-priceLabel: '£1,599'
 wasPrice: 2199
 photos:
   - src: /uploads/new/lan-x2000max/cover.jpg

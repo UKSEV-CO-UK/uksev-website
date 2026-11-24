@@ -7,7 +7,6 @@ model: T14
 code: UK-ENG-T14
 order: 55
 price: 549
-priceLabel: £549
 wasPrice: 699
 photos:
   - src: /uploads/new/eng-t14/cover.jpg

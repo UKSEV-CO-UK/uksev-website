@@ -7,7 +7,6 @@ model: CT20S
 code: UK-COS-CT20S
 order: 23
 price: 2149
-priceLabel: '£2,149'
 wasPrice: 3099
 photos:
   - src: /uploads/new/cos-ct20s/cover.jpg

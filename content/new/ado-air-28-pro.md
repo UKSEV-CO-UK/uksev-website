@@ -7,7 +7,7 @@ model: Air 28 Pro
 code: UK-ADO-AIR-28-PRO
 order: 6
 price: 1299
-priceLabel: 'From £1,299'
+priceFrom: true
 wasPrice: 1899
 photos:
   - src: /uploads/new/ado-air-28-pro/cover.jpg

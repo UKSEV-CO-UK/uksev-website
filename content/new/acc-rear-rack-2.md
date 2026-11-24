@@ -7,7 +7,6 @@ model: Rear Rack
 code: UK-ACC-REAR-RACK-2
 order: 80
 price: 28
-priceLabel: £28
 photos:
   - src: /uploads/new/acc-rear-rack-2/cover.jpg
 specs:

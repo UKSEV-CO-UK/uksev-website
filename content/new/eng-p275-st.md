@@ -7,7 +7,6 @@ model: P275 ST
 code: UK-ENG-P275-ST
 order: 54
 price: 1899
-priceLabel: '£1,899'
 wasPrice: 1999
 photos:
   - src: /uploads/new/eng-p275-st/cover.jpg

@@ -7,7 +7,6 @@ model: N26
 code: UK-DUO-N26
 order: 26
 price: 1199
-priceLabel: '£1,199'
 photos:
   - src: /uploads/new/duo-n26/cover.jpg
 battery: 48V/20Ah

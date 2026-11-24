@@ -7,7 +7,6 @@ model: Air Carbon
 code: UK-ADO-AIR-CARBON
 order: 1
 price: 1799
-priceLabel: '£1,799'
 wasPrice: 2999
 photos:
   - src: /uploads/new/ado-air-carbon/cover.jpg

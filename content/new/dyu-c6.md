@@ -7,7 +7,6 @@ model: C6
 code: UK-DYU-C6
 order: 30
 price: 699
-priceLabel: £699
 wasPrice: 949
 photos:
   - src: /uploads/new/dyu-c6/cover.jpg

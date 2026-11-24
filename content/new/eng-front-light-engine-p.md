@@ -7,7 +7,6 @@ model: Front Light for ENGINE PRO
 code: UK-ENG-FRONT-LIGHT-ENGINE-P
 order: 76
 price: 28
-priceLabel: £28
 photos:
   - src: /uploads/new/eng-front-light-engine-p/cover.jpg
 specs:

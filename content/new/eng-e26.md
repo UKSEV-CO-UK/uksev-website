@@ -7,7 +7,6 @@ model: E26
 code: UK-ENG-E26
 order: 37
 price: 1249
-priceLabel: '£1,249'
 wasPrice: 1899
 photos:
   - src: /uploads/new/eng-e26/cover.jpg

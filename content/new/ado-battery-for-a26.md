@@ -7,7 +7,6 @@ model: Battery for A26
 code: UK-ADO-BATTERY-FOR-A26
 order: 86
 price: 467
-priceLabel: £467
 wasPrice: 699
 photos:
   - src: /uploads/new/ado-battery-for-a26/cover.jpg

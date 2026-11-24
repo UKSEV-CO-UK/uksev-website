@@ -7,7 +7,7 @@ model: M20
 code: UK-ENG-M20
 order: 7
 price: 1049
-priceLabel: 'From £1,049'
+priceFrom: true
 wasPrice: 1699
 photos:
   - src: /uploads/new/eng-m20/cover.jpg

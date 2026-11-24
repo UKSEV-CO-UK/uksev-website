@@ -7,7 +7,6 @@ model: KING750
 code: UK-DYU-KING750
 order: 33
 price: 1499
-priceLabel: '£1,499'
 wasPrice: 2199
 photos:
   - src: /uploads/new/dyu-king750/cover.png

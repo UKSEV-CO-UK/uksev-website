@@ -7,7 +7,6 @@ model: M1
 code: UK-ELE-M1
 order: 59
 price: 619
-priceLabel: £619
 wasPrice: 999
 photos:
   - src: /uploads/new/ele-m1/cover.jpg

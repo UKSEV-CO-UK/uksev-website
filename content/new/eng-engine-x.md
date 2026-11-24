@@ -7,7 +7,6 @@ model: ENGINE X
 code: UK-ENG-ENGINE-X
 order: 3
 price: 999
-priceLabel: £999
 wasPrice: 1249
 photos:
   - src: /uploads/new/eng-engine-x/cover.jpg

@@ -7,7 +7,6 @@ model: F26
 code: UK-DUO-F26
 order: 25
 price: 1099
-priceLabel: '£1,099'
 photos:
   - src: /uploads/new/duo-f26/cover.jpg
 battery: 48V/20Ah

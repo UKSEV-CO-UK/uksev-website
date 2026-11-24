@@ -7,7 +7,6 @@ model: GT20
 code: UK-COS-GT20
 order: 9
 price: 1638
-priceLabel: '£1,638'
 wasPrice: 2199
 photos:
   - src: /uploads/new/cos-gt20/cover.jpg

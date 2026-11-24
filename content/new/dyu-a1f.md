@@ -7,7 +7,6 @@ model: A1F
 code: UK-DYU-A1F
 order: 11
 price: 499
-priceLabel: £499
 wasPrice: 649
 photos:
   - src: /uploads/new/dyu-a1f/cover.png

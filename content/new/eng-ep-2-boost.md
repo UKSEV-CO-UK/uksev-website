@@ -7,7 +7,6 @@ model: EP-2 Boost
 code: UK-ENG-EP-2-BOOST
 order: 41
 price: 899
-priceLabel: £899
 photos:
   - src: /uploads/new/eng-ep-2-boost/cover.jpg
 battery: 48V/13Ah

@@ -7,7 +7,6 @@ model: Battery
 code: UK-SAM-BATTERY
 order: 75
 price: 258
-priceLabel: £258
 wasPrice: 399
 photos:
   - src: /uploads/new/sam-battery/cover.png

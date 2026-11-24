@@ -54,10 +54,10 @@ export type NewBike = {
   /** Current selling price, GBP. */
   price: number;
   /**
-   * Optional display text for the price, e.g. "From £1,559". Shown instead of
-   * the formatted `price` when set; `price` stays the number used for sorting.
+   * Optional. `true` shows the price as "From £1,559" (a starting price).
+   * The amount always comes from `price`. Omitted means `false`.
    */
-  priceLabel?: string;
+  priceFrom?: boolean;
   /**
    * Optional original / list / compare-at price, GBP.
    * Rendered struck through only when set and greater than `price`.
@@ -137,9 +137,9 @@ export function newestFirst(a: NewBikeSummary, b: NewBikeSummary): number {
   return (b.date ?? "").localeCompare(a.date ?? "");
 }
 
-/** Price text for display: `priceLabel` when set, else the formatted price. */
-export function priceText(b: Pick<NewBike, "price" | "priceLabel">): string {
-  return b.priceLabel ?? money(b.price);
+/** Price text for display: the formatted `price`, with "From " when `priceFrom` is set. */
+export function priceText(b: Pick<NewBike, "price" | "priceFrom">): string {
+  return `${b.priceFrom ? "From " : ""}${money(b.price)}`;
 }
 
 /**

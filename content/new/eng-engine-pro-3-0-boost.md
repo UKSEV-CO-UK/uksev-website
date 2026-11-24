@@ -7,7 +7,6 @@ model: Engine Pro 3.0 Boost
 code: UK-ENG-ENGINE-PRO-3-0-BOOST
 order: 42
 price: 1599
-priceLabel: '£1,599'
 photos:
   - src: /uploads/new/eng-engine-pro-3-0-boost/cover.jpg
 motorW: 250

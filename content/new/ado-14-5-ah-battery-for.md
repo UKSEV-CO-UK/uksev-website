@@ -7,7 +7,7 @@ model: 14.5 Ah Battery for A20F+/A20F XE
 code: UK-ADO-14-5-AH-BATTERY-FOR-
 order: 74
 price: 269
-priceLabel: From £269
+priceFrom: true
 wasPrice: 399
 photos:
   - src: /uploads/new/ado-14-5-ah-battery-for/cover.jpg

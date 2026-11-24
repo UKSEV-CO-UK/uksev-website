@@ -7,7 +7,6 @@ model: L20 3.0 Boost
 code: UK-ENG-L20-3-0-BOOST
 order: 45
 price: 1049
-priceLabel: '£1,049'
 wasPrice: 1799
 photos:
   - src: /uploads/new/eng-l20-3-0-boost/cover.jpg
