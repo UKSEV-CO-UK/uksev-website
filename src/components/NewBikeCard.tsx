@@ -75,8 +75,8 @@ export function NewBikeCard({ bike }: { bike: NewBikeSummary }) {
   const specs = specValues(bike);
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-2xl border border-hair bg-ground-2 transition-colors hover:border-[rgba(232,145,60,0.45)]">
-      <Link href={href} className="relative block aspect-[4/3] bg-[#f4f4f2]" aria-label={name}>
+    <article className="flex flex-col overflow-hidden rounded-2xl border border-hair bg-ground-2 transition-colors hover:border-amber-45">
+      <Link href={href} className="relative block aspect-[4/3] bg-photo-ground" aria-label={name}>
         {cover && (
           // plain img: static export, unoptimized images
           // eslint-disable-next-line @next/next/no-img-element
@@ -108,7 +108,7 @@ export function NewBikeCard({ bike }: { bike: NewBikeSummary }) {
                   className={`h-4 w-4 rounded-full border ${
                     selected ? "border-ink ring-1 ring-ink ring-offset-1 ring-offset-ground-2" : "border-hair"
                   }`}
-                  style={{ background: c.swatch || "#6c7378" }}
+                  style={{ background: c.swatch || "var(--muted)" }}
                 />
               );
             })}

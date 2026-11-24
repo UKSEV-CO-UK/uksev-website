@@ -19,7 +19,7 @@ export function NavBar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 flex h-[60px] items-center justify-between border-b border-hair bg-[rgba(10,12,14,0.72)] px-4 backdrop-blur-[14px] md:h-[68px] sm:px-7">
+    <header className="fixed inset-x-0 top-0 z-50 flex h-[60px] items-center justify-between border-b border-hair bg-ground-72 px-4 backdrop-blur-[14px] md:h-[68px] sm:px-7">
       <Link
         href="/"
         className="font-display flex items-center text-[15px] font-bold tracking-[-0.02em]"
@@ -81,7 +81,7 @@ export function NavBar() {
 
       {open && (
         <nav
-          className="absolute inset-x-0 top-[60px] flex flex-col gap-1 border-b border-hair bg-[rgba(10,12,14,0.96)] px-4 py-4 backdrop-blur-[14px] md:top-[68px] md:hidden"
+          className="absolute inset-x-0 top-[60px] flex flex-col gap-1 border-b border-hair bg-ground-96 px-4 py-4 backdrop-blur-[14px] md:top-[68px] md:hidden"
           aria-label="Mobile"
         >
           {links.map((l) => (

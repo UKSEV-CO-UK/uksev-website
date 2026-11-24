@@ -94,14 +94,14 @@ export function PortalHero() {
           className="pointer-events-none absolute inset-0 opacity-0 mix-blend-overlay motion-reduce:!opacity-[0.18]"
           style={{
             background:
-              "linear-gradient(120deg, rgba(232,145,60,.55), rgba(46,107,114,.55))",
+              "linear-gradient(120deg, var(--amber-55), var(--teal-55))",
           }}
         />
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse at center, transparent 20%, rgba(10,12,14,.75) 80%)",
+              "radial-gradient(ellipse at center, transparent 20%, var(--ground-75) 80%)",
           }}
         />
         <div

@@ -26,7 +26,7 @@ export function SalePrice({
       {showWas && (
         <s
           className="text-ink-2 decoration-ink-2 [font-size:0.75em] decoration-1"
-          style={{ color: "rgb(158 165 168 / 0.6)", textDecorationColor: "rgb(158 165 168 / 0.6)" }}
+          style={{ color: "var(--ink-2-60)", textDecorationColor: "var(--ink-2-60)" }}
         >
           {money(wasPrice)}
         </s>

@@ -130,7 +130,7 @@ export function ThrowableDeck({ items }: Props) {
             <article
               key={`${rideIdx}-${order.join("-")}-${depth}`}
               ref={depth === 0 ? (node) => { topCardRef.current = node; } : undefined}
-              className="absolute inset-0 cursor-grab overflow-hidden rounded-[18px] border border-hair bg-ground shadow-[0_24px_50px_rgba(0,0,0,.45)] select-none will-change-transform active:cursor-grabbing"
+              className="absolute inset-0 cursor-grab overflow-hidden rounded-[18px] border border-hair bg-ground shadow-[0_24px_50px_var(--shade-45)] select-none will-change-transform active:cursor-grabbing"
               style={{
                 zIndex: 20 - depth,
                 transform: stackStyle(depth),
