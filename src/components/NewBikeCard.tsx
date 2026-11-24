@@ -8,6 +8,7 @@ import { enquireMailto, whatsappHref } from "@/config/site";
 import {
   bikeName,
   coverPhoto,
+  splitSpecValue,
   TYPE_LABEL,
   type NewBikeSummary,
 } from "@/lib/newbikes-types";
@@ -27,7 +28,8 @@ function isDuplicateSpec(value: string, bike: NewBikeSummary): boolean {
 function specValues(bike: NewBikeSummary): string[] {
   return bike.specs
     .map((row) => row.value)
-    .filter((value) => !isDuplicateSpec(value, bike));
+    .filter((value) => !isDuplicateSpec(value, bike))
+    .flatMap(splitSpecValue);
 }
 
 function hasHighlights(bike: NewBikeSummary): boolean {

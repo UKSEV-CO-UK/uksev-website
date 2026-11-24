@@ -5,7 +5,7 @@ import { Btn } from "@/components/Btn";
 import { NewBikeGallery } from "@/components/NewBikeGallery";
 import { SalePrice } from "@/components/SalePrice";
 import { getAll, getBySlug } from "@/lib/newbikes";
-import { bikeName, priceText } from "@/lib/newbikes-types";
+import { bikeName, priceText, splitSpecValue } from "@/lib/newbikes-types";
 import { enquireMailto, site, whatsappHref } from "@/config/site";
 
 const PLACEHOLDER = "none";
@@ -140,7 +140,11 @@ export default async function NewBikePage({ params }: Props) {
                 className="grid grid-cols-[minmax(0,0.4fr)_minmax(0,0.6fr)] gap-4 py-3 text-sm"
               >
                 <dt className="text-muted">{row.label}</dt>
-                <dd className="text-ink">{row.value}</dd>
+                <dd className="flex flex-wrap gap-x-3 text-ink">
+                  {splitSpecValue(row.value).map((part) => (
+                    <span key={part}>{part}</span>
+                  ))}
+                </dd>
               </div>
             ))}
           </dl>

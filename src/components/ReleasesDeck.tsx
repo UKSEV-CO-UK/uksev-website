@@ -1,5 +1,5 @@
 import { getListed } from "@/lib/newbikes";
-import { coverPhoto, priceText } from "@/lib/newbikes-types";
+import { coverPhoto, modelTitle, priceText, splitSpecValue } from "@/lib/newbikes-types";
 import { SITE, enquireMailto } from "@/config/site";
 import { Btn } from "./Btn";
 import { ThrowableDeck, type DeckItem } from "./ThrowableDeck";
@@ -11,9 +11,11 @@ async function featuredDeck(): Promise<DeckItem[]> {
     .slice(0, 4)
     .map((b) => ({
       img: coverPhoto(b)?.src ?? "",
-      eyebrow: b.code ?? b.brand,
-      title: `${b.brand} ${b.model}`,
-      meta: [priceText(b), b.specs[0]?.value].filter((v): v is string => Boolean(v)),
+      eyebrow: b.brand,
+      title: modelTitle(b.brand, b.model),
+      meta: [priceText(b), ...(b.specs[0]?.value ? splitSpecValue(b.specs[0].value) : [])].filter(
+        (v): v is string => Boolean(v),
+      ),
     }));
 }
 

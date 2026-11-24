@@ -110,6 +110,25 @@ export const TYPE_LABEL: Record<VehicleType, string> = {
 
 export const bikeName = (b: Pick<NewBike, "brand" | "model">) => `${b.brand} ${b.model}`;
 
+/** Model title without a leading brand (render only; does not change stored data). */
+export function modelTitle(brand: string, model: string): string {
+  const prefix = brand.trim();
+  if (!prefix) return model;
+  const escaped = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return model.replace(new RegExp(`^${escaped}\\s+`, "i"), "");
+}
+
+/**
+ * Split a list-style mid-dot in a spec value at render time.
+ * Requires spaces around "·" so units like "N·m" stay intact.
+ */
+export function splitSpecValue(value: string): string[] {
+  return value
+    .split(/\s+·\s+/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
 export function money(n: number): string {
   return `£${n.toLocaleString("en-GB", { maximumFractionDigits: 0 })}`;
 }
