@@ -51,12 +51,6 @@ export default async function PreownedBikePage({ params }: Props) {
   const sold = b.status === "sold";
   const name = bikeName(b);
 
-  const statusLine =
-    b.status === "available"
-      ? `Available now${b.date ? ` · listed ${shortDate(b.date)}` : ""}`
-      : b.status === "reserved"
-        ? "Reserved · ask to join the waiting list"
-        : `Sold${b.soldDate ? ` · ${shortDate(b.soldDate)}` : ""}`;
 
   const specs: [string, string | undefined][] = [
     ["Motor", b.motorW != null ? `${b.motorW}W` : undefined],
@@ -104,7 +98,24 @@ export default async function PreownedBikePage({ params }: Props) {
           </div>
           <div className={`st ${b.status}`}>
             <i />
-            {statusLine}
+            <span className="parts">
+              {b.status === "available" ? (
+                <>
+                  <span>Available now</span>
+                  {b.date ? <span>listed {shortDate(b.date)}</span> : null}
+                </>
+              ) : b.status === "reserved" ? (
+                <>
+                  <span>Reserved</span>
+                  <span>ask to join the waiting list</span>
+                </>
+              ) : (
+                <>
+                  <span>Sold</span>
+                  {b.soldDate ? <span>{shortDate(b.soldDate)}</span> : null}
+                </>
+              )}
+            </span>
           </div>
 
           {sold ? (
@@ -287,10 +298,10 @@ export default async function PreownedBikePage({ params }: Props) {
                       <span>{x.brand}</span>
                       <span>{x.year}</span>
                     </div>
-                    <p>
-                      {x.mileage.toLocaleString("en-GB")} mi
-                      {x.batteryHealth != null && ` · ${x.batteryHealth}% battery`}
-                      {x.grade && ` · Grade ${x.grade}`}
+                    <p className="parts">
+                      <span>{x.mileage.toLocaleString("en-GB")} mi</span>
+                      {x.batteryHealth != null && <span>{x.batteryHealth}% battery</span>}
+                      {x.grade && <span>Grade {x.grade}</span>}
                     </p>
                     <strong>{money(x.price)}</strong>
                   </div>
@@ -315,7 +326,10 @@ export default async function PreownedBikePage({ params }: Props) {
           </a>
         ) : (
           <a className="btn solid" href={enquireHref(b)}>
-            Enquire · {money(b.price)}
+            <span className="parts">
+              <span>Enquire</span>
+              <span>{money(b.price)}</span>
+            </span>
           </a>
         )}
       </div>

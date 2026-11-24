@@ -11,7 +11,10 @@ export default function PreownedLayout({ children }: { children: React.ReactNode
             <b>{SITE.name}</b>
           </div>
           <div>
-            <a href={SITE.phoneHref}>{SITE.phoneDisplay}</a> · <a href={SITE.emailHref}>{SITE.email}</a>
+            <span className="parts">
+              <a href={SITE.phoneHref}>{SITE.phoneDisplay}</a>
+              <a href={SITE.emailHref}>{SITE.email}</a>
+            </span>
           </div>
         </div>
       </footer>

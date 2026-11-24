@@ -141,7 +141,14 @@ export function PreownedList({ bikes }: { bikes: PreownedSummary[] }) {
             <span className="lab">Grade</span>
             {(["all", ...GRADES] as const).map((v) => (
               <button key={v} type="button" className="chip opt" aria-pressed={grade === v} onClick={() => setGrade(v)}>
-                {v === "all" ? "Any" : `${v} · ${GRADE_WORD[v]}`}
+                {v === "all" ? (
+                  "Any"
+                ) : (
+                  <span className="parts">
+                    <span>{v}</span>
+                    <span>{GRADE_WORD[v]}</span>
+                  </span>
+                )}
               </button>
             ))}
           </div>

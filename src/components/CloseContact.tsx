@@ -14,8 +14,9 @@ export function CloseContact() {
           <p className="mt-3 max-w-[36ch] text-xs leading-[1.55] text-ink-2">
             Tell us the model. We&apos;ll confirm what&apos;s in and a firm price.
           </p>
-          <p className="mt-2 text-[11px] text-muted">
-            Viewing by appointment · Mon–Fri &amp; Sat morning
+          <p className="mt-2 flex flex-wrap gap-x-3 text-[11px] text-muted">
+            <span>Viewing by appointment</span>
+            <span>Mon–Fri &amp; Sat morning</span>
           </p>
         </div>
         <div className="grid w-full grid-cols-1 gap-3 sm:w-auto sm:grid-cols-3">
@@ -32,12 +33,12 @@ export function CloseContact() {
       </div>
       <footer className="mx-auto max-w-[980px] border-t border-hair py-[18px] pb-2.5 text-[11px] text-muted">
         <div className="flex flex-wrap justify-between gap-x-6 gap-y-1">
-          <span className="flex flex-wrap gap-x-1">
+          <span className="flex flex-wrap gap-x-3">
             {SITE.companyNumber ? (
               <>
-                <span className="whitespace-nowrap">{SITE.name} ·</span>
+                <span className="whitespace-nowrap">{SITE.name}</span>
                 <span className="whitespace-nowrap">
-                  Registered in England &amp; Wales ·
+                  Registered in England &amp; Wales
                 </span>
                 <span className="whitespace-nowrap">
                   Company No. {SITE.companyNumber}
