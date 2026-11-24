@@ -24,12 +24,13 @@ Photos go in `public/uploads/new/`.
 Required frontmatter: `brand`, `model`, `price`, `colours` (at least one colour,
 each with a name and at least one photo; the first photo is the cover, a
 side-on full-bike shot). Optional: `wasPrice` (original / list price; only
-shown when it is higher than `price`), `availability` (`in-stock` / `check` /
-`arriving` / `hidden`; default `check`), `arrival` (`YYYY-MM`, e.g. `2026-12`;
-required when availability is `arriving`, shown as "Arriving Dec 2026"),
-`sizes`, `editions`, card highlights
+shown when it is higher than `price`), `hidden` (`true` / `false`, default
+`false`), `sizes`, `editions`, card highlights
 (`rangeKm`, `rangeMiles`, `weightKg`, `topSpeedKmh`, `battery`), and `specs`
 (label / value rows for the detail table). Hidden listings are not published.
+New bikes are a showcase catalogue, so there is no stock state or arrival month:
+the old `availability` and `arrival` keys are ignored with a build warning, except
+that `availability: hidden` is still treated as `hidden: true`.
 
 Rules live in `src/lib/newbikes-schema.ts` (`validateNewBike` / `normaliseNewBike`).
 

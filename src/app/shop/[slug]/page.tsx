@@ -5,7 +5,7 @@ import { Btn } from "@/components/Btn";
 import { NewBikeGallery } from "@/components/NewBikeGallery";
 import { SalePrice } from "@/components/SalePrice";
 import { getAll, getBySlug } from "@/lib/newbikes";
-import { bikeName, money, stockLabel } from "@/lib/newbikes-types";
+import { bikeName, money } from "@/lib/newbikes-types";
 import { enquireMailto, SITE } from "@/lib/site";
 
 const PLACEHOLDER = "none";
@@ -60,9 +60,6 @@ export default async function NewBikePage({ params }: Props) {
           </h1>
           <div className="mb-6 flex flex-wrap items-end gap-2">
             <SalePrice price={bike.price} wasPrice={bike.wasPrice} className="text-[28px]" />
-            <span className="mb-1 text-[10.5px] font-semibold tracking-[0.12em] text-muted uppercase">
-              {stockLabel(bike)}
-            </span>
           </div>
 
           {bike.sizes.length > 0 && (

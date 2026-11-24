@@ -41,13 +41,13 @@ function parseFile(file: string): NewBike | null {
   for (const w of r.warnings) console.warn(`[new] ${where}: ${w.message}`);
   if (r.errors.length || r.missing.length) {
     const problems = [...r.missing, ...r.errors].map((e) => e.message);
-    if (r.bike.availability === "hidden" && r.errors.length === 0) {
+    if (r.bike.hidden && r.errors.length === 0) {
       console.warn(`[new] skipping incomplete hidden listing ${where}: ${problems.join("; ")}`);
       return null;
     }
     throw new Error(`[new] ${where}:\n  - ${problems.join("\n  - ")}`);
   }
-  if (r.bike.availability === "hidden") return null;
+  if (r.bike.hidden) return null;
   return {
     slug,
     ...r.bike,

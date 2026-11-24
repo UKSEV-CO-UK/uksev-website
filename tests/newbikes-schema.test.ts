@@ -6,7 +6,6 @@ import {
   validateNewBike,
   type NewBikeErrorCode,
 } from "../src/lib/newbikes-schema";
-import { formatArrivalMonth, stockLabel } from "../src/lib/newbikes-types";
 
 const good = {
   brand: "FIIDO",
@@ -48,50 +47,36 @@ test("wasPrice is optional, but must be higher than price when set", () => {
   assert.equal(r.bike.wasPrice, 1635);
 });
 
-test("availability defaults to check; arriving needs a YYYY-MM arrival", () => {
-  assert.equal(normaliseNewBike(good).bike.availability, "check");
-  assert.equal(validateNewBike({ ...good, availability: "in-stock" }).ok, true);
-  assert.equal(validateNewBike({ ...good, availability: "arriving" }).ok, false);
-  assert.equal(
-    validateNewBike({ ...good, availability: "arriving", arrival: "2026-12" }).ok,
-    true,
-  );
-  assert.equal(validateNewBike({ ...good, availability: "maybe" }).ok, false);
+test("hidden defaults to false and accepts booleans or true/false strings", () => {
+  assert.equal(normaliseNewBike(good).bike.hidden, false);
+  assert.equal(normaliseNewBike({ ...good, hidden: true }).bike.hidden, true);
+  assert.equal(normaliseNewBike({ ...good, hidden: "true" }).bike.hidden, true);
+  assert.equal(normaliseNewBike({ ...good, hidden: false }).bike.hidden, false);
+  assert.equal(normaliseNewBike({ ...good, hidden: "false" }).bike.hidden, false);
+  assert.equal(validateNewBike({ ...good, hidden: true }).ok, true);
+
+  const bad = validateNewBike({ ...good, hidden: "maybe" });
+  assert.equal(bad.ok, false);
+  assert.equal(bad.errors[0].field, "hidden");
+  assert.equal(bad.errors[0].code, "hidden_invalid");
 });
 
-test("arrival must be YYYY-MM when present", () => {
-  assert.equal(validateNewBike({ ...good, arrival: "2026-12" }).ok, true);
-  assert.equal(validateNewBike({ ...good, arrival: "2026-01" }).ok, true);
-  assert.equal(normaliseNewBike({ ...good, arrival: "2026-12" }).bike.arrival, "2026-12");
-
-  for (const arrival of ["December", "soon", "2026-13", "2026-00", "2026-12-01", "Dec 2026"]) {
-    const r = validateNewBike({ ...good, arrival });
-    assert.equal(r.ok, false, arrival);
-    assert.equal(r.errors[0].field, "arrival", arrival);
+test("legacy availability / arrival keys are ignored with a warning; availability: hidden still hides", () => {
+  for (const availability of ["in-stock", "check", "arriving", "maybe"]) {
+    const r = normaliseNewBike({ ...good, availability, arrival: "December" });
+    assert.equal(validateNewBike({ ...good, availability, arrival: "December" }).ok, true, availability);
+    assert.equal(r.bike.hidden, false, availability);
+    assert.ok(!("availability" in r.bike), availability);
+    assert.ok(!("arrival" in r.bike), availability);
+    assert.deepEqual(
+      r.warnings.map((w) => w.field),
+      ["availability", "arrival"],
+      availability,
+    );
   }
-
-  const arrivingBad = validateNewBike({ ...good, availability: "arriving", arrival: "December" });
-  assert.equal(arrivingBad.ok, false);
-  assert.equal(arrivingBad.errors.length, 1);
-  assert.equal(arrivingBad.errors[0].field, "arrival");
-  assert.match(arrivingBad.errors[0].message, /2026-12/);
-});
-
-test("stockLabel formats YYYY-MM as an en-GB short month", () => {
-  assert.equal(formatArrivalMonth("2026-12"), "Dec 2026");
-  assert.equal(formatArrivalMonth("2026-01"), "Jan 2026");
-  assert.equal(
-    stockLabel({ availability: "arriving", arrival: "2026-12" }),
-    "Arriving Dec 2026",
-  );
-  assert.equal(
-    stockLabel({ availability: "arriving", arrival: "2026-01" }),
-    "Arriving Jan 2026",
-  );
-  assert.equal(stockLabel({ availability: "arriving" }), "Arriving");
-  assert.equal(stockLabel({ availability: "check", arrival: "2026-12" }), "Dec 2026");
-  assert.equal(stockLabel({ availability: "in-stock" }), "UK stock");
-  assert.equal(stockLabel({ availability: "check" }), "Check stock");
+  assert.equal(normaliseNewBike({ ...good, availability: "hidden" }).bike.hidden, true);
+  assert.equal(normaliseNewBike({ ...good, availability: "hidden", hidden: false }).bike.hidden, true);
+  assert.deepEqual(normaliseNewBike(good).warnings, []);
 });
 
 test("photo paths: prefix, leading slash, no .., existence hook", () => {
@@ -157,7 +142,7 @@ function assertCoded(errors: { field: string; message: string; code?: string }[]
 
 test("NEW_BIKE_ERROR_CODES has unique entries and matches the exported union length", () => {
   assert.equal(new Set(NEW_BIKE_ERROR_CODES).size, NEW_BIKE_ERROR_CODES.length);
-  assert.equal(NEW_BIKE_ERROR_CODES.length, 36);
+  assert.equal(NEW_BIKE_ERROR_CODES.length, 34);
 });
 
 test("every emitted error has a stable code; field and message stay the same", () => {
@@ -171,16 +156,6 @@ test("every emitted error has a stable code; field and message stay the same", (
   assert.equal(badWas.errors[0].field, "wasPrice");
   assert.equal(badWas.errors[0].message, "Was price must be higher than Price");
   assert.equal(badWas.errors[0].code, "was_price_not_higher");
-
-  const arriving = validateNewBike({ ...good, availability: "arriving" });
-  assert.equal(arriving.errors[0].field, "arrival");
-  assert.equal(arriving.errors[0].message, '"arrival" is required when availability is "arriving"');
-  assert.equal(arriving.errors[0].code, "arrival_required");
-
-  const badMonth = validateNewBike({ ...good, arrival: "December" });
-  assert.equal(badMonth.errors[0].field, "arrival");
-  assert.equal(badMonth.errors[0].message, '"arrival" must be a month like 2026-12');
-  assert.equal(badMonth.errors[0].code, "arrival_format");
 });
 
 test("edition wasPrice errors are distinct from a missing edition price", () => {
@@ -312,9 +287,6 @@ test("each new-bike error code is emitted with the expected field", () => {
       data: { ...good, colours: [{ name: "Grey", photos: ["/uploads/new/missing.webp"] }] },
       opts: { photoExists: exists },
     },
-    { code: "arrival_format", field: "arrival", data: { ...good, arrival: "2026-13" } },
-    { code: "arrival_required", field: "arrival", data: { ...good, availability: "arriving" } },
-    { code: "availability_invalid", field: "availability", data: { ...good, availability: "maybe" } },
     { code: "range_km_invalid", field: "rangeKm", data: { ...good, rangeKm: 0 } },
     { code: "range_miles_invalid", field: "rangeMiles", data: { ...good, rangeMiles: 0 } },
     { code: "weight_kg_invalid", field: "weightKg", data: { ...good, weightKg: 0 } },
@@ -330,6 +302,7 @@ test("each new-bike error code is emitted with the expected field", () => {
     { code: "edition_was_price_invalid", field: "editions[0]", data: { ...good, editions: [{ name: "Standard", price: 999, wasPrice: -1 }] } },
     { code: "edition_was_price_not_higher", field: "editions[1]", data: { ...good, editions: [{ name: "S", price: 999 }, { name: "E", price: 1290, wasPrice: 1000 }] } },
     { code: "edition_range_invalid", field: "editions[0]", data: { ...good, editions: [{ name: "Standard", price: 999, rangeKm: 0 }] } },
+    { code: "hidden_invalid", field: "hidden", data: { ...good, hidden: "yes" } },
     { code: "type_invalid", field: "type", data: { ...good, type: "car" } },
     { code: "date_invalid", field: "date", data: { ...good, date: "09/10/2026" } },
     { code: "text_invalid", field: "brand", data: { ...good, brand: { n: "FIIDO" } } },

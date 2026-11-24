@@ -70,3 +70,29 @@ test("new-bike listing with was price below price fails", async () => {
   const anns = checkListingFile("content/new/a.md", { cwd: dir });
   assert.ok(anns.some((a) => /Was price must be higher than Price/.test(a.message)));
 });
+
+test("new-bike hidden flag and legacy stock keys", async () => {
+  const fs = await import("node:fs");
+  const os = await import("node:os");
+  const path = await import("node:path");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "cg-"));
+  fs.mkdirSync(path.join(dir, "content/new"), { recursive: true });
+  fs.mkdirSync(path.join(dir, "public/uploads/new"), { recursive: true });
+  fs.writeFileSync(path.join(dir, "public/uploads/new/a.webp"), "x");
+  const base =
+    "brand: FIIDO\nmodel: X\nprice: 1000\ncolours:\n  - name: Grey\n    photos:\n      - src: /uploads/new/a.webp\n";
+  const write = (name: string, extra: string) =>
+    fs.writeFileSync(path.join(dir, `content/new/${name}.md`), `---\n${base}${extra}---\n`);
+
+  write("hidden", "hidden: true\n");
+  assert.deepEqual(checkListingFile("content/new/hidden.md", { cwd: dir }), []);
+
+  // Files saved before the showcase change still pass; the old keys are ignored.
+  write("legacy", "availability: arriving\narrival: December\n");
+  assert.deepEqual(checkListingFile("content/new/legacy.md", { cwd: dir }), []);
+
+  write("bad", "hidden: maybe\n");
+  const anns = checkListingFile("content/new/bad.md", { cwd: dir });
+  assert.equal(anns.length, 1);
+  assert.match(anns[0].message, /Hidden|hidden/);
+});
