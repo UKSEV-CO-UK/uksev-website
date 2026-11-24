@@ -118,7 +118,7 @@ export function NewBikeCard({ bike }: { bike: NewBikeSummary }) {
         )}
       </Link>
       <div className="flex flex-1 flex-col gap-2 px-4 pt-4 pb-[18px]">
-        <div className="text-[10px] font-semibold tracking-[0.14em] text-amber uppercase">
+        <div className="text-[10px] font-semibold text-amber">
           {bike.brand}
         </div>
         <h3 className="font-display text-xl font-bold tracking-[-0.02em]">
@@ -132,7 +132,7 @@ export function NewBikeCard({ bike }: { bike: NewBikeSummary }) {
             {highlight(bike).map((row) => (
               <div key={row.label} className="min-w-0">
                 <div className="truncate font-display text-sm font-semibold tracking-[-0.02em]">{row.value}</div>
-                <div className="text-[9.5px] tracking-[0.1em] text-muted uppercase">{row.label}</div>
+                <div className="text-[9.5px] text-muted">{row.label}</div>
               </div>
             ))}
           </div>

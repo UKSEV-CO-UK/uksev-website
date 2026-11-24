@@ -22,15 +22,10 @@ export default async function PreownedPage() {
       return rest;
     },
   );
-  const forSale = bikes.filter((b) => b.status !== "sold").length;
-
   return (
     <main className="wrap">
       <section className="intro">
         <div>
-          <div className="eyebrow">
-            Pre-owned · {forSale} bike{forSale === 1 ? "" : "s"} in stock
-          </div>
           <h1 className="d">
             Pre-owned, inspected <em>before listing.</em>
           </h1>

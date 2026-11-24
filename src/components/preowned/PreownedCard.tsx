@@ -15,7 +15,7 @@ import { Icon } from "./icons";
 export function SoldStamp({ date }: { date?: string }) {
   return (
     <div className="stamp" aria-hidden="true">
-      <b>SOLD</b>
+      <b>Sold</b>
       {date && <span>{monthYear(date)}</span>}
     </div>
   );
@@ -35,7 +35,7 @@ export function PreownedCard({ bike: b }: { bike: PreownedSummary }) {
           <i />
           {STATUS_LABEL[b.status]}
         </span>
-        {b.draft && <span className="draftflag">DRAFT</span>}
+        {b.draft && <span className="draftflag">Draft</span>}
         <span className="count">
           <Icon name="cam" />
           {b.photos.length}
@@ -43,10 +43,8 @@ export function PreownedCard({ bike: b }: { bike: PreownedSummary }) {
         {sold && <SoldStamp date={b.soldDate} />}
       </Link>
       <div className="body">
-        <div className="eyebrow meta">
-          {TYPE_LABEL[b.type]} · {b.brand} · {b.year}
-        </div>
         <h3>
+          <span className="ident">{TYPE_LABEL[b.type]} · {b.brand} · {b.year}</span>
           <Link href={href}>{b.model}</Link>
         </h3>
         <div className="specs">

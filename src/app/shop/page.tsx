@@ -19,9 +19,6 @@ export default async function ShopPage() {
   return (
     <main className="mx-auto max-w-[1180px] px-4 pt-[100px] pb-20 sm:px-7">
       <div className="mb-7">
-        <div className="mb-3.5 text-[10.5px] font-semibold tracking-[0.15em] text-teal uppercase">
-          Catalogue
-        </div>
         <h1 className="font-display mb-3 text-[clamp(36px,5vw,64px)] leading-none font-extrabold tracking-[-0.03em]">
           All rides<span className="text-amber">.</span>
         </h1>

@@ -43,7 +43,7 @@ function LabeledSelect<T extends string>({
 }) {
   return (
     <label
-      className="relative flex min-w-[160px] items-baseline gap-x-3 rounded-full border border-hair bg-ground-2 bg-[length:5px_5px,5px_5px] bg-[position:calc(100%-16px)_55%,calc(100%-11px)_55%] bg-no-repeat py-3 pr-9 pl-4 text-[10.5px] tracking-[0.1em] uppercase outline-none focus-within:border-amber"
+      className="relative flex min-w-[160px] items-baseline gap-x-3 rounded-full border border-hair bg-ground-2 bg-[length:5px_5px,5px_5px] bg-[position:calc(100%-16px)_55%,calc(100%-11px)_55%] bg-no-repeat py-3 pr-9 pl-4 text-[10.5px] outline-none focus-within:border-amber"
       style={{
         backgroundImage:
           "linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%)",
@@ -152,7 +152,7 @@ export function ShopToolbar({ bikes }: { bikes: NewBikeSummary[] }) {
             key={b}
             type="button"
             onClick={() => setBrand(b)}
-            className={`cursor-pointer rounded-full border px-3.5 py-2 text-[10.5px] tracking-[0.12em] uppercase transition-colors ${
+            className={`cursor-pointer rounded-full border px-3.5 py-2 text-[10.5px] transition-colors ${
               b === brand
                 ? "border-amber text-amber"
                 : "border-hair text-ink-2 hover:border-amber hover:text-amber"
@@ -163,14 +163,14 @@ export function ShopToolbar({ bikes }: { bikes: NewBikeSummary[] }) {
         ))}
       </div>
 
-      <div className="mb-[18px] flex items-baseline justify-between text-[10.5px] tracking-[0.12em] text-muted uppercase">
+      <div className="mb-[18px] flex items-baseline justify-between text-[10.5px] text-muted">
         <span>
           {list.length} ride{list.length === 1 ? "" : "s"}
         </span>
         <button
           type="button"
           onClick={clear}
-          className="cursor-pointer border-0 bg-transparent text-[10.5px] tracking-[0.12em] text-amber uppercase"
+          className="cursor-pointer border-0 bg-transparent text-[10.5px] text-amber"
         >
           Clear all
         </button>

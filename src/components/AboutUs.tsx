@@ -12,9 +12,6 @@ export function AboutUs() {
     <section id="about" className="border-t border-hair bg-ground px-7 py-[100px]">
       <div className="mx-auto grid max-w-[1180px] grid-cols-1 items-start gap-8 md:grid-cols-[1fr_1.15fr] md:gap-12">
         <div className="reveal">
-          <div className="mb-4 text-[10.5px] font-semibold tracking-[0.15em] text-teal uppercase">
-            About us
-          </div>
           <h2 className="font-display text-[clamp(28px,3.4vw,48px)] leading-[1.1] font-bold tracking-[-0.03em]">
             UK warehouse.
             <br />
