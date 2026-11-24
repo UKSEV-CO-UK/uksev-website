@@ -7,7 +7,6 @@ model: RV700
 code: UK-LAN-RV700
 order: 66
 price: 1399
-priceLabel: '£1,399'
 wasPrice: 1999
 photos:
   - src: /uploads/new/lan-rv700/cover.jpg

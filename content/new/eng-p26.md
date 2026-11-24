@@ -7,7 +7,6 @@ model: P26
 code: UK-ENG-P26
 order: 52
 price: 999
-priceLabel: £999
 wasPrice: 1399
 photos:
   - src: /uploads/new/eng-p26/cover.jpg

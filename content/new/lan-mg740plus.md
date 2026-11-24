@@ -7,7 +7,6 @@ model: MG740PLUS
 code: UK-LAN-MG740PLUS
 order: 8
 price: 1499
-priceLabel: '£1,499'
 wasPrice: 1999
 photos:
   - src: /uploads/new/lan-mg740plus/cover.jpg

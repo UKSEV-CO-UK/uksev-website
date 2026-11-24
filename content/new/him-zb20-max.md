@@ -7,7 +7,6 @@ model: ZB20 MAX
 code: UK-HIM-ZB20-MAX
 order: 64
 price: 859
-priceLabel: £859
 wasPrice: 1399
 photos:
   - src: /uploads/new/him-zb20-max/cover.jpg

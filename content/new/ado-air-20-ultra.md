@@ -7,7 +7,7 @@ model: Air 20 Ultra
 code: UK-ADO-AIR-20-ULTRA
 order: 5
 price: 1559
-priceLabel: 'From £1,559'
+priceFrom: true
 wasPrice: 2099
 photos:
   - src: /uploads/new/ado-air-20-ultra/cover.png

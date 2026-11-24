@@ -7,7 +7,7 @@ model: M2
 code: UK-ELE-M2
 order: 60
 price: 719
-priceLabel: From £719
+priceFrom: true
 wasPrice: 999
 photos:
   - src: /uploads/new/ele-m2/cover.jpg

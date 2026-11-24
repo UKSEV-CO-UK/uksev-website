@@ -7,7 +7,6 @@ model: ENGINE Pro
 code: UK-ENG-ENGINE-PRO
 order: 38
 price: 1349
-priceLabel: '£1,349'
 wasPrice: 1399
 photos:
   - src: /uploads/new/eng-engine-pro/cover.jpg

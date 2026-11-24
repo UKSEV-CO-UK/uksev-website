@@ -78,6 +78,7 @@ function fieldLabel(field: string): string {
     specs: "Specs",
     code: "Code",
     order: "Order",
+    priceFrom: "Starting price",
     priceLabel: "Price label",
   };
   return labels[field] ?? field.charAt(0).toUpperCase() + field.slice(1);

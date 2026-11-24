@@ -7,7 +7,6 @@ model: MAPFOUR N1 AIR/ST
 code: UK-ENG-MAPFOUR-N1-AIR-ST
 order: 49
 price: 1199
-priceLabel: '£1,199'
 wasPrice: 1699
 photos:
   - src: /uploads/new/eng-mapfour-n1-air-st/cover.jpg

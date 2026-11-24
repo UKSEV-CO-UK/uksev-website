@@ -7,7 +7,6 @@ model: Oasis One
 code: UK-ADO-OASIS-ONE
 order: 20
 price: 1299
-priceLabel: '£1,299'
 photos:
   - src: /uploads/new/ado-oasis-one/cover.jpg
 battery: 48V/15Ah

@@ -7,7 +7,6 @@ model: S2
 code: UK-DYU-S2
 order: 34
 price: 429
-priceLabel: £429
 wasPrice: 529
 photos:
   - src: /uploads/new/dyu-s2/cover.jpg

@@ -7,7 +7,6 @@ model: D3F
 code: UK-DYU-D3F
 order: 31
 price: 459
-priceLabel: £459
 wasPrice: 699
 photos:
   - src: /uploads/new/dyu-d3f/cover.jpg

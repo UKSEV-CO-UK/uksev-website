@@ -43,6 +43,7 @@ export const NEW_BIKE_ERROR_CODES = [
   "order_invalid",
   "photo_not_found",
   "photo_src_invalid",
+  "price_from_invalid",
   "price_invalid",
   "price_missing",
   "price_zero",
@@ -470,27 +471,37 @@ function parseSpecs(raw: unknown, errors: FieldError[]): SpecRow[] {
 /**
  * Keys that earlier versions of the schema accepted and the showcase schema
  * dropped. A file or admin save that still sets one is rejected, so a stale
- * stock state or arrival month can never reach the site unnoticed. Use
- * `hidden: true` instead of `availability: hidden`.
+ * stock state, arrival month or free-text price can never reach the site
+ * unnoticed. Use `hidden: true` instead of `availability: hidden`, and
+ * `priceFrom: true` instead of `priceLabel: From £…`.
  */
-export const LEGACY_KEYS = ["availability", "arrival"] as const;
+export const LEGACY_KEYS = ["availability", "arrival", "priceLabel"] as const;
+
+const LEGACY_HINT: Record<(typeof LEGACY_KEYS)[number], string> = {
+  availability: ' (use "hidden: true" to keep a bike off the site)',
+  arrival: "",
+  priceLabel: ' (the price is shown from "price"; use "priceFrom: true" for "From £…")',
+};
+
+/** Optional true / false flag: a YAML boolean or the strings "true" / "false". */
+function parseFlag(data: Data, key: string, code: NewBikeErrorCode, errors: FieldError[]): boolean {
+  const raw = data[key];
+  if (raw == null || raw === "") return false;
+  if (raw === true || raw === "true") return true;
+  if (raw === false || raw === "false") return false;
+  errors.push(fe(key, `"${key}" must be true or false, got ${JSON.stringify(raw)}`, code));
+  return false;
+}
 
 /**
  * `hidden: true` keeps a bike off the site. Accepts a YAML boolean or the
  * strings "true" / "false".
  */
 function parseHidden(data: Data, errors: FieldError[]): boolean {
-  let hidden = false;
-  const raw = data.hidden;
-  if (raw != null && raw !== "") {
-    if (raw === true || raw === "true") hidden = true;
-    else if (raw === false || raw === "false") hidden = false;
-    else errors.push(fe("hidden", `"hidden" must be true or false, got ${JSON.stringify(raw)}`, "hidden_invalid"));
-  }
+  const hidden = parseFlag(data, "hidden", "hidden_invalid", errors);
   for (const k of LEGACY_KEYS) {
     if (data[k] == null || data[k] === "") continue;
-    const hint = k === "availability" ? ' (use "hidden: true" to keep a bike off the site)' : "";
-    errors.push(fe(k, `"${k}" is no longer supported; remove it${hint}`, "legacy_field_removed"));
+    errors.push(fe(k, `"${k}" is no longer supported; remove it${LEGACY_HINT[k]}`, "legacy_field_removed"));
   }
   return hidden;
 }
@@ -505,13 +516,14 @@ export function normaliseNewBike(data: Data, opts: NormaliseOptions = {}): Norma
     c.errors.push(fe("price", "Price must be more than 0", "price_zero"));
   }
   const price = parsedPrice ?? 0;
-  const priceLabel = c.text("priceLabel");
   const code = c.text("code");
   const order = c.num("order", ...LIMITS.order);
   const wasPrice = c.num("wasPrice", ...LIMITS.wasPrice);
   if (wasPrice != null && wasPrice <= price) {
     c.errors.push(fe("wasPrice", "Was price must be higher than Price", "was_price_not_higher"));
   }
+  // `priceFrom: true` shows the price as "From £…". Same true / false rules as `hidden`.
+  const priceFrom = parseFlag(data, "priceFrom", "price_from_invalid", c.errors);
   const hidden = parseHidden(data, c.errors);
   const colours = parseColours(data.colours, c.errors, opts.photoExists);
   const photos = parsePhotos(data.photos, c.errors, opts.photoExists);
@@ -545,7 +557,7 @@ export function normaliseNewBike(data: Data, opts: NormaliseOptions = {}): Norma
     ...(code ? { code } : {}),
     ...(order != null ? { order } : {}),
     price,
-    ...(priceLabel ? { priceLabel } : {}),
+    ...(priceFrom ? { priceFrom: true } : {}),
     ...(wasPrice != null && wasPrice > price ? { wasPrice } : {}),
     hidden,
     colours,

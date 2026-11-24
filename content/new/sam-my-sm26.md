@@ -7,7 +7,7 @@ model: MY-SM26
 code: UK-SAM-MY-SM26
 order: 70
 price: 1099
-priceLabel: 'From £1,099'
+priceFrom: true
 wasPrice: 1299
 photos:
   - src: /uploads/new/sam-my-sm26/cover.jpg

@@ -7,7 +7,7 @@ model: M1 Plus (With APP)
 code: UK-ELE-M1-PLUS-WITH-APP-2
 order: 14
 price: 619
-priceLabel: From £619
+priceFrom: true
 wasPrice: 899
 photos:
   - src: /uploads/new/ele-m1-plus-with-app-2/cover.jpg

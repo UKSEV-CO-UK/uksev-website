@@ -7,7 +7,6 @@ model: OOTD T10 11 Inch Electric folding scooter
 code: UK-DUO-OOTD-T10-11-INCH-ELE
 order: 27
 price: 459
-priceLabel: £459
 photos:
   - src: /uploads/new/duo-ootd-t10-11-inch-ele/cover.jpg
 battery: 48V/13.5Ah

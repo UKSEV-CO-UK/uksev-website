@@ -7,7 +7,7 @@ model: X20
 code: UK-ENG-X20
 order: 56
 price: 1299
-priceLabel: 'From £1,299'
+priceFrom: true
 wasPrice: 1699
 photos:
   - src: /uploads/new/eng-x20/cover.jpg

@@ -7,7 +7,7 @@ model: X24
 code: UK-ENG-X24
 order: 57
 price: 1799
-priceLabel: 'From £1,799'
+priceFrom: true
 wasPrice: 1899
 photos:
   - src: /uploads/new/eng-x24/cover.jpg

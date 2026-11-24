@@ -7,7 +7,7 @@ model: AIR 20
 code: UK-ADO-AIR-20
 order: 15
 price: 899
-priceLabel: From £899
+priceFrom: true
 wasPrice: 1499
 photos:
   - src: /uploads/new/ado-air-20/cover.jpg

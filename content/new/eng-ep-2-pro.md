@@ -7,7 +7,6 @@ model: EP-2 Pro
 code: UK-ENG-EP-2-PRO
 order: 4
 price: 949
-priceLabel: £949
 wasPrice: 1099
 photos:
   - src: /uploads/new/eng-ep-2-pro/cover.jpg

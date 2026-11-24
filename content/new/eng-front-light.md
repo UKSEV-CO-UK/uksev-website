@@ -7,7 +7,6 @@ model: Front Light
 code: UK-ENG-FRONT-LIGHT
 order: 77
 price: 29
-priceLabel: £29
 wasPrice: 49
 photos:
   - src: /uploads/new/eng-front-light/cover.jpg

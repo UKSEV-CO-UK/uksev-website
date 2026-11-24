@@ -7,7 +7,6 @@ model: L20
 code: UK-ENG-L20
 order: 44
 price: 949
-priceLabel: £949
 wasPrice: 1099
 photos:
   - src: /uploads/new/eng-l20/cover.jpg

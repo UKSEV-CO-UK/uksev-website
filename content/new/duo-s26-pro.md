@@ -7,7 +7,6 @@ model: S26 Pro
 code: UK-DUO-S26-PRO
 order: 28
 price: 1099
-priceLabel: '£1,099'
 wasPrice: 1899
 photos:
   - src: /uploads/new/duo-s26-pro/cover.jpg

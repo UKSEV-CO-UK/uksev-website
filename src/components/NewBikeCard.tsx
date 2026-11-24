@@ -125,7 +125,7 @@ export function NewBikeCard({ bike }: { bike: NewBikeSummary }) {
           <Link href={href}>{bike.model}</Link>
         </h3>
         <div className="flex flex-wrap items-end gap-2">
-          <SalePrice price={bike.price} wasPrice={bike.wasPrice} label={bike.priceLabel} />
+          <SalePrice price={bike.price} wasPrice={bike.wasPrice} priceFrom={bike.priceFrom} />
         </div>
         {hasHighlights(bike) ? (
           <div className="mt-1 grid grid-cols-4 gap-1 border-t border-hair pt-3">

@@ -16,8 +16,10 @@
  *
  * Mapping rules (no data is invented):
  * - slug: `code` lower-cased, leading "uk-" and trailing "-" removed.
- * - brand, model (from `name`), code, price, priceLabel copied as-is;
- *   `was` becomes `wasPrice`.
+ * - brand, model (from `name`), code, price copied as-is; `was` becomes
+ *   `wasPrice`. `priceLabel` is not copied: a "From £…" label becomes
+ *   `priceFrom: true` (see scripts/migrate-price-from.ts); a label that is not
+ *   `money(price)` or "From " + `money(price)` stops the script.
  * - order: rank by `featured`, ties kept in the original array order (1..n).
  * - colours: left empty (products.ts has no colour names); the cover goes in
  *   the top-level `photos` list instead.
@@ -30,7 +32,7 @@
  *   listing is published (`hidden` omitted).
  *
  * `--check` re-derives every listing from the source and fails if a file is
- * missing, a price / wasPrice / priceLabel / code / order differs, or a photo
+ * missing, a price / wasPrice / priceFrom / code / order differs, or a photo
  * is missing.
  */
 import fs from "node:fs";
@@ -39,6 +41,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 import matter from "gray-matter";
+import { priceFromFor } from "./migrate-price-from";
 
 const DEFAULT_REF = "85f1312";
 const SOURCE_PATH = "src/data/products.ts";
@@ -168,6 +171,8 @@ export function buildListings(products: SourceProduct[]): Listing[] {
     if (slugs.has(slug)) throw new Error(`duplicate slug ${slug} (${p.code})`);
     slugs.add(slug);
     if (p.price == null) throw new Error(`${p.code}: price is null`);
+    const priceFrom = priceFromFor(p.priceLabel, p.price);
+    if (priceFrom === null) throw new Error(`${p.code}: priceLabel ${JSON.stringify(p.priceLabel)} does not match price ${p.price}`);
     const { rows, motorW, battery } = specRows(p.spec);
     const data: Record<string, unknown> = {
       type: typeFor(p),
@@ -176,7 +181,7 @@ export function buildListings(products: SourceProduct[]): Listing[] {
       code: p.code,
       order: orderOf.get(p.code),
       price: p.price,
-      priceLabel: p.priceLabel,
+      ...(priceFrom ? { priceFrom: true } : {}),
       ...(p.was != null ? { wasPrice: p.was } : {}),
       photos: [] as { src: string }[], // filled in once the cover file is known
       ...(battery ? { battery } : {}),
@@ -221,7 +226,7 @@ function check(listings: Listing[]): string[] {
       continue;
     }
     const { data } = matter(fs.readFileSync(file, "utf8"));
-    for (const k of ["price", "wasPrice", "priceLabel", "code", "order", "brand", "model"]) {
+    for (const k of ["price", "wasPrice", "priceFrom", "code", "order", "brand", "model"]) {
       if (data[k] !== l.data[k]) {
         problems.push(`${l.slug}: ${k} is ${JSON.stringify(data[k])}, source says ${JSON.stringify(l.data[k])}`);
       }

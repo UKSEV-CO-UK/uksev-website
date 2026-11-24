@@ -7,7 +7,6 @@ model: AIR ONE PRO
 code: UK-ADO-AIR-ONE-PRO
 order: 19
 price: 1399
-priceLabel: '£1,399'
 photos:
   - src: /uploads/new/ado-air-one-pro/cover.jpg
 battery: 36V/10Ah

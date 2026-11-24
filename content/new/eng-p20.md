@@ -7,7 +7,6 @@ model: P20
 code: UK-ENG-P20
 order: 51
 price: 899
-priceLabel: £899
 wasPrice: 1399
 photos:
   - src: /uploads/new/eng-p20/cover.jpg

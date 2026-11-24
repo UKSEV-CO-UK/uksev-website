@@ -7,7 +7,6 @@ model: EP-2 3.0 Boost
 code: UK-ENG-EP-2-3-0-BOOST
 order: 40
 price: 1099
-priceLabel: '£1,099'
 photos:
   - src: /uploads/new/eng-ep-2-3-0-boost/cover.jpg
 motorW: 250

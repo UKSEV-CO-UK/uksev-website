@@ -7,7 +7,6 @@ model: P275 Pro
 code: UK-ENG-P275-PRO
 order: 53
 price: 2199
-priceLabel: '£2,199'
 wasPrice: 2399
 photos:
   - src: /uploads/new/eng-p275-pro/cover.jpg

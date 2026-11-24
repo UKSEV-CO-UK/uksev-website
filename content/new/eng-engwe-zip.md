@@ -7,7 +7,6 @@ model: Engwe Zip
 code: UK-ENG-ENGWE-ZIP
 order: 43
 price: 899
-priceLabel: £899
 photos:
   - src: /uploads/new/eng-engwe-zip/cover.jpg
 specs:
