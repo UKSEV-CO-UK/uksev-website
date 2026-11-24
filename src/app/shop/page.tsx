@@ -1,4 +1,4 @@
-import { SITE, site } from "@/config/site";
+import { SITE, site, siteUrl } from "@/config/site";
 import type { Metadata } from "next";
 import { ShopToolbar } from "@/components/ShopToolbar";
 import { getListed } from "@/lib/newbikes";
@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   title: "Rides",
   description:
     `Browse ${site.name} electric bike catalogue — guide prices. Enquire to confirm.`,
+  alternates: { canonical: siteUrl("/shop/") },
+  openGraph: { url: siteUrl("/shop/") },
 };
 
 export default async function ShopPage() {

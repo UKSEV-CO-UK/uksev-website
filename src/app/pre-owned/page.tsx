@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { site } from "@/config/site";
+import { site, siteUrl } from "@/config/site";
 import { Icon } from "@/components/preowned/icons";
 import { PreownedList } from "@/components/preowned/PreownedList";
 import { getListed } from "@/lib/preowned";
@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   title: "Pre-owned e-bikes",
   description:
     `Pre-owned electric bikes inspected and battery-tested by ${site.shortName}. Guide prices, honest grades.`,
+  alternates: { canonical: siteUrl("/pre-owned/") },
+  openGraph: { url: siteUrl("/pre-owned/") },
 };
 
 export default async function PreownedPage() {
