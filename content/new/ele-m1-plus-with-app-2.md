@@ -1,0 +1,26 @@
+---
+# Migrated from src/data/products.ts by scripts/migrate-scraped-new-bikes.ts.
+# Source catalogue: markshop.co.uk (authorised image use). Guide prices.
+type: e-bike
+brand: Eleglide
+model: M1 Plus (With APP)
+code: UK-ELE-M1-PLUS-WITH-APP-2
+order: 14
+price: 619
+priceLabel: From £619
+wasPrice: 899
+photos:
+  - src: /uploads/new/ele-m1-plus-with-app-2/cover.jpg
+battery: 36V/12.5Ah
+motorW: 250
+specs:
+  - label: Motor
+    value: 250W
+  - label: Battery
+    value: 36V/12.5Ah
+  - label: Wheel size
+    value: 27.5″
+  - label: Features
+    value: APP
+---
+

@@ -410,3 +410,20 @@ test("featuredFirst: unordered listings first (newest first), then ascending ord
   assert.deepEqual(sorted, ["new", "old", "a", "b"]);
 });
 
+test("every migrated content/new listing passes validateNewBike with its photo on disk", async () => {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const { default: matter } = await import("gray-matter");
+  const dir = new URL("../content/new/", import.meta.url);
+  const pub = new URL("../public", import.meta.url).pathname;
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".md"));
+  assert.ok(files.length >= 87, `expected at least 87 listings, got ${files.length}`);
+  for (const f of files) {
+    const { data } = matter(fs.readFileSync(new URL(f, dir), "utf8"));
+    const r = validateNewBike(data, { photoExists: (src) => fs.existsSync(path.join(pub, src)) });
+    assert.equal(r.ok, true, `${f}: ${r.errors.map((e) => e.message).join("; ")}`);
+    if (Array.isArray(data.colours)) {
+      for (const c of data.colours) assert.notEqual(String(c?.name).toLowerCase(), "standard", f);
+    }
+  }
+});
