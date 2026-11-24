@@ -36,6 +36,7 @@ export const NEW_BIKE_ERROR_CODES = [
   "edition_was_price_invalid",
   "edition_was_price_not_higher",
   "hidden_invalid",
+  "legacy_field_removed",
   "list_invalid",
   "model_missing",
   "motor_w_invalid",
@@ -468,19 +469,17 @@ function parseSpecs(raw: unknown, errors: FieldError[]): SpecRow[] {
 
 /**
  * Keys that earlier versions of the schema accepted and the showcase schema
- * dropped. They are ignored (with a warning) rather than rejected, so files and
- * admin saves written before the change still build; see `parseHidden` for the
- * one value that is still honoured.
+ * dropped. A file or admin save that still sets one is rejected, so a stale
+ * stock state or arrival month can never reach the site unnoticed. Use
+ * `hidden: true` instead of `availability: hidden`.
  */
 export const LEGACY_KEYS = ["availability", "arrival"] as const;
 
 /**
  * `hidden: true` keeps a bike off the site. Accepts a YAML boolean or the
- * strings "true" / "false". For files written before the showcase change,
- * `availability: hidden` still means hidden, so a hidden bike can never be
- * published by accident; every other legacy value is ignored.
+ * strings "true" / "false".
  */
-function parseHidden(data: Data, errors: FieldError[], warnings: FieldError[]): boolean {
+function parseHidden(data: Data, errors: FieldError[]): boolean {
   let hidden = false;
   const raw = data.hidden;
   if (raw != null && raw !== "") {
@@ -490,9 +489,9 @@ function parseHidden(data: Data, errors: FieldError[], warnings: FieldError[]): 
   }
   for (const k of LEGACY_KEYS) {
     if (data[k] == null || data[k] === "") continue;
-    warnings.push({ field: k, message: `"${k}" is no longer used and is ignored` });
+    const hint = k === "availability" ? ' (use "hidden: true" to keep a bike off the site)' : "";
+    errors.push(fe(k, `"${k}" is no longer supported; remove it${hint}`, "legacy_field_removed"));
   }
-  if (data.availability === "hidden") hidden = true;
   return hidden;
 }
 
@@ -513,7 +512,7 @@ export function normaliseNewBike(data: Data, opts: NormaliseOptions = {}): Norma
   if (wasPrice != null && wasPrice <= price) {
     c.errors.push(fe("wasPrice", "Was price must be higher than Price", "was_price_not_higher"));
   }
-  const hidden = parseHidden(data, c.errors, c.warnings);
+  const hidden = parseHidden(data, c.errors);
   const colours = parseColours(data.colours, c.errors, opts.photoExists);
   const photos = parsePhotos(data.photos, c.errors, opts.photoExists);
   const coloursEmpty =
