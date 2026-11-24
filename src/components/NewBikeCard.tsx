@@ -8,7 +8,6 @@ import { enquireMailto, SITE } from "@/lib/site";
 import {
   bikeName,
   coverPhoto,
-  stockLabel,
   type NewBikeSummary,
 } from "@/lib/newbikes-types";
 
@@ -97,9 +96,6 @@ export function NewBikeCard({ bike }: { bike: NewBikeSummary }) {
         </h3>
         <div className="flex flex-wrap items-end gap-2">
           <SalePrice price={bike.price} wasPrice={bike.wasPrice} />
-          <span className="mb-0.5 text-[10px] font-semibold tracking-[0.12em] text-muted uppercase">
-            {stockLabel(bike)}
-          </span>
         </div>
         <div className="mt-1 grid grid-cols-4 gap-1 border-t border-hair pt-3">
           {highlight(bike).map((row) => (

@@ -5,10 +5,7 @@
  * C21 is the first file written against this shape.
  */
 import {
-  ARRIVAL_RE,
-  AVAILABILITIES,
   TYPES,
-  type Availability,
   type Colour,
   type Edition,
   type FrameSize,
@@ -23,9 +20,6 @@ import {
  * `field` and `message` stay as they are; the admin UI maps `code` to copy.
  */
 export const NEW_BIKE_ERROR_CODES = [
-  "arrival_format",
-  "arrival_required",
-  "availability_invalid",
   "battery_invalid",
   "battery_wh_invalid",
   "brand_missing",
@@ -41,6 +35,7 @@ export const NEW_BIKE_ERROR_CODES = [
   "edition_range_invalid",
   "edition_was_price_invalid",
   "edition_was_price_not_higher",
+  "hidden_invalid",
   "list_invalid",
   "model_missing",
   "motor_w_invalid",
@@ -115,8 +110,6 @@ function pickInvalidCode(k: string): NewBikeErrorCode {
   switch (k) {
     case "type":
       return "type_invalid";
-    case "availability":
-      return "availability_invalid";
     default:
       throw new Error(`unmapped pick field: ${k}`);
   }
@@ -447,6 +440,36 @@ function parseSpecs(raw: unknown, errors: FieldError[]): SpecRow[] {
   return out;
 }
 
+/**
+ * Keys that earlier versions of the schema accepted and the showcase schema
+ * dropped. They are ignored (with a warning) rather than rejected, so files and
+ * admin saves written before the change still build; see `parseHidden` for the
+ * one value that is still honoured.
+ */
+export const LEGACY_KEYS = ["availability", "arrival"] as const;
+
+/**
+ * `hidden: true` keeps a bike off the site. Accepts a YAML boolean or the
+ * strings "true" / "false". For files written before the showcase change,
+ * `availability: hidden` still means hidden, so a hidden bike can never be
+ * published by accident; every other legacy value is ignored.
+ */
+function parseHidden(data: Data, errors: FieldError[], warnings: FieldError[]): boolean {
+  let hidden = false;
+  const raw = data.hidden;
+  if (raw != null && raw !== "") {
+    if (raw === true || raw === "true") hidden = true;
+    else if (raw === false || raw === "false") hidden = false;
+    else errors.push(fe("hidden", `"hidden" must be true or false, got ${JSON.stringify(raw)}`, "hidden_invalid"));
+  }
+  for (const k of LEGACY_KEYS) {
+    if (data[k] == null || data[k] === "") continue;
+    warnings.push({ field: k, message: `"${k}" is no longer used and is ignored` });
+  }
+  if (data.availability === "hidden") hidden = true;
+  return hidden;
+}
+
 export function normaliseNewBike(data: Data, opts: NormaliseOptions = {}): NormaliseResult {
   const c = new Checker(data);
   const type = c.pick("type", TYPES, "e-bike") ?? "e-bike";
@@ -461,21 +484,7 @@ export function normaliseNewBike(data: Data, opts: NormaliseOptions = {}): Norma
   if (wasPrice != null && wasPrice <= price) {
     c.errors.push(fe("wasPrice", "Was price must be higher than Price", "was_price_not_higher"));
   }
-  const availability = c.pick("availability", AVAILABILITIES, "check") ?? "check";
-  const arrivalRaw = c.text("arrival");
-  let arrival: string | undefined;
-  if (arrivalRaw) {
-    if (!ARRIVAL_RE.test(arrivalRaw)) {
-      c.errors.push(fe("arrival", '"arrival" must be a month like 2026-12', "arrival_format"));
-    } else {
-      arrival = arrivalRaw;
-    }
-  }
-  if (availability === "arriving" && !arrivalRaw) {
-    c.errors.push(
-      fe("arrival", '"arrival" is required when availability is "arriving"', "arrival_required"),
-    );
-  }
+  const hidden = parseHidden(data, c.errors, c.warnings);
   const colours = parseColours(data.colours, c.errors, c.missing, opts.photoExists);
   const sizes = parseSizes(data.sizes, c.errors);
   const editions = parseEditions(data.editions, c.errors);
@@ -495,8 +504,7 @@ export function normaliseNewBike(data: Data, opts: NormaliseOptions = {}): Norma
     model,
     price,
     ...(wasPrice != null && wasPrice > price ? { wasPrice } : {}),
-    availability: availability as Availability,
-    ...(arrival ? { arrival } : {}),
+    hidden,
     colours,
     sizes,
     editions,

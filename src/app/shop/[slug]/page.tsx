@@ -5,7 +5,7 @@ import { Btn } from "@/components/Btn";
 import { NewBikeGallery } from "@/components/NewBikeGallery";
 import { SalePrice } from "@/components/SalePrice";
 import { getAll, getBySlug } from "@/lib/newbikes";
-import { bikeName, money, stockLabel } from "@/lib/newbikes-types";
+import { bikeName, money } from "@/lib/newbikes-types";
 import { enquireMailto, SITE } from "@/lib/site";
 
 const PLACEHOLDER = "none";
@@ -31,6 +31,19 @@ function whatsappBike(name: string): string {
   const text = `Hi, I'm enquiring about the ${name}.`;
   const base = SITE.whatsapp.split("?")[0];
   return `${base}?text=${encodeURIComponent(text)}`;
+}
+
+function EnquireActions({ name, className }: { name: string; className?: string }) {
+  return (
+    <div className={`grid grid-cols-[1.2fr_1fr] gap-2 ${className ?? ""}`.trim()}>
+      <Btn href={enquireMailto(name)} solid className="!px-2 !py-[11px] text-center">
+        Enquire
+      </Btn>
+      <Btn href={whatsappBike(name)} external className="!px-2 !py-[11px] text-center">
+        WhatsApp
+      </Btn>
+    </div>
+  );
 }
 
 export default async function NewBikePage({ params }: Props) {
@@ -60,9 +73,6 @@ export default async function NewBikePage({ params }: Props) {
           </h1>
           <div className="mb-6 flex flex-wrap items-end gap-2">
             <SalePrice price={bike.price} wasPrice={bike.wasPrice} className="text-[28px]" />
-            <span className="mb-1 text-[10.5px] font-semibold tracking-[0.12em] text-muted uppercase">
-              {stockLabel(bike)}
-            </span>
           </div>
 
           {bike.sizes.length > 0 && (
@@ -103,14 +113,7 @@ export default async function NewBikePage({ params }: Props) {
             </div>
           )}
 
-          <div className="grid grid-cols-[1.2fr_1fr] gap-2">
-            <Btn href={enquireMailto(name)} solid className="!px-2 !py-[11px] text-center">
-              Enquire
-            </Btn>
-            <Btn href={whatsappBike(name)} external className="!px-2 !py-[11px] text-center">
-              WhatsApp
-            </Btn>
-          </div>
+          <EnquireActions name={name} />
         </aside>
       </div>
 
@@ -140,6 +143,8 @@ export default async function NewBikePage({ params }: Props) {
           </dl>
         </section>
       )}
+
+      <EnquireActions name={name} className="mt-12 max-w-[28rem]" />
     </main>
   );
 }
