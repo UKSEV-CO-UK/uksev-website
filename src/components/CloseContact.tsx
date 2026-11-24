@@ -14,7 +14,7 @@ export function CloseContact() {
           <p className="mt-3 max-w-[36ch] text-xs leading-[1.55] text-ink-2">
             Tell us the model. We&apos;ll confirm what&apos;s in and a firm price.
           </p>
-          <p className="mt-2 text-[11px] tracking-[0.08em] text-muted">
+          <p className="mt-2 text-[11px] text-muted">
             Viewing by appointment · Mon–Fri &amp; Sat morning
           </p>
         </div>
@@ -30,7 +30,7 @@ export function CloseContact() {
           </Btn>
         </div>
       </div>
-      <footer className="mx-auto max-w-[980px] border-t border-hair py-[18px] pb-2.5 text-[11px] tracking-[0.08em] text-muted">
+      <footer className="mx-auto max-w-[980px] border-t border-hair py-[18px] pb-2.5 text-[11px] text-muted">
         <div className="flex flex-wrap justify-between gap-x-6 gap-y-1">
           <span className="flex flex-wrap gap-x-1">
             {SITE.companyNumber ? (

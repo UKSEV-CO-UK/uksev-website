@@ -92,14 +92,16 @@ export default async function PreownedBikePage({ params }: Props) {
 
         <aside className="buy">
           {b.draft && (
-            <p className="eyebrow" style={{ color: "var(--ground)", background: "var(--amber)", display: "inline-block", padding: "3px 8px", borderRadius: 4, marginBottom: 10 }}>
+            <p className="draftflag" style={{ position: "static", display: "inline-flex", marginBottom: 10 }}>
               Draft — hidden on the live site
             </p>
           )}
-          <div className="eyebrow">
-            {TYPE_LABEL[b.type]} · {b.brand} · {b.year}
-          </div>
           <h1>{b.model}</h1>
+          <div className="idline">
+            <span>{TYPE_LABEL[b.type]}</span>
+            <span>{b.brand}</span>
+            <span>{b.year}</span>
+          </div>
           <div className={`st ${b.status}`}>
             <i />
             {statusLine}
@@ -280,10 +282,11 @@ export default async function PreownedBikePage({ params }: Props) {
                     <img src={x.photos[0].src} alt="" loading="lazy" />
                   </div>
                   <div className="b">
-                    <div className="eyebrow">
-                      {x.brand} · {x.year}
-                    </div>
                     <h3>{x.model}</h3>
+                    <div className="idline">
+                      <span>{x.brand}</span>
+                      <span>{x.year}</span>
+                    </div>
                     <p>
                       {x.mileage.toLocaleString("en-GB")} mi
                       {x.batteryHealth != null && ` · ${x.batteryHealth}% battery`}

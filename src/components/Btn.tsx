@@ -10,7 +10,7 @@ type BtnProps = {
 } & Omit<ComponentProps<"a">, "href" | "className" | "children">;
 
 const base =
-  "inline-flex items-center justify-center rounded-full border border-hair px-[18px] py-3 text-[10.5px] font-semibold tracking-[0.14em] uppercase transition-colors hover:border-amber hover:text-amber";
+  "inline-flex items-center justify-center rounded-full border border-hair px-[18px] py-3 text-[10.5px] font-semibold transition-colors hover:border-amber hover:text-amber";
 const solidCls =
   "border-ink bg-ink !text-ground hover:border-amber hover:bg-amber hover:!text-ground";
 

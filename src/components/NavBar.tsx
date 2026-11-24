@@ -45,7 +45,7 @@ export function NavBar() {
             <Link
               key={l.href}
               href={l.href}
-              className={`text-[10.5px] font-medium tracking-[0.14em] uppercase transition-colors hover:text-amber ${
+              className={`text-[10.5px] font-medium transition-colors hover:text-amber ${
                 on ? "text-amber" : "text-ink-2"
               }`}
             >
@@ -55,7 +55,7 @@ export function NavBar() {
         })}
         <a
           href={SITE.phoneHref}
-          className="rounded-full border border-hair px-3.5 py-2 text-[10.5px] font-semibold tracking-[0.14em] uppercase transition-colors hover:border-amber hover:text-amber"
+          className="rounded-full border border-hair px-3.5 py-2 text-[10.5px] font-semibold transition-colors hover:border-amber hover:text-amber"
         >
           Call
         </a>
@@ -64,7 +64,7 @@ export function NavBar() {
       <div className="flex items-center gap-3 md:hidden">
         <a
           href={SITE.phoneHref}
-          className="rounded-full border border-hair px-3.5 py-2 text-[10.5px] font-semibold tracking-[0.14em] uppercase"
+          className="rounded-full border border-hair px-3.5 py-2 text-[10.5px] font-semibold"
         >
           Call
         </a>
@@ -88,7 +88,7 @@ export function NavBar() {
             <Link
               key={l.href}
               href={l.href}
-              className="py-2.5 text-[11px] font-medium tracking-[0.14em] uppercase text-ink-2 hover:text-amber"
+              className="py-2.5 text-[11px] font-medium text-ink-2 hover:text-amber"
               onClick={() => setOpen(false)}
             >
               {l.label}

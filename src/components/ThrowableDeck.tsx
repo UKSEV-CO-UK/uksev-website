@@ -143,7 +143,7 @@ export function ThrowableDeck({ items }: Props) {
                 style={{ backgroundImage: `url(${r.img})` }}
               />
               <div className="px-[18px] pt-[18px] pb-5">
-                <div className="mb-2 text-[10.5px] font-semibold tracking-[0.14em] text-amber uppercase">
+                <div className="mb-2 text-[10.5px] font-semibold text-amber">
                   {r.eyebrow}
                 </div>
                 <h3 className="font-display mb-1.5 text-[22px] tracking-[-0.02em]">
@@ -159,7 +159,7 @@ export function ThrowableDeck({ items }: Props) {
           );
         })}
       </div>
-      <div className="text-[10.5px] tracking-[0.14em] text-muted uppercase">
+      <div className="text-[10.5px] text-muted">
         Drag / ← → to throw a sleeve
       </div>
       <div className="flex gap-2" aria-hidden>

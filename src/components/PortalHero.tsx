@@ -136,16 +136,16 @@ export function PortalHero() {
             </span>
           </div>
         </div>
-        <div className="absolute top-[78px] left-7 z-[5] text-[10.5px] font-medium tracking-[0.14em] text-ink-2 uppercase">
+        <div className="absolute top-[78px] left-7 z-[5] text-[10.5px] font-medium text-ink-2">
           {site.name} <span className="text-amber">/</span> Electric bikes
         </div>
-        <div className="absolute top-[78px] right-7 z-[5] hidden text-right text-[10.5px] font-medium tracking-[0.14em] text-ink-2 uppercase sm:block">
+        <div className="absolute top-[78px] right-7 z-[5] hidden text-right text-[10.5px] font-medium text-ink-2 sm:block">
           UK warehouse <span className="text-amber">·</span> by appointment
         </div>
-        <div className="absolute bottom-7 left-7 z-[5] text-[10.5px] font-medium tracking-[0.14em] text-ink-2 uppercase">
+        <div className="absolute bottom-7 left-7 z-[5] text-[10.5px] font-medium text-ink-2">
           Scroll to open
         </div>
-        <div className="absolute right-7 bottom-7 z-[5] hidden text-right text-[10.5px] font-medium tracking-[0.14em] text-ink-2 uppercase sm:block">
+        <div className="absolute right-7 bottom-7 z-[5] hidden text-right text-[10.5px] font-medium text-ink-2 sm:block">
           {SITE.phoneDisplay}
         </div>
       </div>

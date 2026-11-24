@@ -33,9 +33,6 @@ export function StatementFold() {
   return (
     <section className="relative grid min-h-screen place-items-center bg-ground px-7 py-[120px]">
       <div className="reveal relative w-full max-w-[920px]">
-        <div className="mb-7 text-[10.5px] font-semibold tracking-[0.15em] text-teal uppercase">
-          Position
-        </div>
         <div
           className="font-display absolute top-0 right-0 text-[clamp(80px,14vw,180px)] leading-none font-extrabold tracking-[-0.04em] text-transparent"
           style={{ WebkitTextStroke: "1px var(--hair)" }}

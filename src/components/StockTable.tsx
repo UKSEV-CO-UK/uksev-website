@@ -23,10 +23,7 @@ const rows = [
 export function StockTable() {
   return (
     <section id="visit" className="mx-auto max-w-[980px] px-7 pt-10 pb-[100px]">
-      <div className="reveal mb-7 text-[10.5px] font-semibold tracking-[0.15em] text-teal uppercase">
-        Where & how
-      </div>
-      <div className="reveal hidden grid-cols-[1.2fr_1fr_1fr_1fr] gap-4 border-b border-hair py-4 text-[10.5px] font-semibold tracking-[0.14em] text-muted uppercase max-[860px]:hidden md:grid">
+      <div className="reveal hidden grid-cols-[1.2fr_1fr_1fr_1fr] gap-4 border-b border-hair py-4 text-[10.5px] font-semibold text-muted max-[860px]:hidden md:grid">
         <span>Place</span>
         <span>Detail</span>
         <span>Action</span>

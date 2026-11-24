@@ -51,7 +51,7 @@ export default async function NewBikePage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-[1180px] px-4 pt-[100px] pb-20 sm:px-7">
-      <div className="mb-6 text-[11px] tracking-[0.08em] text-ink-2 uppercase">
+      <div className="mb-6 text-[11px] text-ink-2">
         <Link href="/shop/" className="hover:text-amber">
           Rides
         </Link>
@@ -63,9 +63,6 @@ export default async function NewBikePage({ params }: Props) {
         <NewBikeGallery colours={bike.colours} photos={bike.photos} alt={name} />
 
         <aside>
-          <div className="mb-2 text-[10.5px] font-semibold tracking-[0.15em] text-teal uppercase">
-            {bike.code ? `${bike.code} · ${bike.brand}` : bike.brand}
-          </div>
           <h1 className="font-display mb-4 text-[clamp(32px,4vw,52px)] leading-none font-extrabold tracking-[-0.03em]">
             {bike.model}
           </h1>
@@ -80,7 +77,7 @@ export default async function NewBikePage({ params }: Props) {
 
           {bike.sizes.length > 0 && (
             <div className="mb-6">
-              <div className="mb-2 text-[10.5px] font-semibold tracking-[0.14em] text-muted uppercase">
+              <div className="mb-2 text-[10.5px] font-semibold text-muted">
                 Sizes
               </div>
               <ul className="space-y-1 text-sm text-ink-2">
@@ -96,7 +93,7 @@ export default async function NewBikePage({ params }: Props) {
 
           {bike.editions.length > 0 && (
             <div className="mb-6">
-              <div className="mb-2 text-[10.5px] font-semibold tracking-[0.14em] text-muted uppercase">
+              <div className="mb-2 text-[10.5px] font-semibold text-muted">
                 Editions
               </div>
               <ul className="space-y-2">
