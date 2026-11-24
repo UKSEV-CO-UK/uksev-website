@@ -27,7 +27,7 @@ function optionLabel<T extends string>(
   return options.find((o) => o.value === value)?.label ?? value;
 }
 
-/** Native select under a visible label + grey value, so the control has no "·" join. */
+/** Native select under a visible label + grey value, so the control is not a joined label. */
 function LabeledSelect<T extends string>({
   label,
   value,

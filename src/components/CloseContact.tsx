@@ -14,9 +14,8 @@ export function CloseContact() {
           <p className="mt-3 max-w-[36ch] text-xs leading-[1.55] text-ink-2">
             Tell us the model. We&apos;ll confirm what&apos;s in and a firm price.
           </p>
-          <p className="mt-2 flex flex-wrap gap-x-3 text-[11px] text-muted">
-            <span>Viewing by appointment</span>
-            <span>Mon–Fri &amp; Sat morning</span>
+          <p className="mt-2 text-[11px] text-muted">
+            Viewing by appointment, Mon–Fri and Saturday morning
           </p>
         </div>
         <div className="grid w-full grid-cols-1 gap-3 sm:w-auto sm:grid-cols-3">

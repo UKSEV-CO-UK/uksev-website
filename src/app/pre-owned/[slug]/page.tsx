@@ -100,23 +100,16 @@ export default async function PreownedBikePage({ params }: Props) {
           </div>
           <div className={`st ${b.status}`}>
             <i />
-            <span className="parts">
-              {b.status === "available" ? (
-                <>
-                  <span>Available now</span>
-                  {b.date ? <span>listed {shortDate(b.date)}</span> : null}
-                </>
-              ) : b.status === "reserved" ? (
-                <>
-                  <span>Reserved</span>
-                  <span>ask to join the waiting list</span>
-                </>
-              ) : (
-                <>
-                  <span>Sold</span>
-                  {b.soldDate ? <span>{shortDate(b.soldDate)}</span> : null}
-                </>
-              )}
+            <span>
+              {b.status === "available"
+                ? b.date
+                  ? `Available now, listed ${shortDate(b.date)}`
+                  : "Available now"
+                : b.status === "reserved"
+                  ? "Reserved. Ask to join the waiting list."
+                  : b.soldDate
+                    ? `Sold on ${shortDate(b.soldDate)}`
+                    : "Sold"}
             </span>
           </div>
 
@@ -330,7 +323,7 @@ export default async function PreownedBikePage({ params }: Props) {
           <a className="btn solid" href={enquireHref(b)}>
             <span className="parts">
               <span>Enquire</span>
-              <span>{money(b.price)}</span>
+              <span className="askprice">{money(b.price)}</span>
             </span>
           </a>
         )}
