@@ -25,7 +25,7 @@ export function NewBikeGallery({
           <img
             src={photo.src}
             alt={alt}
-            className="mx-auto box-border aspect-square w-full max-w-[640px] object-contain p-[6%]"
+            className="mx-auto box-border aspect-square w-full max-w-[640px] object-contain p-[6%] mix-blend-multiply"
           />
         )}
       </div>

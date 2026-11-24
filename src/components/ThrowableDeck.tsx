@@ -6,7 +6,8 @@ export type DeckItem = {
   img: string;
   eyebrow: string;
   title: string;
-  meta: string;
+  /** Guide price (priceText) then first spec, each rendered in its own span. */
+  meta: string[];
 };
 
 type Props = {
@@ -148,7 +149,11 @@ export function ThrowableDeck({ items }: Props) {
                 <h3 className="font-display mb-1.5 text-[22px] tracking-[-0.02em]">
                   {r.title}
                 </h3>
-                <div className="text-xs text-ink-2">{r.meta}</div>
+                <div className="flex flex-wrap gap-x-3 text-xs text-ink-2">
+                  {r.meta.map((part) => (
+                    <span key={part}>{part}</span>
+                  ))}
+                </div>
               </div>
             </article>
           );

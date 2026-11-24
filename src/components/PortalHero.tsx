@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { SITE } from "@/lib/site";
+import { SITE, site } from "@/config/site";
 
 const HERO_IMG =
   "https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&w=2000&q=80";
@@ -137,7 +137,7 @@ export function PortalHero() {
           </div>
         </div>
         <div className="absolute top-[78px] left-7 z-[5] text-[10.5px] font-medium tracking-[0.14em] text-ink-2 uppercase">
-          UKSEV LTD <span className="text-amber">/</span> Electric bikes
+          {site.name} <span className="text-amber">/</span> Electric bikes
         </div>
         <div className="absolute top-[78px] right-7 z-[5] hidden text-right text-[10.5px] font-medium tracking-[0.14em] text-ink-2 uppercase sm:block">
           UK warehouse <span className="text-amber">·</span> by appointment

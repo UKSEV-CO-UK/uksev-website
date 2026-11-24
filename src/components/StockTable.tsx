@@ -1,9 +1,9 @@
-import { SITE } from "@/lib/site";
+import { SITE } from "@/config/site";
 const rows = [
   {
     place: "Viewing",
     detail: "By appointment",
-    action: "Stock check",
+    action: "Ask what's in",
     note: "Mon–Fri & Sat am",
   },
   {
@@ -22,7 +22,7 @@ const rows = [
 
 export function StockTable() {
   return (
-    <section id="stock" className="mx-auto max-w-[980px] px-7 pt-10 pb-[100px]">
+    <section id="visit" className="mx-auto max-w-[980px] px-7 pt-10 pb-[100px]">
       <div className="reveal mb-7 text-[10.5px] font-semibold tracking-[0.15em] text-teal uppercase">
         Where & how
       </div>

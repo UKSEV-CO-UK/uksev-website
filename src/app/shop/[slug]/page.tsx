@@ -6,7 +6,7 @@ import { NewBikeGallery } from "@/components/NewBikeGallery";
 import { SalePrice } from "@/components/SalePrice";
 import { getAll, getBySlug } from "@/lib/newbikes";
 import { bikeName, priceText } from "@/lib/newbikes-types";
-import { enquireMailto, SITE } from "@/lib/site";
+import { enquireMailto, site, whatsappHref } from "@/config/site";
 
 const PLACEHOLDER = "none";
 export const dynamicParams = false;
@@ -23,14 +23,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!bike) return { title: "Not found", robots: { index: false } };
   return {
     title: bikeName(bike),
-    description: `${bikeName(bike)} — ${priceText(bike)} at UKSEV. Enquire to confirm.`,
+    description: `${bikeName(bike)} — ${priceText(bike)} at ${site.shortName}. Enquire to confirm.`,
   };
 }
 
 function whatsappBike(name: string): string {
-  const text = `Hi, I'm enquiring about the ${name}.`;
-  const base = SITE.whatsapp.split("?")[0];
-  return `${base}?text=${encodeURIComponent(text)}`;
+  return whatsappHref(`Hi, I'm enquiring about the ${name}.`);
 }
 
 function EnquireActions({ name, className }: { name: string; className?: string }) {

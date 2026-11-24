@@ -1,4 +1,4 @@
-import { SITE } from "@/lib/site";
+import { SITE, site } from "@/config/site";
 import type { Metadata } from "next";
 import { ShopToolbar } from "@/components/ShopToolbar";
 import { getListed } from "@/lib/newbikes";
@@ -7,7 +7,7 @@ import type { NewBikeSummary } from "@/lib/newbikes-types";
 export const metadata: Metadata = {
   title: "Rides",
   description:
-    "Browse UKSEV LTD electric bike catalogue — guide prices. Enquire to confirm.",
+    `Browse ${site.name} electric bike catalogue — guide prices. Enquire to confirm.`,
 };
 
 export default async function ShopPage() {

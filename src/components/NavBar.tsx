@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { SITE } from "@/lib/site";
+import { SITE, site } from "@/config/site";
 
 const links = [
   { href: "/shop", label: "Rides" },
   { href: "/#brands", label: "Brands" },
-  { href: "/#stock", label: "Stock" },
+  { href: "/#visit", label: "Visit" },
   { href: "/pre-owned", label: "Pre-owned" },
   { href: "/#about", label: "About" },
   { href: "/#contact", label: "Contact" },
@@ -23,12 +23,12 @@ export function NavBar() {
       <Link
         href="/"
         className="font-display flex items-center text-[15px] font-bold tracking-[-0.02em]"
-        aria-label="UKSEV LTD"
+        aria-label={site.name}
         onClick={() => setOpen(false)}
       >
         {/* plain img: next/image width/height attrs were squashing the wide SVG into a square */}
         <img
-          src="/logo/logo-b-light.svg"
+          src={site.logo}
           alt=""
           className="h-10 w-auto md:h-12"
           style={{ width: "auto" }}

@@ -1,4 +1,4 @@
-import { SITE } from "@/lib/site";
+import { SITE } from "@/config/site";
 import "./preowned.css";
 
 export default function PreownedLayout({ children }: { children: React.ReactNode }) {

@@ -1,6 +1,6 @@
 import { getListed } from "@/lib/newbikes";
 import { coverPhoto, priceText } from "@/lib/newbikes-types";
-import { SITE, enquireMailto } from "@/lib/site";
+import { SITE, enquireMailto } from "@/config/site";
 import { Btn } from "./Btn";
 import { ThrowableDeck, type DeckItem } from "./ThrowableDeck";
 
@@ -13,7 +13,7 @@ async function featuredDeck(): Promise<DeckItem[]> {
       img: coverPhoto(b)?.src ?? "",
       eyebrow: b.code ?? b.brand,
       title: `${b.brand} ${b.model}`,
-      meta: [priceText(b), b.specs[0]?.value].filter(Boolean).join(" · "),
+      meta: [priceText(b), b.specs[0]?.value].filter((v): v is string => Boolean(v)),
     }));
 }
 
@@ -27,11 +27,10 @@ export async function ReleasesDeck() {
             Catalogue
           </div>
           <h2 className="font-display mb-[18px] max-w-[12ch] text-[clamp(28px,3.2vw,48px)] leading-[1.1] font-bold tracking-[-0.03em]">
-            Rides in the warehouse
+            The range
           </h2>
           <p className="mb-7 max-w-[36ch] text-[15px] leading-relaxed text-ink-2">
-            A physical deck of what we hold in UK stock. Flick through, then enquire
-            — no online bag for now.
+            A physical deck of the range. Flick through, then enquire — no online bag for now.
           </p>
           <div className="flex flex-wrap gap-3">
             <Btn href={enquireMailto()} solid>

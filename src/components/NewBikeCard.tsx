@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Btn } from "./Btn";
 import { SalePrice } from "./SalePrice";
-import { enquireMailto, SITE } from "@/lib/site";
+import { enquireMailto, whatsappHref } from "@/config/site";
 import {
   bikeName,
   coverPhoto,
@@ -13,9 +13,7 @@ import {
 } from "@/lib/newbikes-types";
 
 function whatsappBike(name: string): string {
-  const text = `Hi, I'm enquiring about the ${name}.`;
-  const base = SITE.whatsapp.split("?")[0];
-  return `${base}?text=${encodeURIComponent(text)}`;
+  return whatsappHref(`Hi, I'm enquiring about the ${name}.`);
 }
 
 /** True when a spec value just repeats the card title or the type label. */
@@ -25,12 +23,11 @@ function isDuplicateSpec(value: string, bike: NewBikeSummary): boolean {
   return v === bike.model.trim().toLowerCase() || v === TYPE_LABEL[bike.type].trim().toLowerCase();
 }
 
-/** One-line spec summary for listings without card highlights (e.g. migrated catalogue rows). */
-function specLine(bike: NewBikeSummary): string {
+/** Spec values for listings without card highlights (e.g. migrated catalogue rows). */
+function specValues(bike: NewBikeSummary): string[] {
   return bike.specs
     .map((row) => row.value)
-    .filter((value) => !isDuplicateSpec(value, bike))
-    .join(" · ");
+    .filter((value) => !isDuplicateSpec(value, bike));
 }
 
 function hasHighlights(bike: NewBikeSummary): boolean {
@@ -75,6 +72,7 @@ export function NewBikeCard({ bike }: { bike: NewBikeSummary }) {
   const cover = coverPhoto(bike, colour?.name);
   const name = bikeName(bike);
   const href = `/shop/${bike.slug}/`;
+  const specs = specValues(bike);
 
   return (
     <article className="flex flex-col overflow-hidden rounded-2xl border border-hair bg-ground-2 transition-colors hover:border-[rgba(232,145,60,0.45)]">
@@ -85,7 +83,7 @@ export function NewBikeCard({ bike }: { bike: NewBikeSummary }) {
           <img
             src={cover.src}
             alt=""
-            className="absolute inset-0 box-border h-full w-full object-contain p-[6%]"
+            className="absolute inset-0 box-border h-full w-full object-contain p-[6%] mix-blend-multiply"
           />
         )}
         {bike.colours.length > 1 && (
@@ -137,9 +135,11 @@ export function NewBikeCard({ bike }: { bike: NewBikeSummary }) {
             ))}
           </div>
         ) : (
-          specLine(bike) && (
-            <div className="mt-1 flex-1 border-t border-hair pt-3 text-xs leading-[1.45] text-ink-2">
-              {specLine(bike)}
+          specs.length > 0 && (
+            <div className="mt-1 flex flex-1 flex-wrap gap-x-3 border-t border-hair pt-3 text-xs leading-[1.45] text-ink-2">
+              {specs.map((value, i) => (
+                <span key={`${i}-${value}`}>{value}</span>
+              ))}
             </div>
           )
         )}

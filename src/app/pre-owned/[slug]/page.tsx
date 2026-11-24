@@ -16,7 +16,7 @@ import {
   shortDate,
   type InspectionResult,
 } from "@/lib/preowned-types";
-import { SITE } from "@/lib/site";
+import { SITE, site } from "@/config/site";
 
 /** Static export needs ≥ 1 param; with no published bikes we emit one 404 placeholder. */
 const PLACEHOLDER = "none";
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${bikeName(bike)} (pre-owned${sold ? ", sold" : ""})`,
     description: `Pre-owned ${bikeName(bike)}, ${bike.year}, ${bike.mileage.toLocaleString("en-GB")} miles${
       bike.batteryHealth != null ? `, ${bike.batteryHealth}% battery health` : ""
-    }${sold ? " — sold." : ` — guide ${money(bike.price)} at UKSEV.`}`,
+    }${sold ? " — sold." : ` — guide ${money(bike.price)} at ${site.shortName}.`}`,
     ...(bike.draft ? { robots: { index: false } } : {}),
   };
 }
