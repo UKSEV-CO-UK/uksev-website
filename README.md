@@ -110,7 +110,7 @@ tell when a published change is live on uksev.co.uk. Schema rules stay here in
 
 Company name, domain and contact details live in [`src/config/site.ts`](src/config/site.ts). There are **no environment-variable overrides**; change that file and rebuild. `email` is set on its own — it is not derived from `domain`. Do not add a street address to this file.
 
-`SITE` (phone and email `href`s) and the `enquireMailto` / `whatsappHref` helpers are derived from the same object and do not need a separate edit.
+`SITE` (phone and email `href`s), `siteOrigin` / `siteUrl()` (from `domain`), and the `enquireMailto` / `whatsappHref` helpers are derived from the same object and do not need a separate edit.
 
 ### Fields in `src/config/site.ts`
 
@@ -118,14 +118,14 @@ Company name, domain and contact details live in [`src/config/site.ts`](src/conf
 | --- | --- |
 | `name` | Legal name: default document title, Organisation JSON-LD, nav `aria-label`, hero, About copy, footer, shop meta |
 | `shortName` | Short label: title template (`%s — {shortName}`), shop and pre-owned meta, large decorative word on the contact block |
-| `domain` | Hostname only. **Not read by any component today.** Keep it in line with `url` and `public/CNAME` |
-| `url` | Canonical origin (`metadataBase`, Organisation JSON-LD, pre-owned WhatsApp message links) |
+| `domain` | Hostname only. Drives `siteOrigin` (`https://${site.domain}`) and `siteUrl()`. These set `metadataBase`, plus `canonical` and `og:url` on every page. Keep it in line with `url` and `public/CNAME` |
+| `url` | Origin used in Organisation JSON-LD and pre-owned WhatsApp message links. Keep it in line with `domain` |
 | `email` | Enquire and footer email (and `mailto:` links) |
 | `phone` | Displayed phone number; `SITE.phoneHref` / `phoneDisplay` are derived from it |
 | `whatsapp` | WhatsApp chat URL (`wa.me/…`); `whatsappHref()` may append a pre-filled message |
 | `companyNumber` | Companies House number in the footer and JSON-LD; omit or leave empty to hide it |
 | `logo` | Navbar logo path (default `/brand/logo.svg`) |
-| `logoMark` | Path to the mark asset (default `/brand/logo-mark.svg`). **Not referenced by any component today**; keep it if you still ship the file |
+| `logoMark` | Path to the mark asset (default `/brand/logo-mark.svg`). Reserved for a future favicon or compact mark; **not rendered yet**. Leave the field in place |
 
 ### Still hardcoded (not covered by `site.ts`)
 
@@ -144,4 +144,4 @@ These are not driven by `site.ts` and must be changed by hand:
 - **GitHub Pages custom domain** — repo Settings → Pages.
 - **Cloudflare DNS** — configured by hand in the Cloudflare dashboard, not from this repository (apex and `www` for the public site).
 - **Logo files** — replace the assets in `public/brand/` (`logo.svg`, `logo-mark.svg`, `logo-on-light.svg`; the last is not referenced in `site.ts`). Also replace `src/app/favicon.ico` if the icon should change.
-- **GitHub org and repo rename** — rename on GitHub if needed. Then update the admin’s repo setting and any vendored schema headers; follow the uksev-admin README section **更换公司名、域名或仓库** (in [uksev-admin#41](https://github.com/UKSEV-CO-UK/uksev-admin/pull/41) until that lands on main).
+- **GitHub org and repo rename** — rename on GitHub if needed. Then update the admin’s repo setting and any vendored schema headers; follow the uksev-admin README section **更换公司名、域名或仓库**.
