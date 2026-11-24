@@ -87,9 +87,12 @@ test("new-bike hidden flag and legacy stock keys", async () => {
   write("hidden", "hidden: true\n");
   assert.deepEqual(checkListingFile("content/new/hidden.md", { cwd: dir }), []);
 
-  // Files saved before the showcase change still pass; the old keys are ignored.
+  // The old stock keys are rejected so they cannot linger in content.
   write("legacy", "availability: arriving\narrival: December\n");
-  assert.deepEqual(checkListingFile("content/new/legacy.md", { cwd: dir }), []);
+  const legacy = checkListingFile("content/new/legacy.md", { cwd: dir });
+  assert.equal(legacy.length, 2);
+  assert.match(legacy[0].message, /availability/);
+  assert.match(legacy[1].message, /arrival/);
 
   write("bad", "hidden: maybe\n");
   const anns = checkListingFile("content/new/bad.md", { cwd: dir });

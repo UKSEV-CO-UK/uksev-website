@@ -61,21 +61,26 @@ test("hidden defaults to false and accepts booleans or true/false strings", () =
   assert.equal(bad.errors[0].code, "hidden_invalid");
 });
 
-test("legacy availability / arrival keys are ignored with a warning; availability: hidden still hides", () => {
-  for (const availability of ["in-stock", "check", "arriving", "maybe"]) {
-    const r = normaliseNewBike({ ...good, availability, arrival: "December" });
-    assert.equal(validateNewBike({ ...good, availability, arrival: "December" }).ok, true, availability);
-    assert.equal(r.bike.hidden, false, availability);
-    assert.ok(!("availability" in r.bike), availability);
-    assert.ok(!("arrival" in r.bike), availability);
+test("legacy availability / arrival keys are rejected with legacy_field_removed", () => {
+  for (const availability of ["in-stock", "check", "arriving", "hidden", "maybe"]) {
+    const r = validateNewBike({ ...good, availability, arrival: "December" });
+    assert.equal(r.ok, false, availability);
     assert.deepEqual(
-      r.warnings.map((w) => w.field),
-      ["availability", "arrival"],
+      r.errors.map((e) => [e.field, e.code]),
+      [
+        ["availability", "legacy_field_removed"],
+        ["arrival", "legacy_field_removed"],
+      ],
       availability,
     );
   }
-  assert.equal(normaliseNewBike({ ...good, availability: "hidden" }).bike.hidden, true);
-  assert.equal(normaliseNewBike({ ...good, availability: "hidden", hidden: false }).bike.hidden, true);
+  const arrivalOnly = validateNewBike({ ...good, arrival: "December" });
+  assert.equal(arrivalOnly.ok, false);
+  assert.equal(arrivalOnly.errors[0].field, "arrival");
+  // `availability: hidden` no longer implies hidden; the file is rejected instead.
+  assert.equal(normaliseNewBike({ ...good, availability: "hidden" }).bike.hidden, false);
+  // Empty legacy keys are treated as absent.
+  assert.equal(validateNewBike({ ...good, availability: "", arrival: null }).ok, true);
   assert.deepEqual(normaliseNewBike(good).warnings, []);
 });
 
@@ -142,7 +147,7 @@ function assertCoded(errors: { field: string; message: string; code?: string }[]
 
 test("NEW_BIKE_ERROR_CODES has unique entries and matches the exported union length", () => {
   assert.equal(new Set(NEW_BIKE_ERROR_CODES).size, NEW_BIKE_ERROR_CODES.length);
-  assert.equal(NEW_BIKE_ERROR_CODES.length, 34);
+  assert.equal(NEW_BIKE_ERROR_CODES.length, 35);
 });
 
 test("every emitted error has a stable code; field and message stay the same", () => {
@@ -303,6 +308,7 @@ test("each new-bike error code is emitted with the expected field", () => {
     { code: "edition_was_price_not_higher", field: "editions[1]", data: { ...good, editions: [{ name: "S", price: 999 }, { name: "E", price: 1290, wasPrice: 1000 }] } },
     { code: "edition_range_invalid", field: "editions[0]", data: { ...good, editions: [{ name: "Standard", price: 999, rangeKm: 0 }] } },
     { code: "hidden_invalid", field: "hidden", data: { ...good, hidden: "yes" } },
+    { code: "legacy_field_removed", field: "availability", data: { ...good, availability: "in-stock" } },
     { code: "type_invalid", field: "type", data: { ...good, type: "car" } },
     { code: "date_invalid", field: "date", data: { ...good, date: "09/10/2026" } },
     { code: "text_invalid", field: "brand", data: { ...good, brand: { n: "FIIDO" } } },
