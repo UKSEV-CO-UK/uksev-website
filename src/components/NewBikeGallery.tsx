@@ -19,13 +19,13 @@ export function NewBikeGallery({
 
   return (
     <div>
-      <div className="overflow-hidden rounded-2xl border border-hair bg-[#f4f4f2]">
+      <div className="overflow-hidden rounded-2xl border border-hair bg-photo-ground">
         {photo && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={photo.src}
             alt={alt}
-            className="mx-auto box-border aspect-square w-full max-w-[640px] object-contain p-[6%]"
+            className="mx-auto box-border aspect-square w-full max-w-[640px] object-contain p-[6%] mix-blend-multiply"
           />
         )}
       </div>
@@ -44,7 +44,7 @@ export function NewBikeGallery({
               >
                 <span
                   className="h-3.5 w-3.5 rounded-full border border-hair"
-                  style={{ background: c.swatch || "#6c7378" }}
+                  style={{ background: c.swatch || "var(--muted)" }}
                 />
                 {c.name}
               </button>

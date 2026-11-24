@@ -6,7 +6,8 @@ export type DeckItem = {
   img: string;
   eyebrow: string;
   title: string;
-  meta: string;
+  /** Guide price (priceText) then first spec, each rendered in its own span. */
+  meta: string[];
 };
 
 type Props = {
@@ -129,7 +130,7 @@ export function ThrowableDeck({ items }: Props) {
             <article
               key={`${rideIdx}-${order.join("-")}-${depth}`}
               ref={depth === 0 ? (node) => { topCardRef.current = node; } : undefined}
-              className="absolute inset-0 cursor-grab overflow-hidden rounded-[18px] border border-hair bg-ground shadow-[0_24px_50px_rgba(0,0,0,.45)] select-none will-change-transform active:cursor-grabbing"
+              className="absolute inset-0 cursor-grab overflow-hidden rounded-[18px] border border-hair bg-ground shadow-[0_24px_50px_var(--shade-45)] select-none will-change-transform active:cursor-grabbing"
               style={{
                 zIndex: 20 - depth,
                 transform: stackStyle(depth),
@@ -148,7 +149,11 @@ export function ThrowableDeck({ items }: Props) {
                 <h3 className="font-display mb-1.5 text-[22px] tracking-[-0.02em]">
                   {r.title}
                 </h3>
-                <div className="text-xs text-ink-2">{r.meta}</div>
+                <div className="flex flex-wrap gap-x-3 text-xs text-ink-2">
+                  {r.meta.map((part) => (
+                    <span key={part}>{part}</span>
+                  ))}
+                </div>
               </div>
             </article>
           );

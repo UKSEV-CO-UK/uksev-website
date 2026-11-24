@@ -1,8 +1,8 @@
-import { SITE } from "@/lib/site";
+import { SITE, site } from "@/config/site";
 import { Btn } from "./Btn";
 
 const facts = [
-  { title: "UK stock", body: "E-bikes held in our UK warehouse, ready to go." },
+  { title: "UK warehouse", body: "Based in Oxfordshire. Ask what's in." },
   { title: "Viewing by appointment", body: "Call or WhatsApp to arrange a look." },
   { title: "Guide prices on site", body: <>Firm quote on <span className="whitespace-nowrap">{SITE.phoneDisplay}</span>.</> },
 ];
@@ -23,8 +23,8 @@ export function AboutUs() {
         </div>
         <div className="reveal">
           <p className="mb-4 max-w-[52ch] text-[15px] leading-[1.65] text-ink-2">
-            UKSEV LTD holds electric bikes in UK stock, so what you see here is ready to ride — not
-            weeks away on a container.
+            {site.name} runs its own UK warehouse. Enquire and we&apos;ll confirm
+            what&apos;s in and when you can ride.
           </p>
           <p className="max-w-[52ch] text-[15px] leading-[1.65] text-ink-2">
             Browse what&apos;s in, then call or WhatsApp us for a firm quote or to book a viewing.

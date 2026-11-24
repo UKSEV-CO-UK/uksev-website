@@ -7,6 +7,66 @@ import { NewBikeCard } from "./NewBikeCard";
 type PriceFilter = "all" | "sale";
 type SortKey = "featured" | "name" | "brand" | "price-asc" | "price-desc";
 
+const PRICE_OPTIONS: { value: PriceFilter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "sale", label: "Guide sale" },
+];
+
+const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+  { value: "featured", label: "Featured" },
+  { value: "name", label: "Name A–Z" },
+  { value: "brand", label: "Brand A–Z" },
+  { value: "price-asc", label: "Price low–high" },
+  { value: "price-desc", label: "Price high–low" },
+];
+
+function optionLabel<T extends string>(
+  options: { value: T; label: string }[],
+  value: T,
+): string {
+  return options.find((o) => o.value === value)?.label ?? value;
+}
+
+/** Native select under a visible label + grey value, so the control has no "·" join. */
+function LabeledSelect<T extends string>({
+  label,
+  value,
+  options,
+  onChange,
+  ariaLabel,
+}: {
+  label: string;
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (value: T) => void;
+  ariaLabel: string;
+}) {
+  return (
+    <label
+      className="relative flex min-w-[160px] items-baseline gap-x-3 rounded-full border border-hair bg-ground-2 bg-[length:5px_5px,5px_5px] bg-[position:calc(100%-16px)_55%,calc(100%-11px)_55%] bg-no-repeat py-3 pr-9 pl-4 text-[10.5px] tracking-[0.1em] uppercase outline-none focus-within:border-amber"
+      style={{
+        backgroundImage:
+          "linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%)",
+      }}
+    >
+      <span>{label}</span>
+      <span className="text-ink-2">{optionLabel(options, value)}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value as T)}
+        aria-label={ariaLabel}
+        className="absolute inset-0 cursor-pointer appearance-none opacity-0"
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 /** Brand chips in the order brands first appear in the Featured list. */
 function brandsOf(bikes: NewBikeSummary[]): string[] {
   return ["All", ...Array.from(new Set([...bikes].sort(featuredFirst).map((b) => b.brand)))];
@@ -70,35 +130,20 @@ export function ShopToolbar({ bikes }: { bikes: NewBikeSummary[] }) {
             className="w-full rounded-full border border-hair bg-ground-2 py-3 pr-4 pl-10 text-[13px] outline-none focus:border-amber"
           />
         </div>
-        <select
+        <LabeledSelect
+          label="Price"
           value={priceFilter}
-          onChange={(e) => setPriceFilter(e.target.value as PriceFilter)}
-          aria-label="Price filter"
-          className="min-w-[160px] appearance-none rounded-full border border-hair bg-ground-2 bg-[length:5px_5px,5px_5px] bg-[position:calc(100%-16px)_55%,calc(100%-11px)_55%] bg-no-repeat py-3 pr-9 pl-4 text-[10.5px] tracking-[0.1em] uppercase outline-none focus:border-amber"
-          style={{
-            backgroundImage:
-              "linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%)",
-          }}
-        >
-          <option value="all">Price · All</option>
-          <option value="sale">Guide sale</option>
-        </select>
-        <select
+          options={PRICE_OPTIONS}
+          onChange={setPriceFilter}
+          ariaLabel="Price filter"
+        />
+        <LabeledSelect
+          label="Sort"
           value={sort}
-          onChange={(e) => setSort(e.target.value as SortKey)}
-          aria-label="Sort"
-          className="min-w-[160px] appearance-none rounded-full border border-hair bg-ground-2 bg-[length:5px_5px,5px_5px] bg-[position:calc(100%-16px)_55%,calc(100%-11px)_55%] bg-no-repeat py-3 pr-9 pl-4 text-[10.5px] tracking-[0.1em] uppercase outline-none focus:border-amber"
-          style={{
-            backgroundImage:
-              "linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%)",
-          }}
-        >
-          <option value="featured">Sort · Featured</option>
-          <option value="name">Name A–Z</option>
-          <option value="brand">Brand A–Z</option>
-          <option value="price-asc">Price · low–high</option>
-          <option value="price-desc">Price · high–low</option>
-        </select>
+          options={SORT_OPTIONS}
+          onChange={setSort}
+          ariaLabel="Sort"
+        />
       </div>
 
       <div className="mb-5 flex flex-wrap gap-2 border-b border-hair pb-5">

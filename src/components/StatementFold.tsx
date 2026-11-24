@@ -44,7 +44,7 @@ export function StatementFold() {
           01
         </div>
         <h2 className="font-display max-w-[22ch] text-[clamp(24px,3.6vw,52px)] leading-[1.12] font-bold tracking-[-0.03em]">
-          Local stock. Real machines.{" "}
+          Real machines, UK warehouse.{" "}
           <em className="not-italic text-amber">Talk to us</em> — this site brings
           you in, not checkout.
         </h2>

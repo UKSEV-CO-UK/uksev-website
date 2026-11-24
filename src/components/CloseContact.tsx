@@ -1,4 +1,4 @@
-import { SITE } from "@/lib/site";
+import { SITE, site } from "@/config/site";
 import { Btn } from "./Btn";
 
 const contactBtn = "min-h-[56px] w-full sm:min-h-0";
@@ -12,7 +12,7 @@ export function CloseContact() {
             Ready when you are.
           </h2>
           <p className="mt-3 max-w-[36ch] text-xs leading-[1.55] text-ink-2">
-            Tell us the model. We&apos;ll confirm stock and a firm price.
+            Tell us the model. We&apos;ll confirm what&apos;s in and a firm price.
           </p>
           <p className="mt-2 text-[11px] tracking-[0.08em] text-muted">
             Viewing by appointment · Mon–Fri &amp; Sat morning
@@ -61,7 +61,7 @@ export function CloseContact() {
         className="font-display translate-y-[18%] text-center text-[clamp(72px,18vw,220px)] leading-[0.85] font-extrabold tracking-[-0.04em] text-ink opacity-[0.92] select-none"
         aria-hidden
       >
-        UKSEV
+        {site.shortName}
       </div>
     </section>
   );

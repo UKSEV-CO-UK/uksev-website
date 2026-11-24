@@ -1,4 +1,4 @@
-import { SITE } from "@/lib/site";
+import { SITE, site } from "@/config/site";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { NavBar } from "@/components/NavBar";
@@ -21,18 +21,19 @@ const sora = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: "UKSEV LTD",
-    template: "%s — UKSEV",
+    default: site.name,
+    template: `%s — ${site.shortName}`,
   },
   description:
-    "UKSEV LTD — electric bikes held in UK stock. Guide prices, enquire to confirm.",
+    `${site.name} — electric bikes from our UK warehouse. Guide prices, enquire to confirm.`,
+  metadataBase: new URL(site.url),
 };
 
 const ORG_LD = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: SITE.name,
-  url: "https://uksev.co.uk",
+  url: site.url,
   telephone: SITE.phoneHref.replace("tel:", ""),
   email: SITE.email,
   ...(SITE.companyNumber
