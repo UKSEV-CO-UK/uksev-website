@@ -39,6 +39,7 @@ export const NEW_BIKE_ERROR_CODES = [
   "list_invalid",
   "model_missing",
   "motor_w_invalid",
+  "order_invalid",
   "photo_not_found",
   "photo_src_invalid",
   "price_invalid",
@@ -101,6 +102,8 @@ function numInvalidCode(k: string): NewBikeErrorCode {
       return "battery_wh_invalid";
     case "motorW":
       return "motor_w_invalid";
+    case "order":
+      return "order_invalid";
     default:
       throw new Error(`unmapped numeric field: ${k}`);
   }
@@ -121,6 +124,10 @@ const HEX_RE = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
 /** Cover photos (and any other listing photos) live under this prefix. */
 export const PHOTO_PREFIX = "/uploads/new/";
 
+/**
+ * "colours" is satisfied by either a non-empty `colours` list or a non-empty
+ * top-level `photos` list (listings whose colour names are unknown).
+ */
 export const REQUIRED_FIELDS = ["brand", "model", "price", "colours"] as const;
 
 export const LIMITS = {
@@ -132,6 +139,7 @@ export const LIMITS = {
   topSpeedKmh: [1, 80],
   batteryWh: [50, 5000],
   motorW: [50, 10_000],
+  order: [0, 100_000],
 } as const;
 
 export type NormaliseOptions = {
@@ -274,20 +282,22 @@ function parsePhoto(
   return { src, ...(caption ? { caption } : {}) };
 }
 
+/**
+ * Colours are optional: an absent or empty list is fine here, and
+ * `normaliseNewBike` only reports `colours_missing` when the listing has
+ * neither colours nor top-level photos.
+ */
 function parseColours(
   raw: unknown,
   errors: FieldError[],
-  missing: FieldError[],
   photoExists?: (src: string) => boolean,
 ): Colour[] {
-  if (raw == null || raw === "") {
-    missing.push(fe("colours", 'missing required "colours"', "colours_missing"));
+  if (raw == null || raw === "") return [];
+  if (!Array.isArray(raw)) {
+    errors.push(fe("colours", '"colours" must be a list', "list_invalid"));
     return [];
   }
-  if (!Array.isArray(raw) || raw.length === 0) {
-    missing.push(fe("colours", 'missing required "colours"', "colours_missing"));
-    return [];
-  }
+  if (raw.length === 0) return [];
   const out: Colour[] = [];
   raw.forEach((row, i) => {
     const field = `colours[${i}]`;
@@ -322,6 +332,22 @@ function parseColours(
     out.push({ name, photos, ...(swatch ? { swatch } : {}) });
   });
   return out;
+}
+
+/** Top-level photos not tied to a colour (optional). */
+function parsePhotos(
+  raw: unknown,
+  errors: FieldError[],
+  photoExists?: (src: string) => boolean,
+): Photo[] {
+  if (raw == null || raw === "") return [];
+  if (!Array.isArray(raw)) {
+    errors.push(fe("photos", '"photos" must be a list', "list_invalid"));
+    return [];
+  }
+  return raw
+    .map((p, i) => parsePhoto(p, `photos[${i}]`, errors, photoExists))
+    .filter((p): p is Photo => p != null);
 }
 
 function parseSizes(raw: unknown, errors: FieldError[]): FrameSize[] {
@@ -480,12 +506,27 @@ export function normaliseNewBike(data: Data, opts: NormaliseOptions = {}): Norma
     c.errors.push(fe("price", "Price must be more than 0", "price_zero"));
   }
   const price = parsedPrice ?? 0;
+  const priceLabel = c.text("priceLabel");
+  const code = c.text("code");
+  const order = c.num("order", ...LIMITS.order);
   const wasPrice = c.num("wasPrice", ...LIMITS.wasPrice);
   if (wasPrice != null && wasPrice <= price) {
     c.errors.push(fe("wasPrice", "Was price must be higher than Price", "was_price_not_higher"));
   }
   const hidden = parseHidden(data, c.errors, c.warnings);
-  const colours = parseColours(data.colours, c.errors, c.missing, opts.photoExists);
+  const colours = parseColours(data.colours, c.errors, opts.photoExists);
+  const photos = parsePhotos(data.photos, c.errors, opts.photoExists);
+  const coloursEmpty =
+    data.colours == null ||
+    data.colours === "" ||
+    (Array.isArray(data.colours) && data.colours.length === 0);
+  const photosEmpty =
+    data.photos == null ||
+    data.photos === "" ||
+    (Array.isArray(data.photos) && data.photos.length === 0);
+  if (coloursEmpty && photosEmpty) {
+    c.missing.push(fe("colours", 'missing required "colours"', "colours_missing"));
+  }
   const sizes = parseSizes(data.sizes, c.errors);
   const editions = parseEditions(data.editions, c.errors);
   const rangeKm = c.num("rangeKm", ...LIMITS.rangeKm);
@@ -502,10 +543,14 @@ export function normaliseNewBike(data: Data, opts: NormaliseOptions = {}): Norma
     type: type as VehicleType,
     brand,
     model,
+    ...(code ? { code } : {}),
+    ...(order != null ? { order } : {}),
     price,
+    ...(priceLabel ? { priceLabel } : {}),
     ...(wasPrice != null && wasPrice > price ? { wasPrice } : {}),
     hidden,
     colours,
+    photos,
     sizes,
     editions,
     ...(rangeKm != null ? { rangeKm } : {}),

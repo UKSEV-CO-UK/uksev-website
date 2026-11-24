@@ -10,16 +10,19 @@ import { money } from "@/lib/newbikes-types";
 export function SalePrice({
   price,
   wasPrice,
+  label,
   className = "text-lg",
 }: {
   price: number;
   wasPrice?: number;
+  /** Optional display text for the price (e.g. "From £1,559"); defaults to the formatted price. */
+  label?: string;
   className?: string;
 }) {
   const showWas = wasPrice != null && wasPrice > price;
   return (
     <div className={`flex items-end gap-2 font-display font-normal text-ink ${className}`.trim()}>
-      <span>{money(price)}</span>
+      <span>{label ?? money(price)}</span>
       {showWas && (
         <s
           className="text-ink-2 decoration-ink-2 [font-size:0.75em] decoration-1"
