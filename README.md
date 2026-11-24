@@ -97,8 +97,7 @@ draft: false
 ### Admin (separate repo)
 
 The pre-owned admin UI and its API no longer live in this repository.
-They run on the company server as **[UKSEV-CO-UK/uksev-admin](https://github.com/UKSEV-CO-UK/uksev-admin)**
-(served at `https://admin.uksev.co.uk` behind Cloudflare Tunnel + Access).
+They run as the Cloudflare Worker `uksev-admin` in **[UKSEV-CO-UK/uksev-admin](https://github.com/UKSEV-CO-UK/uksev-admin)**, on the custom domain `https://admin.uksev.co.uk`, protected by Cloudflare Access. There is no Tunnel. Deploy steps are in the admin [`docs/deploy.md`](https://github.com/UKSEV-CO-UK/uksev-admin/blob/main/docs/deploy.md).
 
 This public site stays a pure static export. Builds still write `public/build.json`
 as `{ "sha": "<GITHUB_SHA>" }` (or `"local"` in `npm run dev`) so the admin can
