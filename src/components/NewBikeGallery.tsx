@@ -38,7 +38,7 @@ export function NewBikeGallery({
         )}
       </div>
       {list.length > 1 && (
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap gap-3 p-1">
           {list.map((p, k) => {
             const selected = p.src === photo?.src;
             return (
@@ -48,16 +48,20 @@ export function NewBikeGallery({
                 onClick={() => setActiveSrc(p.src)}
                 aria-label={`Show photo ${k + 1} of ${list.length}`}
                 aria-current={selected ? "true" : undefined}
-                className={`overflow-hidden rounded-lg border bg-photo-ground ${
-                  selected ? "border-ink" : "border-hair hover:border-amber"
+                className={`rounded-lg border border-hair bg-photo-ground transition-opacity ${
+                  selected
+                    ? "outline-2 outline-solid outline-ink outline-offset-2"
+                    : "opacity-60 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-ink focus-visible:outline-offset-2"
                 }`}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={p.src}
-                  alt=""
-                  className="h-16 w-16 object-contain p-1 mix-blend-multiply"
-                />
+                <span className="block overflow-hidden rounded-[7px]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={p.src}
+                    alt=""
+                    className="h-16 w-16 object-contain p-1 mix-blend-multiply"
+                  />
+                </span>
               </button>
             );
           })}
