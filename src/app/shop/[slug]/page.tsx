@@ -33,6 +33,19 @@ function whatsappBike(name: string): string {
   return `${base}?text=${encodeURIComponent(text)}`;
 }
 
+function EnquireActions({ name, className }: { name: string; className?: string }) {
+  return (
+    <div className={`grid grid-cols-[1.2fr_1fr] gap-2 ${className ?? ""}`.trim()}>
+      <Btn href={enquireMailto(name)} solid className="!px-2 !py-[11px] text-center">
+        Enquire
+      </Btn>
+      <Btn href={whatsappBike(name)} external className="!px-2 !py-[11px] text-center">
+        WhatsApp
+      </Btn>
+    </div>
+  );
+}
+
 export default async function NewBikePage({ params }: Props) {
   const bike = await getBySlug((await params).slug);
   if (!bike) notFound();
@@ -100,14 +113,7 @@ export default async function NewBikePage({ params }: Props) {
             </div>
           )}
 
-          <div className="grid grid-cols-[1.2fr_1fr] gap-2">
-            <Btn href={enquireMailto(name)} solid className="!px-2 !py-[11px] text-center">
-              Enquire
-            </Btn>
-            <Btn href={whatsappBike(name)} external className="!px-2 !py-[11px] text-center">
-              WhatsApp
-            </Btn>
-          </div>
+          <EnquireActions name={name} />
         </aside>
       </div>
 
@@ -137,6 +143,8 @@ export default async function NewBikePage({ params }: Props) {
           </dl>
         </section>
       )}
+
+      <EnquireActions name={name} className="mt-12 max-w-[28rem]" />
     </main>
   );
 }

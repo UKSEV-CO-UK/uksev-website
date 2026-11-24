@@ -7,7 +7,7 @@ import { getListed } from "@/lib/newbikes";
 export const metadata: Metadata = {
   title: "Rides",
   description:
-    "Browse UKSEV LTD electric bike catalogue — guide prices, UK warehouse stock. Enquire to confirm.",
+    "Browse UKSEV LTD electric bike catalogue — guide prices. Enquire to confirm.",
 };
 
 export default async function ShopPage() {
@@ -22,7 +22,7 @@ export default async function ShopPage() {
           All rides<span className="text-amber">.</span>
         </h1>
         <p className="max-w-[42ch] text-sm leading-relaxed text-ink-2">
-          Search, filter and sort the warehouse list. Guide prices — enquire to
+          Search, filter and sort the catalogue. Guide prices — enquire to
           confirm.
         </p>
       </div>
@@ -40,8 +40,8 @@ export default async function ShopPage() {
       )}
       <ShopToolbar />
       <p className="mt-10 max-w-[62ch] border-t border-hair pt-5 text-xs leading-[1.55] text-muted">
-        Prices are guides. WhatsApp or call {SITE.phoneDisplay} for
-        availability. Lead-gen catalogue — no web checkout.
+        Prices are guides. WhatsApp or call {SITE.phoneDisplay} to enquire.
+        Lead-gen catalogue — no web checkout.
       </p>
     </main>
   );
