@@ -48,9 +48,28 @@ test.describe("homepage bike deck", () => {
     expect(n).toBeGreaterThan(1);
 
     if (info.project.name === "desktop") {
-      await expect(page.getByTestId("bike-deck-prev")).toBeVisible();
-      await expect(page.getByTestId("bike-deck-next")).toBeVisible();
-      await expect(page.getByTestId("bike-deck-prev")).toBeDisabled();
+      const prev = page.getByTestId("bike-deck-prev");
+      const next = page.getByTestId("bike-deck-next");
+      await expect(prev).toBeVisible();
+      await expect(next).toBeVisible();
+      await expect(prev).toBeDisabled();
+      const stageBox = await stage.boundingBox();
+      const prevBox = await prev.boundingBox();
+      const nextBox = await next.boundingBox();
+      const firstDot = await dots.first().boundingBox();
+      const lastDot = await dots.last().boundingBox();
+      expect(stageBox && prevBox && nextBox && firstDot && lastDot).toBeTruthy();
+      const overlaps = (a: { x: number; y: number; width: number; height: number }, b: typeof a) =>
+        a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+      expect(overlaps(prevBox!, stageBox!)).toBeFalsy();
+      expect(overlaps(nextBox!, stageBox!)).toBeFalsy();
+      expect(Math.abs(firstDot!.x - (prevBox!.x + prevBox!.width) - 24)).toBeLessThan(2);
+      expect(Math.abs(nextBox!.x - (lastDot!.x + lastDot!.width) - 24)).toBeLessThan(2);
+      const idleDot = dots.nth(1).locator("span");
+      const idleBox = await idleDot.boundingBox();
+      expect(idleBox).toBeTruthy();
+      expect(Math.abs((idleBox?.width ?? 0) - 6)).toBeLessThan(1);
+      expect(Math.abs((idleBox?.height ?? 0) - 6)).toBeLessThan(1);
     } else {
       await expect(page.getByTestId("bike-deck-prev")).toBeHidden();
       await expect(page.getByTestId("bike-deck-next")).toBeHidden();

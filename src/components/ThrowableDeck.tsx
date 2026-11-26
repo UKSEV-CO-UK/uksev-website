@@ -204,54 +204,56 @@ export function ThrowableDeck({ items }: Props) {
             ))}
           </div>
         </div>
-        {multi && (
-          <>
-            <button
-              type="button"
-              data-testid="bike-deck-prev"
-              aria-label="Previous bike"
-              disabled={atStart}
-              onClick={() => go(index - 1)}
-              className="absolute top-1/2 left-2 z-10 hidden size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-hair bg-[var(--ground-80)] text-ink md:flex disabled:cursor-default disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
-            >
-              <Chevron dir="prev" />
-            </button>
-            <button
-              type="button"
-              data-testid="bike-deck-next"
-              aria-label="Next bike"
-              disabled={atEnd}
-              onClick={() => go(index + 1)}
-              className="absolute top-1/2 right-2 z-10 hidden size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-hair bg-[var(--ground-80)] text-ink md:flex disabled:cursor-default disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
-            >
-              <Chevron dir="next" />
-            </button>
-          </>
-        )}
       </div>
       {multi && (
         <div className="flex items-center justify-center">
-          {items.map((_, i) => {
-            const current = i === index;
-            return (
-              <button
-                key={i}
-                type="button"
-                data-testid="bike-deck-dot"
-                data-dot={i}
-                aria-label={`Bike ${i + 1} of ${n}`}
-                aria-current={current ? "true" : undefined}
-                onClick={() => go(i)}
-                className="-mx-0.5 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
-              >
-                <span
-                  className={`block h-1.5 rounded-full ${
-                    current ? "w-4 bg-amber" : "w-1.5 bg-muted opacity-50"
-                  }`}
-                />
-              </button>
-            );
-          })}
+          <button
+            type="button"
+            data-testid="bike-deck-prev"
+            aria-label="Previous bike"
+            disabled={atStart}
+            onClick={() => go(index - 1)}
+            className="hidden h-11 w-11 shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-ink md:inline-flex disabled:cursor-default disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+          >
+            <span className="inline-flex size-10 items-center justify-center rounded-full border border-hair bg-[var(--ground-80)]">
+              <Chevron dir="prev" />
+            </span>
+          </button>
+          <div className="flex items-center md:mx-6">
+            {items.map((_, i) => {
+              const current = i === index;
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  data-testid="bike-deck-dot"
+                  data-dot={i}
+                  aria-label={`Bike ${i + 1} of ${n}`}
+                  aria-current={current ? "true" : undefined}
+                  onClick={() => go(i)}
+                  className="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+                >
+                  <span
+                    className={`block shrink-0 rounded-full ${
+                      current ? "h-[6px] w-4 bg-amber" : "h-[6px] w-[6px] bg-text3"
+                    }`}
+                  />
+                </button>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            data-testid="bike-deck-next"
+            aria-label="Next bike"
+            disabled={atEnd}
+            onClick={() => go(index + 1)}
+            className="hidden h-11 w-11 shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-ink md:inline-flex disabled:cursor-default disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+          >
+            <span className="inline-flex size-10 items-center justify-center rounded-full border border-hair bg-[var(--ground-80)]">
+              <Chevron dir="next" />
+            </span>
+          </button>
         </div>
       )}
     </div>

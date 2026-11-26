@@ -6,6 +6,7 @@
   --ink: #ede7dc;
   --ink-2: #9ea5a8;
   --muted: #6c7378;
+  --text3: var(--muted);
   --amber: #e8913c;
   --teal: #2e6b72;
   --hair: rgba(237, 231, 220, 0.13);
@@ -50,6 +51,7 @@
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-muted: var(--muted);
+  --color-text3: var(--text3);
   --color-amber: var(--amber);
   --color-teal: var(--teal);
   --color-hair: var(--hair);
