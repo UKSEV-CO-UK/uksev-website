@@ -44,3 +44,7 @@ jobs:
         run: npm test
       - if: steps.gate.outputs.full == 'true'
         run: npm run build
+      - if: steps.gate.outputs.full == 'true'
+        run: npx playwright install --with-deps chromium
+      - if: steps.gate.outputs.full == 'true'
+        run: npm run test:e2e

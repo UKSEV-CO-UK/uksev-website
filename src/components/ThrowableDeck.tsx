@@ -1,6 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import {
+  CLICK_MOVE,
+  RUBBER_MAX,
+  clampIndex,
+  indexAfterRelease,
+  rubberBandOffset,
+} from "@/lib/deck-nav";
+import styles from "./ThrowableDeck.module.css";
+
 /** One card in the deck; built server-side from a new-bike listing. */
 export type DeckItem = {
   img: string;
@@ -14,164 +23,237 @@ type Props = {
   items: DeckItem[];
 };
 
-function stackStyle(i: number) {
-  const x = i * 10;
-  const y = i * -8;
-  const s = 1 - i * 0.04;
-  const r = i * -2.5;
-  return `translate(${x}px, ${y}px) scale(${s}) rotate(${r}deg)`;
+type Ptr = {
+  id: number;
+  x0: number;
+  y0: number;
+  x: number;
+  y: number;
+  t: number;
+  vx: number;
+  locked: boolean | null;
+};
+
+function Chevron({ dir }: { dir: "prev" | "next" }) {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      width="18"
+      height="18"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {dir === "prev" ? (
+        <path d="M12.5 4.5 L7.5 10 l5 5.5" />
+      ) : (
+        <path d="M7.5 4.5 L12.5 10 l-5 5.5" />
+      )}
+    </svg>
+  );
 }
 
 export function ThrowableDeck({ items }: Props) {
-  const [order, setOrder] = useState(() => items.map((_, i) => i));
-  const deckRef = useRef<HTMLDivElement>(null);
-  const topCardRef = useRef<HTMLElement | null>(null);
-  const dragRef = useRef<{
-    el: HTMLElement;
-    x0: number;
-    y0: number;
-    dx: number;
-    dy: number;
-  } | null>(null);
+  const n = items.length;
+  const multi = n > 1;
+  const [index, setIndex] = useState(0);
+  const [dragX, setDragX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const ptrRef = useRef<Ptr | null>(null);
 
-  const advance = useCallback(() => {
-    setOrder((prev) => prev.slice(1).concat(prev[0]!));
-  }, []);
-
-  const throwDir = useCallback(
-    (dir: number) => {
-      const deck = deckRef.current;
-      const top = topCardRef.current;
-      if (!deck || !top) return;
-      top.style.transition = "";
-      top.style.transform = `translate(${dir * deck.clientWidth * 1.15}px, -40px) rotate(${dir * 18}deg)`;
-      top.style.opacity = "0";
-      window.setTimeout(advance, 280);
+  const go = useCallback(
+    (k: number) => {
+      setIndex(clampIndex(k, n));
+      setDragX(0);
+      setDragging(false);
     },
-    [advance],
+    [n],
   );
 
-  useEffect(() => {
-    const el = topCardRef.current;
-    if (!el) return;
-
-    const onDown = (e: PointerEvent) => {
-      if (e.button != null && e.button !== 0) return;
-      el.setPointerCapture(e.pointerId);
-      el.style.transition = "none";
-      dragRef.current = { el, x0: e.clientX, y0: e.clientY, dx: 0, dy: 0 };
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!multi) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    if ((e.target as HTMLElement).closest("button")) return;
+    ptrRef.current = {
+      id: e.pointerId,
+      x0: e.clientX,
+      y0: e.clientY,
+      x: e.clientX,
+      y: e.clientY,
+      t: e.timeStamp,
+      vx: 0,
+      locked: null,
     };
+  };
 
-    const onMove = (e: PointerEvent) => {
-      const drag = dragRef.current;
-      if (!drag || drag.el !== el) return;
-      drag.dx = e.clientX - drag.x0;
-      drag.dy = e.clientY - drag.y0;
-      const rot = drag.dx * 0.08;
-      el.style.transform = `translate(${drag.dx}px, ${drag.dy}px) rotate(${rot}deg) scale(1.03)`;
-    };
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const p = ptrRef.current;
+    if (!p || p.id !== e.pointerId) return;
+    const dx = e.clientX - p.x0;
+    const dy = e.clientY - p.y0;
+    const dt = Math.max(1, e.timeStamp - p.t);
+    p.vx = (e.clientX - p.x) / dt;
+    p.x = e.clientX;
+    p.y = e.clientY;
+    p.t = e.timeStamp;
+    if (p.locked == null) {
+      if (Math.hypot(dx, dy) <= CLICK_MOVE) return;
+      p.locked = Math.abs(dx) >= Math.abs(dy);
+      if (!p.locked) return;
+      e.currentTarget.setPointerCapture(e.pointerId);
+      setDragging(true);
+    }
+    if (!p.locked) return;
+    e.preventDefault();
+    setDragX(rubberBandOffset(dx, index, n, RUBBER_MAX));
+  };
 
-    const onUp = () => {
-      const drag = dragRef.current;
-      if (!drag || drag.el !== el) return;
-      const deck = deckRef.current;
-      const w = deck?.clientWidth ?? 400;
-      const pass = Math.abs(drag.dx) > w * 0.1;
-      el.style.transition = "";
-      if (pass) {
-        const dir = drag.dx >= 0 ? 1 : -1;
-        el.style.transform = `translate(${dir * w * 1.15}px, ${drag.dy - 40}px) rotate(${dir * 18}deg)`;
-        el.style.opacity = "0";
-        window.setTimeout(advance, 280);
-      } else {
-        el.style.transform = stackStyle(0);
-      }
-      dragRef.current = null;
-    };
+  const finishPointer = (e: React.PointerEvent<HTMLDivElement>) => {
+    const p = ptrRef.current;
+    if (!p || p.id !== e.pointerId) return;
+    ptrRef.current = null;
+    const stage = stageRef.current;
+    const dx = e.clientX - p.x0;
+    const width = stage?.clientWidth ?? 1;
+    const xRatio = stage ? (p.x0 - stage.getBoundingClientRect().left) / width : 0.5;
+    if (p.locked === false) {
+      setDragging(false);
+      return;
+    }
+    const next = indexAfterRelease(index, n, dx, xRatio, width, p.vx);
+    go(next);
+  };
 
-    el.addEventListener("pointerdown", onDown);
-    el.addEventListener("pointermove", onMove);
-    el.addEventListener("pointerup", onUp);
-    el.addEventListener("pointercancel", onUp);
-
-    return () => {
-      el.removeEventListener("pointerdown", onDown);
-      el.removeEventListener("pointermove", onMove);
-      el.removeEventListener("pointerup", onUp);
-      el.removeEventListener("pointercancel", onUp);
-    };
-  }, [order, advance]);
-
-  const front = order[0] ?? 0;
-  const visible = order.slice(0, Math.min(4, order.length));
+  const atStart = index <= 0;
+  const atEnd = index >= n - 1;
 
   return (
     <div className="flex flex-col items-center gap-[18px]">
       <div
-        ref={deckRef}
-        className="relative aspect-square w-[min(420px,86vw)] touch-pan-y outline-none focus-visible:shadow-[0_0_0_1px_var(--amber)]"
+        data-testid="bike-deck"
+        data-index={index}
+        className={`relative aspect-square w-[min(420px,86vw)] outline-none focus-visible:shadow-[0_0_0_1px_var(--amber)] ${
+          dragging ? "cursor-grabbing" : multi ? "cursor-pointer" : ""
+        }`}
         tabIndex={0}
-        aria-label="Bike catalogue deck. Drag or use arrow keys."
+        role="region"
+        aria-label={
+          multi
+            ? `Bike catalogue, bike ${index + 1} of ${n}. Use arrow keys or the buttons to change bike.`
+            : "Bike catalogue"
+        }
         onKeyDown={(e) => {
+          if (!multi) return;
           if (e.key === "ArrowLeft") {
             e.preventDefault();
-            throwDir(-1);
+            go(index - 1);
           }
           if (e.key === "ArrowRight") {
             e.preventDefault();
-            throwDir(1);
+            go(index + 1);
           }
         }}
       >
-        {[...visible].reverse().map((rideIdx, rev) => {
-          const depth = visible.length - 1 - rev;
-          const r = items[rideIdx]!;
-          return (
-            <article
-              key={`${rideIdx}-${order.join("-")}-${depth}`}
-              ref={depth === 0 ? (node) => { topCardRef.current = node; } : undefined}
-              className="absolute inset-0 cursor-grab overflow-hidden rounded-[18px] border border-hair bg-ground shadow-[0_24px_50px_var(--shade-45)] select-none will-change-transform active:cursor-grabbing"
-              style={{
-                zIndex: 20 - depth,
-                transform: stackStyle(depth),
-                transition:
-                  "transform .35s cubic-bezier(.2,.8,.2,1), opacity .35s",
-              }}
+        <div
+          ref={stageRef}
+          data-testid="bike-deck-stage"
+          className={`${styles.stage} ${multi ? styles.peek : ""} h-full overflow-hidden touch-pan-y`}
+          style={
+            {
+              "--deck-i": index,
+              "--deck-drag": `${dragX}px`,
+              "--deck-end": atEnd && multi ? 1 : 0,
+            } as React.CSSProperties
+          }
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={finishPointer}
+          onPointerCancel={finishPointer}
+        >
+          <div
+            className={`${styles.track} ${dragging ? "" : styles.settle}`}
+          >
+            {items.map((r, i) => (
+              <article
+                key={`${i}-${r.title}`}
+                className={`${styles.slide} overflow-hidden rounded-[18px] border border-hair bg-ground shadow-[0_24px_50px_var(--shade-45)] select-none`}
+                aria-hidden={i !== index}
+              >
+                <div
+                  className="h-[68%] bg-cover bg-center"
+                  style={{ backgroundImage: `url(${r.img})` }}
+                />
+                <div className="px-[18px] pt-[18px] pb-5">
+                  <div className="mb-2 text-[10.5px] font-semibold text-amber">
+                    {r.eyebrow}
+                  </div>
+                  <h3 className="font-display mb-1.5 text-[22px] tracking-[-0.02em]">
+                    {r.title}
+                  </h3>
+                  <div className="flex flex-wrap gap-x-3 text-xs text-ink-2">
+                    {r.meta.map((part) => (
+                      <span key={part}>{part}</span>
+                    ))}
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+        {multi && (
+          <>
+            <button
+              type="button"
+              data-testid="bike-deck-prev"
+              aria-label="Previous bike"
+              disabled={atStart}
+              onClick={() => go(index - 1)}
+              className="absolute top-1/2 left-2 z-10 hidden size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-hair bg-[var(--ground-80)] text-ink md:flex disabled:cursor-default disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
             >
-              <div
-                className="h-[68%] bg-cover bg-center"
-                style={{ backgroundImage: `url(${r.img})` }}
-              />
-              <div className="px-[18px] pt-[18px] pb-5">
-                <div className="mb-2 text-[10.5px] font-semibold text-amber">
-                  {r.eyebrow}
-                </div>
-                <h3 className="font-display mb-1.5 text-[22px] tracking-[-0.02em]">
-                  {r.title}
-                </h3>
-                <div className="flex flex-wrap gap-x-3 text-xs text-ink-2">
-                  {r.meta.map((part) => (
-                    <span key={part}>{part}</span>
-                  ))}
-                </div>
-              </div>
-            </article>
-          );
-        })}
+              <Chevron dir="prev" />
+            </button>
+            <button
+              type="button"
+              data-testid="bike-deck-next"
+              aria-label="Next bike"
+              disabled={atEnd}
+              onClick={() => go(index + 1)}
+              className="absolute top-1/2 right-2 z-10 hidden size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-hair bg-[var(--ground-80)] text-ink md:flex disabled:cursor-default disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+            >
+              <Chevron dir="next" />
+            </button>
+          </>
+        )}
       </div>
-      <div className="text-[10.5px] text-muted">
-        Drag / ← → to throw a sleeve
-      </div>
-      <div className="flex gap-2" aria-hidden>
-        {items.map((_, i) => (
-          <span
-            key={i}
-            className={`h-1.5 w-1.5 rounded-full ${
-              i === front ? "bg-amber opacity-100" : "bg-muted opacity-50"
-            }`}
-          />
-        ))}
-      </div>
+      {multi && (
+        <div className="flex items-center justify-center">
+          {items.map((_, i) => {
+            const current = i === index;
+            return (
+              <button
+                key={i}
+                type="button"
+                data-testid="bike-deck-dot"
+                data-dot={i}
+                aria-label={`Bike ${i + 1} of ${n}`}
+                aria-current={current ? "true" : undefined}
+                onClick={() => go(i)}
+                className="-mx-0.5 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber"
+              >
+                <span
+                  className={`block h-1.5 rounded-full ${
+                    current ? "w-4 bg-amber" : "w-1.5 bg-muted opacity-50"
+                  }`}
+                />
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

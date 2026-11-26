@@ -1,0 +1,40 @@
+.stage {
+  --deck-peek: 0px;
+  container-type: inline-size;
+}
+
+@media (max-width: 767px) {
+  .peek {
+    --deck-peek: 24px;
+  }
+}
+
+.track {
+  display: flex;
+  height: 100%;
+  transform: translate3d(
+    calc(
+      var(--deck-i) * (var(--deck-peek, 0px) - 100cqw) + var(--deck-end, 0) *
+        var(--deck-peek, 0px) + var(--deck-drag, 0px)
+    ),
+    0,
+    0
+  );
+}
+
+.settle {
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.slide {
+  box-sizing: border-box;
+  flex: 0 0 calc(100cqw - var(--deck-peek, 0px));
+  height: 100%;
+  max-width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settle {
+    transition: none;
+  }
+}
